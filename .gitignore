@@ -1,0 +1,10 @@
+.env
+.env.*
+cache/
+watches/
+data/user_balances.json
+ui/static/
+__pycache__/
+*.pyc
+*.tmp
+.DS_Store

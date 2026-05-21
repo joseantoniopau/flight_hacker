@@ -1,0 +1,1172 @@
+/* ============================================================
+   FLIGHT-HACKER — minimalist brutalist dark UI
+   ------------------------------------------------------------
+   Design principles:
+   1. Honest materials: monospace, sharp corners, no shadows.
+   2. Refined palette: off-black with warm undertone, lime accent.
+   3. 1px borders by default — 2px reserved for emphasis.
+   4. Generous whitespace, real typographic hierarchy.
+   5. Subtle transitions (80ms), no jarring movement.
+   ============================================================ */
+
+[hidden] { display: none !important; }
+
+:root {
+  /* surfaces */
+  --fh-bg:          #0b0b0c;          /* base — off-black, faint warm */
+  --fh-panel:       #121214;          /* sidebar, cards */
+  --fh-panel-2:     #18181b;          /* raised — tables, drawers */
+  --fh-panel-3:     #1f1f23;          /* hover/active */
+  --fh-bg-elev:     #08080a;          /* recessed — error banner well */
+
+  /* borders */
+  --fh-rule:        #26262a;          /* 1px hairline — default */
+  --fh-rule-strong: #3a3a40;          /* 1px stronger separator */
+  --fh-rule-bright: #ffffff;          /* 2px — emphasis only */
+
+  /* type */
+  --fh-text:        #f5f5f7;          /* primary, slightly off-white */
+  --fh-text-sec:    #a0a0a6;          /* secondary */
+  --fh-text-mut:    #65656c;          /* tertiary / muted labels */
+  --fh-text-dim:    #46464c;          /* disabled / decorative */
+
+  /* signal — refined lime */
+  --fh-accent:      #cdf04a;          /* primary accent */
+  --fh-accent-hi:   #d8f560;          /* hover */
+  --fh-accent-fg:   #0a0a0c;          /* text on accent */
+  --fh-accent-soft: rgba(205, 240, 74, 0.10);  /* tint for active rows */
+
+  /* signal — warning (warmer than blood red) */
+  --fh-warn:        #ff6644;
+  --fh-warn-hi:     #ff7e60;
+  --fh-warn-soft:   rgba(255, 102, 68, 0.12);
+
+  /* risk badges — saturated but readable */
+  --fh-ok:          #6ee7a3;
+  --fh-ok-bg:       #0e1a14;
+  --fh-ok-rule:     #1f3a2a;
+  --fh-gray:        #f0c43b;
+  --fh-gray-bg:     #1a1408;
+  --fh-gray-rule:   #3a2d0e;
+  --fh-tos:         #f47461;
+  --fh-tos-bg:      #1a0a08;
+  --fh-tos-rule:    #3a1812;
+
+  /* type stack — monospace soul */
+  --fh-mono: "Berkeley Mono", "Geist Mono", "JetBrains Mono",
+             "IBM Plex Mono", ui-monospace, SFMono-Regular,
+             "SF Mono", "Menlo", "Consolas", monospace;
+
+  /* scale */
+  --t-xs: 11px;
+  --t-sm: 12px;
+  --t-md: 13px;
+  --t-lg: 14px;
+  --t-xl: 16px;
+  --t-h:  18px;
+  --t-hh: 22px;
+
+  /* radii kept at 0 — brutalist */
+  --r: 0;
+
+  /* spacing scale */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-8: 32px;
+  --s-10: 48px;
+
+  /* timing */
+  --ease: cubic-bezier(.4, 0, .2, 1);
+  --t-fast: 80ms;
+  --t-med:  140ms;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0; padding: 0;
+  background: var(--fh-bg);
+  color: var(--fh-text);
+  font-family: var(--fh-mono);
+  font-size: var(--t-md);
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "ss01", "ss02", "cv11", "tnum";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+  letter-spacing: 0;
+}
+
+::selection { background: var(--fh-accent); color: var(--fh-accent-fg); }
+
+body.fh-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ============================================================
+   TOP BAR
+   ============================================================ */
+
+.fh-topbar {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: var(--s-5);
+  padding: 14px var(--s-6);
+  border-bottom: 1px solid var(--fh-rule);
+  background: var(--fh-bg);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  font-size: var(--t-sm);
+}
+.fh-topbar__brand {
+  font-size: var(--t-md);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  color: var(--fh-text);
+}
+.fh-topbar__ver {
+  color: var(--fh-text-mut);
+  font-weight: 400;
+  margin-left: var(--s-2);
+}
+/* Replace ASCII rule with a real thin line drawn via the column. */
+.fh-topbar__rule {
+  color: transparent;
+  user-select: none;
+  position: relative;
+  height: 1px;
+  border-top: 1px dashed var(--fh-rule);
+  align-self: center;
+  overflow: hidden;
+  font-size: 0;
+}
+.fh-topbar__route {
+  color: var(--fh-text);
+  font-size: var(--t-sm);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border: 1px solid var(--fh-rule);
+  background: var(--fh-panel);
+}
+.fh-topbar__live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--fh-text-sec);
+  font-size: var(--t-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.fh-dot {
+  font-size: 10px;
+  line-height: 1;
+  width: 8px; height: 8px;
+  display: inline-block;
+  border-radius: 50%;
+  text-indent: -9999px;
+  transition: background var(--t-fast) var(--ease);
+}
+.fh-dot--on  { background: var(--fh-accent); box-shadow: 0 0 0 3px var(--fh-accent-soft); }
+.fh-dot--off { background: var(--fh-text-dim); }
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+
+.fh-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding: 10px var(--s-6);
+  border-top: 1px solid var(--fh-rule);
+  color: var(--fh-text-mut);
+  font-size: var(--t-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--fh-bg);
+}
+
+/* ============================================================
+   ERROR BANNER
+   ============================================================ */
+
+.fh-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding: 12px var(--s-6);
+  background: var(--fh-bg-elev);
+  color: var(--fh-warn);
+  border-bottom: 1px solid var(--fh-warn);
+  font-size: var(--t-sm);
+  letter-spacing: 0.02em;
+  /* Sticky-bottom so a validation message stays visible even when the user is
+     looking at the bottom of a long form. Animates in to draw the eye. */
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  border-top: 2px solid var(--fh-warn);
+  border-bottom: none;
+  animation: fh-error-slide-in 220ms var(--ease);
+}
+@keyframes fh-error-slide-in {
+  0%   { transform: translateY(100%); opacity: 0; }
+  100% { transform: translateY(0);    opacity: 1; }
+}
+.fh-error__msg {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.fh-error__btn {
+  background: transparent;
+  color: var(--fh-warn);
+  border: 1px solid var(--fh-warn);
+  padding: 4px 10px;
+  font: inherit;
+  font-family: var(--fh-mono);
+  font-size: var(--t-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+}
+.fh-error__btn:hover { background: var(--fh-warn); color: var(--fh-bg); }
+
+/* ============================================================
+   SHELL — sidebar + main
+   ============================================================ */
+
+.fh-shell {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.fh-sidebar {
+  border-right: 1px solid var(--fh-rule);
+  background: var(--fh-panel);
+  padding: var(--s-6) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+/* nav */
+.fh-nav {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.fh-nav__link {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: 10px var(--s-5);
+  color: var(--fh-text-sec);
+  text-decoration: none;
+  font-size: var(--t-sm);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-left: 2px solid transparent;
+  transition: color var(--t-fast) var(--ease),
+              background var(--t-fast) var(--ease),
+              border-color var(--t-fast) var(--ease);
+}
+.fh-nav__link:hover {
+  color: var(--fh-text);
+  background: var(--fh-panel-2);
+}
+.fh-nav__link--active {
+  color: var(--fh-accent);
+  background: var(--fh-panel-2);
+  border-left-color: var(--fh-accent);
+}
+
+/* sidebar dividers (former ━━━━ lines, now real rules) */
+.fh-sidebar__divider {
+  margin: 0 var(--s-5);
+  padding: 0;
+  height: 1px;
+  background: var(--fh-rule);
+  border: 0;
+  color: transparent;
+  font-size: 0;
+  user-select: none;
+}
+
+/* keyboard hints */
+.fh-sidebar__hint {
+  padding: 0 var(--s-5);
+  color: var(--fh-text-mut);
+  font-size: var(--t-xs);
+  line-height: 1.9;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.fh-sidebar__hint > div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+.fh-sidebar__hint > div > span:first-child {
+  color: var(--fh-text-sec);
+}
+
+/* mock toggle */
+.fh-sidebar__mode { padding: 0 var(--s-5); }
+
+/* ============================================================
+   MAIN
+   ============================================================ */
+
+.fh-main {
+  padding: var(--s-8) var(--s-8) var(--s-10);
+  overflow-x: auto;
+  min-width: 0;
+}
+
+.fh-section { max-width: 100%; }
+.fh-section + .fh-section { margin-top: var(--s-8); }
+
+/* section header — refined typographic display */
+.fh-h1 {
+  font-size: var(--t-hh);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin: 0 0 var(--s-6);
+  padding-bottom: var(--s-4);
+  border-bottom: 1px solid var(--fh-rule);
+  color: var(--fh-text);
+  font-family: var(--fh-mono);
+  position: relative;
+}
+/* subtle accent block before the title — brutalist mark */
+.fh-h1::before {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 14px;
+  background: var(--fh-accent);
+  margin-right: var(--s-3);
+  vertical-align: -2px;
+}
+
+/* dividers inside sections (former ━━ COMPOSERS ━━) */
+.fh-divider {
+  margin: var(--s-6) 0 var(--s-3);
+  padding-bottom: var(--s-2);
+  color: var(--fh-text-mut);
+  font-size: var(--t-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--fh-rule);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fh-muted   { color: var(--fh-text-mut); text-transform: uppercase; letter-spacing: 0.08em; font-size: var(--t-xs); }
+.fh-mini    { color: var(--fh-text-mut); font-size: var(--t-xs); text-transform: uppercase; letter-spacing: 0.08em; }
+.fh-hint    { color: var(--fh-text-mut); font-size: var(--t-xs); margin-top: 4px; letter-spacing: 0.04em; }
+
+/* ============================================================
+   FORMS
+   ============================================================ */
+
+.fh-form { display: block; }
+
+.fh-grid     { display: grid; gap: var(--s-5) var(--s-6); }
+.fh-grid--2  { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.fh-grid--3  { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+.fh-row         { display: flex; align-items: center; gap: var(--s-2); flex-wrap: nowrap; }
+.fh-row--wrap   { flex-wrap: wrap; gap: var(--s-4) var(--s-5); }
+
+.fh-field      { display: block; min-width: 0; }
+.fh-label {
+  display: block;
+  margin-bottom: var(--s-2);
+  font-size: var(--t-xs);
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--fh-text-mut);
+  font-weight: 500;
+}
+
+/* input — flat, sharp corner, hairline border */
+.fh-input {
+  appearance: none;
+  -webkit-appearance: none;
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--fh-panel);
+  color: var(--fh-text);
+  border: 1px solid var(--fh-rule);
+  border-radius: var(--r);
+  font: inherit;
+  font-family: var(--fh-mono);
+  font-size: var(--t-md);
+  line-height: 1.4;
+  transition: border-color var(--t-fast) var(--ease),
+              background var(--t-fast) var(--ease);
+  caret-color: var(--fh-accent);
+}
+.fh-input::placeholder {
+  color: var(--fh-text-dim);
+  letter-spacing: 0.02em;
+}
+.fh-input:hover  { border-color: var(--fh-rule-strong); }
+.fh-input:focus {
+  outline: none;
+  border-color: var(--fh-accent);
+  background: var(--fh-panel-2);
+}
+.fh-input[disabled], .fh-input:disabled {
+  color: var(--fh-text-mut);
+  background: var(--fh-bg);
+  cursor: not-allowed;
+}
+.fh-input--mini { width: 64px; padding: 6px 8px; font-size: var(--t-sm); }
+
+/* date input quirks (WebKit) */
+.fh-input[type="date"] {
+  color-scheme: dark;
+}
+
+/* checkbox — sharp square, accent fill */
+.fh-check {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  cursor: pointer;
+  user-select: none;
+  font-size: var(--t-sm);
+  letter-spacing: 0.04em;
+  color: var(--fh-text-sec);
+  padding: 4px 0;
+  transition: color var(--t-fast) var(--ease);
+}
+.fh-check:hover { color: var(--fh-text); }
+.fh-check input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 14px; height: 14px;
+  margin: 0;
+  background: var(--fh-bg);
+  border: 1px solid var(--fh-rule-strong);
+  position: relative;
+  cursor: pointer;
+  transition: background var(--t-fast) var(--ease),
+              border-color var(--t-fast) var(--ease);
+  flex: 0 0 auto;
+}
+.fh-check input[type="checkbox"]:hover { border-color: var(--fh-text-sec); }
+.fh-check input[type="checkbox"]:checked {
+  background: var(--fh-accent);
+  border-color: var(--fh-accent);
+}
+.fh-check input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  inset: 2px 4px;
+  border-right: 1.5px solid var(--fh-accent-fg);
+  border-bottom: 1.5px solid var(--fh-accent-fg);
+  transform: rotate(45deg) translate(0, -1px);
+  width: 4px; height: 8px;
+}
+.fh-check input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 14px; height: 14px;
+  margin: 0;
+  background: var(--fh-bg);
+  border: 1px solid var(--fh-rule-strong);
+  border-radius: 50%;
+  position: relative;
+  cursor: pointer;
+}
+.fh-check input[type="radio"]:checked {
+  border-color: var(--fh-accent);
+}
+.fh-check input[type="radio"]:checked::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  background: var(--fh-accent);
+  border-radius: 50%;
+}
+
+/* select */
+select.fh-input {
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--fh-text-sec) 50%),
+    linear-gradient(135deg, var(--fh-text-sec) 50%, transparent 50%);
+  background-position:
+    calc(100% - 14px) 50%,
+    calc(100% - 9px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 28px;
+}
+
+/* ============================================================
+   CHIPS (multi-input for origins/destinations)
+   ============================================================ */
+
+.fh-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 22px;
+  margin-bottom: var(--s-2);
+}
+.fh-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background: var(--fh-panel-2);
+  border: 1px solid var(--fh-rule-strong);
+  color: var(--fh-text);
+  font-size: var(--t-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.fh-chip__x {
+  cursor: pointer;
+  color: var(--fh-text-mut);
+  margin-left: 2px;
+  font-size: 11px;
+  transition: color var(--t-fast) var(--ease);
+}
+.fh-chip__x:hover { color: var(--fh-warn); }
+
+/* autocomplete suggestions */
+.fh-suggest {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: var(--fh-panel-2);
+  border: 1px solid var(--fh-rule-strong);
+  max-height: 220px;
+  overflow-y: auto;
+  position: relative;
+  z-index: 5;
+}
+.fh-suggest li {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: var(--t-sm);
+  transition: background var(--t-fast) var(--ease);
+}
+.fh-suggest li:hover,
+.fh-suggest li.fh-suggest--active {
+  background: var(--fh-panel-3);
+}
+.fh-suggest__code {
+  color: var(--fh-accent);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  width: 36px;
+}
+.fh-suggest__name {
+  color: var(--fh-text-sec);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+
+.fh-btn {
+  appearance: none;
+  background: transparent;
+  color: var(--fh-text);
+  border: 1px solid var(--fh-rule-strong);
+  padding: 9px 16px;
+  font: inherit;
+  font-family: var(--fh-mono);
+  font-size: var(--t-sm);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background var(--t-fast) var(--ease),
+              color var(--t-fast) var(--ease),
+              border-color var(--t-fast) var(--ease);
+  white-space: nowrap;
+}
+.fh-btn:hover {
+  border-color: var(--fh-text);
+  background: var(--fh-panel-2);
+}
+.fh-btn:active { background: var(--fh-panel-3); }
+.fh-btn:disabled { color: var(--fh-text-dim); border-color: var(--fh-rule); cursor: not-allowed; }
+.fh-btn:focus-visible { outline: 2px solid var(--fh-accent); outline-offset: 2px; }
+
+.fh-btn--primary {
+  background: var(--fh-accent);
+  color: var(--fh-accent-fg);
+  border-color: var(--fh-accent);
+  font-weight: 600;
+}
+.fh-btn--primary:hover {
+  background: var(--fh-accent-hi);
+  border-color: var(--fh-accent-hi);
+  color: var(--fh-accent-fg);
+}
+.fh-btn--mini {
+  padding: 4px 10px;
+  font-size: var(--t-xs);
+  letter-spacing: 0.05em;
+}
+.fh-btn--danger {
+  color: var(--fh-warn);
+  border-color: var(--fh-warn);
+}
+.fh-btn--danger:hover {
+  background: var(--fh-warn);
+  color: var(--fh-bg);
+}
+
+.fh-actions {
+  display: flex;
+  gap: var(--s-3);
+  margin-top: var(--s-5);
+  flex-wrap: wrap;
+}
+
+/* radio (button-like styling matching the fh-check pattern) */
+.fh-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  cursor: pointer;
+  user-select: none;
+  font-size: var(--t-sm);
+  letter-spacing: 0.04em;
+  color: var(--fh-text-sec);
+  padding: 4px 0;
+  transition: color var(--t-fast) var(--ease);
+}
+.fh-radio:hover { color: var(--fh-text); }
+.fh-radio input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 14px; height: 14px;
+  margin: 0;
+  background: var(--fh-bg);
+  border: 1px solid var(--fh-rule-strong);
+  border-radius: 50%;
+  position: relative;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+.fh-radio input[type="radio"]:checked { border-color: var(--fh-accent); }
+.fh-radio input[type="radio"]:checked::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  background: var(--fh-accent);
+  border-radius: 50%;
+}
+
+/* table variants — currently all share the same look; reserved for tweaks */
+.fh-table--results, .fh-table--watch, .fh-table--spots, .fh-table--bal {
+  /* future per-variant tweaks go here */
+}
+
+/* progress bar inner — used by app.js if present */
+.fh-progress__bar {
+  display: none;   /* CSS animation handles visuals; bar element is decorative */
+}
+
+/* ============================================================
+   FILTER CHIPS (RESULTS section)
+   ============================================================ */
+.fh-quality-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  padding: 10px var(--s-4);
+  margin-bottom: var(--s-3);
+  border: 1px solid var(--fh-rule-strong);
+  background: var(--fh-panel);
+  color: var(--fh-text-sec);
+  font-size: var(--t-sm);
+  border-left: 3px solid var(--fh-gray);
+}
+.fh-quality-banner span { flex: 1 1 auto; }
+
+.fh-filters {
+  display: flex;
+  gap: var(--s-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--s-4);
+}
+
+.fh-chip--filter {
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid var(--fh-rule);
+  color: var(--fh-text-sec);
+  cursor: pointer;
+  font-family: var(--fh-mono);
+  font-size: var(--t-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: all var(--t-fast) var(--ease);
+}
+.fh-chip--filter:hover { color: var(--fh-text); border-color: var(--fh-rule-strong); }
+.fh-chip--on {
+  background: var(--fh-accent);
+  color: var(--fh-accent-fg);
+  border-color: var(--fh-accent);
+}
+.fh-chip--on:hover {
+  background: var(--fh-accent-hi);
+  border-color: var(--fh-accent-hi);
+  color: var(--fh-accent-fg);
+}
+
+/* ============================================================
+   TABLES
+   ============================================================ */
+
+.fh-table-wrap {
+  border: 1px solid var(--fh-rule);
+  overflow-x: auto;
+  background: var(--fh-panel);
+}
+.fh-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--t-sm);
+}
+.fh-table th {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--fh-rule-strong);
+  color: var(--fh-text-mut);
+  font-size: var(--t-xs);
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  font-weight: 500;
+  background: var(--fh-panel);
+  position: sticky;
+  top: 0;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  transition: color var(--t-fast) var(--ease);
+}
+.fh-table th:hover { color: var(--fh-text); }
+.fh-table th::after {
+  content: " ·";
+  color: transparent;
+  margin-left: 4px;
+}
+.fh-table th.fh-sort--asc::after  { content: " ↑"; color: var(--fh-accent); }
+.fh-table th.fh-sort--desc::after { content: " ↓"; color: var(--fh-accent); }
+.fh-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--fh-rule);
+  color: var(--fh-text);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.fh-table tr:last-child td { border-bottom: none; }
+.fh-table tbody tr {
+  transition: background var(--t-fast) var(--ease);
+}
+.fh-table tbody tr:hover {
+  background: var(--fh-panel-2);
+}
+.fh-num { text-align: right; font-variant-numeric: tabular-nums; }
+.fh-mono-em { color: var(--fh-text); font-weight: 600; }
+
+/* th alignment helpers — needed because `.fh-table th` (0,1,1) outranks bare
+   `.fh-num` (0,1,0); without these the numeric headers would stay left-aligned
+   while their data cells are right-aligned, which is the alignment bug. */
+.fh-table th.fh-num       { text-align: right;  }
+.fh-table th.fh-th-center { text-align: center; }
+.fh-table td.fh-cell-actions { text-align: center; }
+
+/* numeric input inside a .fh-num td — right-align the digits so they line up
+   under the right-aligned column header (Direct). Without this the input's
+   text would be left-aligned even though the cell is right-aligned. */
+.fh-input.fh-input--num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   BALANCES TABLE — column widths
+   The balances table mixes text inputs, number inputs, and rendered
+   numbers. Without fixed-ish widths every row would auto-size to its
+   own widest input and the header text would drift over the wrong
+   column edge. Percentages add to 100% and degrade gracefully on
+   narrow viewports (the parent .fh-table-wrap is overflow-x:auto).
+   ============================================================ */
+.fh-col-bal-program { width: 36%; }
+.fh-col-bal-num     { width: 18%; }
+.fh-col-bal-actions { width: 10%; }
+
+/* the Program input is text and may wrap visually narrow; let the cell
+   breathe but keep the input full-width inside it */
+.fh-table--bal td > .fh-input { width: 100%; }
+
+/* empty state */
+.fh-empty td,
+.fh-empty {
+  text-align: center !important;
+  color: var(--fh-text-mut);
+  padding: var(--s-8) var(--s-4) !important;
+  font-size: var(--t-sm);
+  letter-spacing: 0.04em;
+}
+
+/* ============================================================
+   RISK BADGES
+   ============================================================ */
+
+.fh-risk {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: var(--t-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid currentColor;
+  font-weight: 500;
+  line-height: 1.5;
+}
+.fh-risk--legal { color: var(--fh-ok);   background: var(--fh-ok-bg);   border-color: var(--fh-ok-rule); }
+.fh-risk--gray  { color: var(--fh-gray); background: var(--fh-gray-bg); border-color: var(--fh-gray-rule); }
+.fh-risk--tos   { color: var(--fh-tos);  background: var(--fh-tos-bg);  border-color: var(--fh-tos-rule); }
+
+
+/* ============================================================
+   PROGRESS BAR (ASCII-ish but refined)
+   ============================================================ */
+
+.fh-progress {
+  margin-top: var(--s-4);
+  padding: 12px var(--s-4);
+  background: var(--fh-panel-2);
+  border: 1px solid var(--fh-accent);
+  border-left-width: 3px;
+  position: relative;
+  overflow: hidden;
+  animation: fh-progress-pulse 1.4s ease-in-out infinite;
+}
+/* Animated stripe sweeping across the strip */
+.fh-progress::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  bottom: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--fh-accent) 30%,
+    var(--fh-accent-hi) 50%,
+    var(--fh-accent) 70%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: fh-progress-scroll 1.2s linear infinite;
+}
+.fh-progress__label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--t-sm);
+  letter-spacing: 0.04em;
+  color: var(--fh-accent);
+  font-weight: 600;
+  margin: 0;
+}
+.fh-progress__label::before {
+  content: "●";
+  color: var(--fh-accent);
+  font-size: 12px;
+  animation: fh-progress-dot 0.9s ease-in-out infinite;
+}
+@keyframes fh-progress-scroll {
+  0%   { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+@keyframes fh-progress-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 var(--fh-accent-soft); }
+  50%      { box-shadow: 0 0 0 6px var(--fh-accent-soft); }
+}
+@keyframes fh-progress-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.4; transform: scale(0.7); }
+}
+
+/* ============================================================
+   CARDS (mistake fares)
+   ============================================================ */
+
+.fh-cards {
+  display: grid;
+  gap: var(--s-4);
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  margin-top: var(--s-4);
+}
+.fh-card {
+  background: var(--fh-panel);
+  border: 1px solid var(--fh-rule);
+  padding: var(--s-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  transition: border-color var(--t-fast) var(--ease);
+}
+.fh-card:hover { border-color: var(--fh-rule-strong); }
+.fh-card__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+.fh-card__route {
+  font-size: var(--t-lg);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--fh-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.fh-card__price {
+  color: var(--fh-accent);
+  font-size: var(--t-md);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.fh-card__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  color: var(--fh-text-mut);
+  font-size: var(--t-xs);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.fh-card__body {
+  color: var(--fh-text-sec);
+  font-size: var(--t-sm);
+  line-height: 1.55;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.fh-card__actions {
+  display: flex;
+  gap: var(--s-2);
+  margin-top: auto;
+  padding-top: var(--s-2);
+}
+
+/* mistakes status line — Title Case per pass-4 redesign, so explicitly
+   opt out of the surrounding ALL-CAPS treatment used by .fh-muted. The
+   JS sets strings like "Pulling feed..." / "Feed OK @ time" / "Feed
+   failed." — those need to render exactly as typed. */
+#fh-mistakes-status {
+  color: var(--fh-text-mut);
+  font-size: var(--t-xs);
+  letter-spacing: 0.04em;
+  text-transform: none;
+  margin-left: var(--s-4);
+}
+
+/* ============================================================
+   DRAWERS / OVERLAYS
+   ============================================================ */
+
+.fh-drawer {
+  margin-top: var(--s-5);
+  padding: var(--s-5);
+  background: var(--fh-panel-2);
+  border: 1px solid var(--fh-rule-strong);
+}
+
+.fh-overlay {
+  position: fixed; inset: 0;
+  background: rgba(11, 11, 12, 0.88);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: var(--s-5);
+}
+.fh-overlay__panel {
+  background: var(--fh-panel);
+  border: 1px solid var(--fh-rule-bright);
+  max-width: 760px;
+  width: 100%;
+  max-height: 86vh;
+  display: flex;
+  flex-direction: column;
+}
+.fh-overlay__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px var(--s-5);
+  border-bottom: 1px solid var(--fh-rule-strong);
+  background: var(--fh-bg-elev);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--fh-text);
+}
+.fh-overlay__body {
+  padding: var(--s-5);
+  overflow-y: auto;
+  color: var(--fh-text);
+  font-size: var(--t-md);
+  line-height: 1.6;
+}
+.fh-overlay__body h3 {
+  font-size: var(--t-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  color: var(--fh-text-mut);
+  margin: var(--s-4) 0 var(--s-2);
+  font-weight: 500;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--fh-rule);
+}
+.fh-overlay__body h3:first-child { margin-top: 0; }
+.fh-overlay__body pre {
+  margin: 4px 0;
+  padding: 8px 10px;
+  background: var(--fh-bg-elev);
+  border-left: 2px solid var(--fh-rule);
+  color: var(--fh-text-sec);
+  font-size: var(--t-sm);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* key-value pairs in overlays */
+.fh-kv {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 4px var(--s-4);
+  margin-bottom: var(--s-3);
+}
+.fh-kv__k {
+  color: var(--fh-text-mut);
+  font-size: var(--t-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 0;
+}
+.fh-kv__v {
+  color: var(--fh-text);
+  padding: 4px 0;
+  border-bottom: 1px dashed var(--fh-rule);
+}
+.fh-kv__v:last-child { border-bottom: none; }
+
+/* ============================================================
+   SCROLLBARS — minimal
+   ============================================================ */
+
+* { scrollbar-width: thin; scrollbar-color: var(--fh-rule-strong) transparent; }
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: var(--fh-rule-strong);
+  border-radius: 0;
+}
+*::-webkit-scrollbar-thumb:hover { background: var(--fh-text-mut); }
+
+/* ============================================================
+   FOCUS RINGS — accessible without shouting
+   ============================================================ */
+
+:focus-visible {
+  outline: 2px solid var(--fh-accent);
+  outline-offset: 2px;
+}
+.fh-input:focus-visible { outline: none; }   /* handled by border-color */
+
+/* ============================================================
+   RESPONSIVE — collapse sidebar at narrow widths
+   ============================================================ */
+
+@media (max-width: 880px) {
+  .fh-shell { grid-template-columns: 1fr; }
+  .fh-sidebar {
+    position: static;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--fh-rule);
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: var(--s-3) var(--s-4);
+    overflow-x: auto;
+  }
+  .fh-nav { flex-direction: row; flex-wrap: wrap; }
+  .fh-sidebar__divider, .fh-sidebar__hint { display: none; }
+  .fh-main { padding: var(--s-5) var(--s-4) var(--s-6); }
+  .fh-grid--2, .fh-grid--3 { grid-template-columns: 1fr; }
+  .fh-h1 { font-size: var(--t-xl); }
+}
+
+/* ============================================================
+   PRINT
+   ============================================================ */
+
+@media print {
+  .fh-sidebar, .fh-topbar, .fh-footer, .fh-error,
+  .fh-card__actions, .fh-progress { display: none !important; }
+  .fh-shell { grid-template-columns: 1fr; }
+  .fh-main { padding: 0; }
+  body { background: #fff; color: #000; }
+  .fh-table-wrap { border-color: #000; }
+}

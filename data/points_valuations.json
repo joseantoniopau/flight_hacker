@@ -1,0 +1,415 @@
+{
+  "_meta": {
+    "version": "2026.05.21",
+    "updated": "2026-05-21",
+    "credit": "Structure adapted from borski/travel-hacking-toolkit (MIT) — github.com/borski/travel-hacking-toolkit. Data independently re-verified for 2026.",
+    "sources": {
+      "TPG": "https://thepointsguy.com/loyalty-programs/monthly-valuations/ (May 2026 update)",
+      "UP": "https://upgradedpoints.com/travel/points-and-miles-valuations/ (May 2026 update)",
+      "OMAAT": "https://onemileatatime.com/guides/value-miles-points/ (May 2026 update)",
+      "VFTW": "https://viewfromthewing.com/value-of-miles/ (Gary Leff, ongoing)"
+    },
+    "methodology": "floor = min across sources (conservative). ceiling = max across sources. default_to = use floor for 'is this worth burning points?' decisions. VFTW values are most conservative; TPG most optimistic (affiliate incentive).",
+    "notes": "Surcharge-heavy programs (BA, LH, SWISS, AY, AF on own metal) deserve a discount of $200-800 per ticket vs the headline cpp. Surcharge-light programs (UA, ANA, SQ on own metal, AC Aeroplan on partners) realize closer to ceiling."
+  },
+  "_credit": "borski/travel-hacking-toolkit (MIT)",
+  "currencies": [
+    {
+      "program": "Chase Ultimate Rewards",
+      "type": "transferable",
+      "floor_cpp": 1.7,
+      "ceiling_cpp": 2.05,
+      "sources": {"TPG": 2.05, "UP": 2.0, "OMAAT": 1.7, "VFTW": 1.9},
+      "default_to": "floor",
+      "notes": "Points Boost dynamic 1.5-2.0cpp on portal (Reserve) since Jun 2025."
+    },
+    {
+      "program": "American Express Membership Rewards",
+      "type": "transferable",
+      "floor_cpp": 1.7,
+      "ceiling_cpp": 2.2,
+      "sources": {"TPG": 2.0, "UP": 2.2, "OMAAT": 1.7, "VFTW": 1.9},
+      "default_to": "floor"
+    },
+    {
+      "program": "Citi ThankYou",
+      "type": "transferable",
+      "floor_cpp": 1.6,
+      "ceiling_cpp": 1.9,
+      "sources": {"TPG": 1.9, "UP": 1.6, "OMAAT": 1.7, "VFTW": 1.6},
+      "default_to": "floor",
+      "notes": "Non-premium-card ratios are 1:0.7 — adjust valuations downward 30% for Custom Cash/Double Cash holders."
+    },
+    {
+      "program": "Capital One Miles",
+      "type": "transferable",
+      "floor_cpp": 1.7,
+      "ceiling_cpp": 1.85,
+      "sources": {"TPG": 1.85, "UP": 1.8, "OMAAT": 1.7, "VFTW": 1.7},
+      "default_to": "floor"
+    },
+    {
+      "program": "Bilt Rewards",
+      "type": "transferable",
+      "floor_cpp": 1.7,
+      "ceiling_cpp": 2.2,
+      "sources": {"TPG": 2.2, "UP": 2.0, "OMAAT": 1.7, "VFTW": 1.8},
+      "default_to": "floor",
+      "notes": "Only major transferable that hits Alaska Atmos and Emirates at 1:1."
+    },
+    {
+      "program": "Wells Fargo Rewards",
+      "type": "transferable",
+      "floor_cpp": 1.5,
+      "ceiling_cpp": 1.75,
+      "sources": {"TPG": 1.75, "UP": 1.5, "OMAAT": null, "VFTW": null},
+      "default_to": "floor"
+    },
+    {
+      "program": "Air Canada Aeroplan",
+      "type": "airline",
+      "floor_cpp": 1.4,
+      "ceiling_cpp": 1.5,
+      "sources": {"TPG": 1.4, "UP": 1.5, "OMAAT": 1.5, "VFTW": 1.4},
+      "default_to": "floor",
+      "surcharge_profile": "light",
+      "notes": "Aeroplan does NOT pass partner fuel surcharges. Premium-cabin redemptions to LH/ANA/TK can hit 3-5cpp realized."
+    },
+    {
+      "program": "American Airlines AAdvantage",
+      "type": "airline",
+      "floor_cpp": 1.4,
+      "ceiling_cpp": 1.6,
+      "sources": {"TPG": 1.6, "UP": 1.4, "OMAAT": 1.5, "VFTW": 1.4},
+      "default_to": "floor",
+      "surcharge_profile": "light",
+      "notes": "Web Specials and JAL F at 80K ow are the best plays. AA CEO publicly committed (2025) to maintaining mile value vs rivals."
+    },
+    {
+      "program": "United MileagePlus",
+      "type": "airline",
+      "floor_cpp": 1.1,
+      "ceiling_cpp": 1.35,
+      "sources": {"TPG": 1.35, "UP": 1.2, "OMAAT": 1.1, "VFTW": 1.2},
+      "default_to": "floor",
+      "surcharge_profile": "light",
+      "notes": "Fully dynamic post-Aug-2025; Excursionist Perk discontinued; instant upgrades discontinued."
+    },
+    {
+      "program": "Delta SkyMiles",
+      "type": "airline",
+      "floor_cpp": 1.1,
+      "ceiling_cpp": 1.2,
+      "sources": {"TPG": 1.2, "UP": 1.2, "OMAAT": 1.1, "VFTW": 1.1},
+      "default_to": "floor",
+      "surcharge_profile": "light",
+      "notes": "Revenue-based redemption with rare sweet spots. Treat like cash-back."
+    },
+    {
+      "program": "Alaska Atmos Rewards",
+      "type": "airline",
+      "floor_cpp": 1.4,
+      "ceiling_cpp": 1.7,
+      "sources": {"TPG": 1.4, "UP": 1.6, "OMAAT": 1.5, "VFTW": 1.7},
+      "default_to": "floor",
+      "surcharge_profile": "light",
+      "recently_changed": "2025-08-01",
+      "notes": "Mileage Plan rebranded Aug 2025 to Atmos Rewards. Old award chart preserved — Cathay F 70K ow remains. Single-partner-per-ticket rule."
+    },
+    {
+      "program": "JetBlue TrueBlue",
+      "type": "airline",
+      "floor_cpp": 1.3,
+      "ceiling_cpp": 1.35,
+      "sources": {"TPG": 1.35, "UP": 1.3, "OMAAT": 1.3, "VFTW": null},
+      "default_to": "floor",
+      "surcharge_profile": "light",
+      "notes": "Revenue-based. Icelandair partner awards added 2024 unlock European routings."
+    },
+    {
+      "program": "Southwest Rapid Rewards",
+      "type": "airline",
+      "floor_cpp": 1.2,
+      "ceiling_cpp": 1.3,
+      "sources": {"TPG": 1.25, "UP": 1.3, "OMAAT": 1.2, "VFTW": 1.2},
+      "default_to": "floor",
+      "surcharge_profile": "none"
+    },
+    {
+      "program": "Frontier Miles",
+      "type": "airline",
+      "floor_cpp": 1.1,
+      "ceiling_cpp": 1.3,
+      "sources": {"TPG": 1.3, "UP": 1.1, "OMAAT": null, "VFTW": null},
+      "default_to": "floor"
+    },
+    {
+      "program": "Spirit Free Spirit",
+      "type": "airline",
+      "floor_cpp": 1.0,
+      "ceiling_cpp": 1.1,
+      "sources": {"TPG": 1.1, "UP": null, "OMAAT": null, "VFTW": 1.0},
+      "default_to": "floor"
+    },
+    {
+      "program": "ANA Mileage Club",
+      "type": "airline",
+      "floor_cpp": 1.4,
+      "ceiling_cpp": 1.4,
+      "sources": {"TPG": 1.4, "UP": 1.4, "OMAAT": 1.4, "VFTW": 1.4},
+      "default_to": "floor",
+      "surcharge_profile": "moderate",
+      "notes": "Round-trip-only awards; passes some surcharges on Star partners."
+    },
+    {
+      "program": "Avianca LifeMiles",
+      "type": "airline",
+      "floor_cpp": 1.3,
+      "ceiling_cpp": 1.4,
+      "sources": {"TPG": 1.4, "UP": 1.4, "OMAAT": 1.3, "VFTW": 1.3},
+      "default_to": "floor",
+      "surcharge_profile": "light",
+      "recently_changed": "2026-05-05",
+      "notes": "Three devaluations in 15 months through May 2026. Don't speculate by buying — burn quickly."
+    },
+    {
+      "program": "British Airways Club Avios",
+      "type": "airline",
+      "floor_cpp": 1.25,
+      "ceiling_cpp": 1.4,
+      "sources": {"TPG": 1.4, "UP": 1.25, "OMAAT": 1.3, "VFTW": 1.2},
+      "default_to": "floor",
+      "surcharge_profile": "very_heavy",
+      "notes": "Avoid BA metal. Use Avios for AA/Iberia/JL short-haul; surcharges on BA can be $800+ per longhaul ticket."
+    },
+    {
+      "program": "Iberia Plus Avios",
+      "type": "airline",
+      "floor_cpp": 1.25,
+      "ceiling_cpp": 1.4,
+      "sources": {"TPG": 1.4, "UP": 1.25, "OMAAT": 1.3, "VFTW": 1.3},
+      "default_to": "floor",
+      "surcharge_profile": "moderate",
+      "recently_changed": "2025-09-15",
+      "notes": "US-MAD off-peak biz now 34K ow (BOS/JFK/IAD/ORD only) / 40,500 elsewhere."
+    },
+    {
+      "program": "Aer Lingus AerClub Avios",
+      "type": "airline",
+      "floor_cpp": 1.25,
+      "ceiling_cpp": 1.3,
+      "sources": {"TPG": 1.4, "UP": 1.25, "OMAAT": 1.3, "VFTW": 1.2},
+      "default_to": "floor",
+      "surcharge_profile": "heavy"
+    },
+    {
+      "program": "Finnair Plus",
+      "type": "airline",
+      "floor_cpp": 1.3,
+      "ceiling_cpp": 1.3,
+      "sources": {"TPG": null, "UP": 1.3, "OMAAT": 1.3, "VFTW": 1.3},
+      "default_to": "floor",
+      "surcharge_profile": "moderate",
+      "notes": "Still chart-based for JAL F (125K ow) and JL J (87.5K ow); BA went fully dynamic."
+    },
+    {
+      "program": "Air France-KLM Flying Blue",
+      "type": "airline",
+      "floor_cpp": 1.3,
+      "ceiling_cpp": 1.3,
+      "sources": {"TPG": 1.3, "UP": 1.3, "OMAAT": 1.3, "VFTW": 1.3},
+      "default_to": "floor",
+      "surcharge_profile": "heavy",
+      "notes": "Heavy YQ on AF metal (lighter on KLM). Monthly Promo Rewards = 25% off."
+    },
+    {
+      "program": "Lufthansa Miles & More",
+      "type": "airline",
+      "floor_cpp": 1.2,
+      "ceiling_cpp": 1.3,
+      "sources": {"TPG": null, "UP": 1.3, "OMAAT": 1.2, "VFTW": 1.2},
+      "default_to": "floor",
+      "surcharge_profile": "very_heavy",
+      "notes": "Last surviving member-program RTW (195K Y / 400K J / 540K F)."
+    },
+    {
+      "program": "Turkish Airlines Miles&Smiles",
+      "type": "airline",
+      "floor_cpp": 1.1,
+      "ceiling_cpp": 1.3,
+      "sources": {"TPG": 1.1, "UP": 1.3, "OMAAT": 1.3, "VFTW": 1.1},
+      "default_to": "floor",
+      "surcharge_profile": "moderate",
+      "notes": "Famously difficult to book (phone). When it works: USA-IST in J for ~45K ow."
+    },
+    {
+      "program": "Singapore Airlines KrisFlyer",
+      "type": "airline",
+      "floor_cpp": 1.3,
+      "ceiling_cpp": 1.4,
+      "sources": {"TPG": 1.3, "UP": 1.35, "OMAAT": 1.4, "VFTW": 1.3},
+      "default_to": "floor",
+      "surcharge_profile": "light",
+      "notes": "Saver Suites only released to KrisFlyer members. A380 returning to PVG (May 2026) and HKG (Jun 2026)."
+    },
+    {
+      "program": "Cathay Pacific Asia Miles",
+      "type": "airline",
+      "floor_cpp": 1.2,
+      "ceiling_cpp": 1.3,
+      "sources": {"TPG": 1.3, "UP": 1.3, "OMAAT": 1.2, "VFTW": 1.2},
+      "default_to": "floor",
+      "surcharge_profile": "moderate"
+    },
+    {
+      "program": "Qatar Airways Privilege Club Avios",
+      "type": "airline",
+      "floor_cpp": 1.25,
+      "ceiling_cpp": 1.4,
+      "sources": {"TPG": 1.4, "UP": 1.25, "OMAAT": null, "VFTW": null},
+      "default_to": "floor",
+      "surcharge_profile": "moderate",
+      "notes": "Best Qsuite access in 2026 — partner allocations starved."
+    },
+    {
+      "program": "Korean Air SKYPASS",
+      "type": "airline",
+      "floor_cpp": 1.5,
+      "ceiling_cpp": 1.6,
+      "sources": {"TPG": null, "UP": 1.6, "OMAAT": 1.5, "VFTW": null},
+      "default_to": "floor",
+      "surcharge_profile": "moderate",
+      "notes": "Marriott-only as transferable; family-pooling required."
+    },
+    {
+      "program": "Japan Airlines Mileage Bank",
+      "type": "airline",
+      "floor_cpp": 1.3,
+      "ceiling_cpp": 1.3,
+      "sources": {"TPG": null, "UP": null, "OMAAT": 1.3, "VFTW": 1.3},
+      "default_to": "floor",
+      "surcharge_profile": "moderate",
+      "notes": "C1 30% bonus through Apr 30, 2026 makes JL F bookings via JMB attractive."
+    },
+    {
+      "program": "Emirates Skywards",
+      "type": "airline",
+      "floor_cpp": 1.1,
+      "ceiling_cpp": 1.2,
+      "sources": {"TPG": 1.2, "UP": 1.1, "OMAAT": 1.2, "VFTW": 1.1},
+      "default_to": "floor",
+      "surcharge_profile": "very_heavy",
+      "recently_changed": "2026-05-20",
+      "notes": "~15% award rate hike May 2026."
+    },
+    {
+      "program": "Etihad Guest",
+      "type": "airline",
+      "floor_cpp": 1.1,
+      "ceiling_cpp": 1.4,
+      "sources": {"TPG": 1.2, "UP": 1.4, "OMAAT": 1.1, "VFTW": null},
+      "default_to": "floor",
+      "surcharge_profile": "heavy",
+      "recently_changed": "2026-06-30",
+      "notes": "Amex MR ends transfers June 30, 2026."
+    },
+    {
+      "program": "Virgin Atlantic Flying Club",
+      "type": "airline",
+      "floor_cpp": 1.1,
+      "ceiling_cpp": 1.4,
+      "sources": {"TPG": 1.3, "UP": 1.4, "OMAAT": 1.1, "VFTW": 1.1},
+      "default_to": "floor",
+      "surcharge_profile": "heavy",
+      "recently_changed": "2025-10-30",
+      "notes": "ANA F via VS bumped up to 41% Oct 2025; still cheapest path to ANA F per mile."
+    },
+    {
+      "program": "Qantas Frequent Flyer",
+      "type": "airline",
+      "floor_cpp": 1.3,
+      "ceiling_cpp": 1.3,
+      "sources": {"TPG": 1.3, "UP": null, "OMAAT": null, "VFTW": 1.3},
+      "default_to": "floor"
+    },
+    {
+      "program": "Asiana Club",
+      "type": "airline",
+      "floor_cpp": 1.5,
+      "ceiling_cpp": 1.6,
+      "sources": {"TPG": null, "UP": 1.6, "OMAAT": null, "VFTW": null},
+      "default_to": "floor",
+      "notes": "Asiana-KE merger now mostly complete; SKYPASS the surviving program."
+    },
+    {
+      "program": "EVA Air Infinity MileageLands",
+      "type": "airline",
+      "floor_cpp": 1.2,
+      "ceiling_cpp": 1.4,
+      "sources": {"TPG": null, "UP": null, "OMAAT": null, "VFTW": null},
+      "default_to": "floor",
+      "notes": "Direct redemption rarely best — most travelers earn via Capital One/Marriott."
+    },
+    {
+      "program": "World of Hyatt",
+      "type": "hotel",
+      "floor_cpp": 1.5,
+      "ceiling_cpp": 1.8,
+      "sources": {"TPG": 1.65, "UP": 1.5, "OMAAT": 1.5, "VFTW": 1.8},
+      "default_to": "floor",
+      "notes": "Strongest hotel program. Best use of Chase UR."
+    },
+    {
+      "program": "Marriott Bonvoy",
+      "type": "hotel",
+      "floor_cpp": 0.7,
+      "ceiling_cpp": 0.8,
+      "sources": {"TPG": 0.8, "UP": 0.7, "OMAAT": 0.7, "VFTW": 0.7},
+      "default_to": "floor",
+      "notes": "5th-night-free + cash+points are the real plays."
+    },
+    {
+      "program": "Hilton Honors",
+      "type": "hotel",
+      "floor_cpp": 0.4,
+      "ceiling_cpp": 0.5,
+      "sources": {"TPG": 0.4, "UP": 0.5, "OMAAT": 0.5, "VFTW": 0.4},
+      "default_to": "floor",
+      "notes": "Amex 1:2 transfer ratio offsets low cpp."
+    },
+    {
+      "program": "IHG One Rewards",
+      "type": "hotel",
+      "floor_cpp": 0.5,
+      "ceiling_cpp": 0.6,
+      "sources": {"TPG": 0.6, "UP": 0.5, "OMAAT": 0.5, "VFTW": 0.5},
+      "default_to": "floor"
+    },
+    {
+      "program": "Wyndham Rewards",
+      "type": "hotel",
+      "floor_cpp": 0.65,
+      "ceiling_cpp": 0.9,
+      "sources": {"TPG": 0.65, "UP": 0.9, "OMAAT": 0.7, "VFTW": 0.7},
+      "default_to": "floor",
+      "notes": "Vacasa redemptions and Caesars properties drive ceiling."
+    },
+    {
+      "program": "Choice Privileges",
+      "type": "hotel",
+      "floor_cpp": 0.6,
+      "ceiling_cpp": 0.6,
+      "sources": {"TPG": 0.6, "UP": 0.6, "OMAAT": 0.6, "VFTW": 0.5},
+      "default_to": "floor"
+    },
+    {
+      "program": "ALL - Accor Live Limitless",
+      "type": "hotel",
+      "floor_cpp": 2.0,
+      "ceiling_cpp": 2.2,
+      "sources": {"TPG": 2.0, "UP": 2.2, "OMAAT": 2.0, "VFTW": null},
+      "default_to": "floor",
+      "notes": "Fixed 2,000 ALL points = €40, hard-coded."
+    }
+  ]
+}

@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>flight-hacker — find the cheapest flights, including the ones Google doesn't show</title>
+<meta name="description" content="A free, self-hosted tool that searches Google Flights and 22+ airline miles programs at once. Beats Google Flights with award redemptions, hidden-city tickets, mistake fares, and watchlists. Free, runs on your own computer." />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header class="bar">
+  <div class="brand">flight-hacker<span class="ver">v0.1</span></div>
+  <nav class="topnav">
+    <a href="#what">What it does</a>
+    <a href="#vs-google">vs Google</a>
+    <a href="#install">Install</a>
+    <a href="#use">How to use</a>
+    <a href="https://github.com/joseantoniopau/flight_hacker" target="_blank" rel="noopener">GitHub →</a>
+  </nav>
+</header>
+
+<main>
+
+<section class="hero">
+  <h1>Find the cheapest flights for any trip — <span class="accent">including the ones Google doesn't show you.</span></h1>
+  <p class="lede">A free tool that runs on your own computer. It searches Google Flights AND the world of airline miles redemptions at the same time, then tells you the cheapest way to book — whether that's paying cash or using points you already have.</p>
+  <div class="cta">
+    <a class="btn btn--primary" href="#install">Install in 10 minutes →</a>
+    <a class="btn" href="https://github.com/joseantoniopau/flight_hacker" target="_blank" rel="noopener">View on GitHub</a>
+  </div>
+  <p class="note">No programming required. You'll copy-paste a few commands into Terminal, edit one file with your miles balances, and you're done.</p>
+</section>
+
+<section id="what" class="block">
+  <h2>What it does, in plain English</h2>
+  <p class="lede">When you search for a flight on Google, you see cash prices. That's it. This tool adds everything Google doesn't:</p>
+  <ul class="features">
+    <li><strong>💸 Award miles search.</strong> Checks if you can book the same flight with miles from 22+ programs (United, Delta, American, Aeroplan, Virgin Atlantic, Qatar, ANA, etc.) and tells you the dollar value of the redemption.</li>
+    <li><strong>💳 Knows your points balance.</strong> If you have Chase, Amex, Citi, Capital One, or Bilt points, it figures out which airlines you can transfer them to and how many miles you'd have.</li>
+    <li><strong>✈️ Nearby airports.</strong> Type "MIA" and it also searches Fort Lauderdale and Palm Beach automatically. Type "JFK" and it adds LaGuardia and Newark. Those flights are often hundreds cheaper.</li>
+    <li><strong>🧠 Travel-hacking moves.</strong> Positioning flights (fly to a cheaper hub first), hidden-city tickets (with safety warnings), free stopovers, open-jaw trips.</li>
+    <li><strong>📰 Mistake fare alerts.</strong> Watches 9 travel-deal websites and shows when an airline accidentally publishes a $300 business class ticket.</li>
+    <li><strong>⏰ Set-and-forget watchlists.</strong> Save a route + your budget. Your computer checks every hour and texts you when prices drop.</li>
+    <li><strong>🎯 Curated sweet spots.</strong> A handpicked list of 25 amazing miles deals (like "Tokyo first class on ANA for 110K miles" instead of the usual 200K).</li>
+  </ul>
+</section>
+
+<section id="vs-google" class="block">
+  <h2>Why this is better than searching on Google Flights</h2>
+  <p class="lede">Google Flights is the best <em>cash-only</em> flight search. This tool is the layer Google doesn't see.</p>
+
+  <h3>Real examples from real searches</h3>
+
+  <div class="example">
+    <h4>Example 1: New York → London business class</h4>
+    <table class="cmp">
+      <tr><td>What Google Flights shows</td><td>$2,178 cheapest cash (Air Serbia)</td></tr>
+      <tr><td>What this tool finds</td><td><strong>88,000 Qatar miles + $0 taxes = $1,232 effective cost</strong></td></tr>
+      <tr><td>You save</td><td class="save"><strong>$946 on the exact same seat</strong> — using miles you didn't realize you had reachable through Chase UR transfers.</td></tr>
+    </table>
+  </div>
+
+  <div class="example">
+    <h4>Example 2: Miami → Rome economy</h4>
+    <table class="cmp">
+      <tr><td>Google Flights (you type MIA)</td><td>$1,471 cheapest from MIA only</td></tr>
+      <tr><td>This tool (you type MIA)</td><td><strong>$1,037 from Fort Lauderdale</strong> on Air Transat</td></tr>
+      <tr><td>You save</td><td class="save"><strong>$434</strong> because the tool automatically checked FLL and PBI, which you'd never do by hand.</td></tr>
+    </table>
+  </div>
+
+  <div class="example">
+    <h4>Example 3: "Cheap business class to Tokyo"</h4>
+    <table class="cmp">
+      <tr><td>Google Flights</td><td>$4,200 cash on ANA</td></tr>
+      <tr><td>This tool</td><td><strong>ANA business class via Aeroplan: 87,500 miles + $230 = $1,055 effective</strong></td></tr>
+      <tr><td>Plus instructions</td><td>"You have 145K Chase Ultimate Rewards points. Transfer 87,500 to Aeroplan (1:1, instant). Phone Air Canada to book this route."</td></tr>
+      <tr><td>You save</td><td class="save"><strong>$3,145 on the exact same seat</strong>.</td></tr>
+    </table>
+  </div>
+
+  <h3>What the tool does vs. Google Flights</h3>
+  <div class="comparison">
+    <table>
+      <thead>
+        <tr><th>What you might want to do</th><th>Google Flights</th><th>flight-hacker</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>See cash prices</td><td class="y">Yes</td><td class="y">Yes (same source)</td></tr>
+        <tr><td>See if I can book this with miles I already have</td><td class="n">No</td><td class="y">Yes — 22+ airline programs</td></tr>
+        <tr><td>Auto-include nearby airports (MIA → MIA+FLL+PBI)</td><td class="p">Manual only</td><td class="y">Automatic</td></tr>
+        <tr><td>Compare cash vs. miles in one ranking</td><td class="n">N/A</td><td class="y">Single ranked list, sorted by true cost</td></tr>
+        <tr><td>Know if my Chase points can transfer to United</td><td class="n">No</td><td class="y">Built-in transfer math</td></tr>
+        <tr><td>Mistake fare alerts</td><td class="n">No</td><td class="y">9 deal sites monitored</td></tr>
+        <tr><td>Save a route and get phone alerts when it drops</td><td class="p">Email only</td><td class="y">Hourly checks + Telegram alerts</td></tr>
+        <tr><td>See curated "amazing redemption" deals</td><td class="n">No</td><td class="y">25 sweet spots tracked</td></tr>
+        <tr><td>Find positioning-flight tricks</td><td class="n">N/A</td><td class="y">Automatic composer</td></tr>
+        <tr><td>Free stopovers (Aeroplan, Turkish, Iceland, TAP)</td><td class="n">N/A</td><td class="y">Built-in rules</td></tr>
+        <tr><td>Hidden-city tickets (with safety warnings)</td><td class="n">Hidden from you</td><td class="y">Shown with TOS-RISK badge</td></tr>
+        <tr><td>Privacy — runs locally, no tracking</td><td class="n">Google account tracked</td><td class="y">On your computer only</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="install" class="block">
+  <h2>How to install (10 minutes, no coding required)</h2>
+
+  <div class="prereqs">
+    <h3>What you need first</h3>
+    <ul>
+      <li>A Mac or Linux computer (Windows users see the bottom)</li>
+      <li>~10 minutes of patience for the one-time setup</li>
+      <li>A Seats.aero Pro subscription — <strong>$99/year</strong> at <a href="https://seats.aero/" target="_blank" rel="noopener">seats.aero</a> (this is what powers the miles search; without it you only get cash prices)</li>
+      <li>(Optional) A Telegram account if you want price-drop alerts on your phone</li>
+    </ul>
+  </div>
+
+  <ol class="steps">
+    <li>
+      <h4>Open Terminal</h4>
+      <p>On a Mac: press <code>Cmd + Space</code>, type "Terminal", press Enter. A black window opens. That's where you'll paste the commands below.</p>
+    </li>
+
+    <li>
+      <h4>Check you have Python (most Macs do)</h4>
+      <p>Copy-paste this into Terminal and press Enter:</p>
+      <pre><code>python3 --version</code></pre>
+      <p>If you see <code>Python 3.10</code> or higher, you're good. If not, download from <a href="https://www.python.org/downloads/" target="_blank" rel="noopener">python.org/downloads</a> first.</p>
+    </li>
+
+    <li>
+      <h4>Download the tool</h4>
+      <pre><code>git clone https://github.com/joseantoniopau/flight_hacker ~/Desktop/flight-hacker
+cd ~/Desktop/flight-hacker</code></pre>
+      <p>This downloads everything to a folder called <code>flight-hacker</code> on your Desktop.</p>
+    </li>
+
+    <li>
+      <h4>Run the installer</h4>
+      <pre><code>./install.sh</code></pre>
+      <p>Takes about 30 seconds. Sets up the tool, installs the dependencies, and creates a hourly background job for your watchlists.</p>
+    </li>
+
+    <li>
+      <h4>Add your Seats.aero key</h4>
+      <p>After you sign up at <a href="https://seats.aero/" target="_blank" rel="noopener">seats.aero</a>, they'll give you a key that starts with <code>pro_xxxxx</code>.</p>
+      <pre><code>./setup-keys.sh</code></pre>
+      <p>When it asks for the Seats.aero key, paste it in and press Enter. Press Enter to skip everything else.</p>
+    </li>
+
+    <li>
+      <h4>Tell it your miles balances</h4>
+      <p>This is what makes the tool know which redemptions you can actually book. Open this file with any text editor:</p>
+      <pre><code>~/Desktop/flight-hacker/data/user_balances.json</code></pre>
+      <p>You'll see a template. Replace the numbers with your actual balances (log into your credit card + airline accounts to check). Save the file.</p>
+    </li>
+
+    <li>
+      <h4>Launch the tool</h4>
+      <pre><code>python3 ui/server.py</code></pre>
+      <p>You'll see <code>Uvicorn running on http://127.0.0.1:8721</code>. Leave this Terminal window open.</p>
+      <p>Now open your web browser and go to:</p>
+      <pre><code>http://127.0.0.1:8721</code></pre>
+      <p>The tool is running. ✨</p>
+    </li>
+  </ol>
+</section>
+
+<section id="use" class="block">
+  <h2>How to use it</h2>
+  <ol class="steps steps--small">
+    <li>
+      <h4>Click "SEARCH" in the sidebar.</h4>
+      <p>The first thing on the left.</p>
+    </li>
+    <li>
+      <h4>Type your departure airport.</h4>
+      <p>Like "JFK" or "Miami". Then your destination.</p>
+    </li>
+    <li>
+      <h4>Pick your travel dates.</h4>
+      <p>Depart, return. Toggle "One-way" if no return.</p>
+    </li>
+    <li>
+      <h4>Click "Search flights".</h4>
+      <p>Wait ~10–20 seconds. You'll see a table of options.</p>
+    </li>
+    <li>
+      <h4>Look at the "Total" column.</h4>
+      <p>That's the true cost — whether you pay cash or use miles. Sorted cheapest first.</p>
+    </li>
+    <li>
+      <h4>Click "Book" on any row.</h4>
+      <p>Goes directly to the airline's website. Book there.</p>
+    </li>
+  </ol>
+
+  <h3>Other things you can do</h3>
+  <ul class="features">
+    <li><strong>Save a route as a watchlist.</strong> After a search, click "Save as watch". Your computer will check that route every hour and ping you when the price drops below your threshold.</li>
+    <li><strong>Browse mistake fares.</strong> Click "MISTAKE FARES" in the sidebar to see deals like $400 business class to Europe.</li>
+    <li><strong>See sweet spots.</strong> Click "SWEET SPOTS" — 25 hand-curated great miles deals. Click any row to see if your points cover it.</li>
+    <li><strong>Set your balances and budget.</strong> The BALANCES section lets you update your card + airline points anytime.</li>
+  </ul>
+
+  <h3>Tomorrow and after</h3>
+  <p>You only install once. After that, to use it again:</p>
+  <ol class="next-use">
+    <li>Open Terminal</li>
+    <li>Type: <code>cd ~/Desktop/flight-hacker && python3 ui/server.py</code></li>
+    <li>Open <code>http://127.0.0.1:8721</code> in your browser</li>
+  </ol>
+  <p>To stop it: in the Terminal window, press <code>Ctrl + C</code>.</p>
+</section>
+
+<section class="block">
+  <h2>Privacy and safety</h2>
+  <ul class="features">
+    <li><strong>✅ Runs on your own computer.</strong> Nothing is uploaded anywhere. The tool just makes API calls (Google Flights, Seats.aero) like your browser does when you visit those sites.</li>
+    <li><strong>✅ Your miles balances stay in a file on your computer.</strong> You're not sharing credit card numbers — just point totals.</li>
+    <li><strong>✅ No tracking, no ads, no cookies.</strong> Unlike Google, this tool doesn't tie your searches to your identity.</li>
+    <li><strong>✅ Booking happens on the airline's site.</strong> The tool finds the cheapest path and links you out — it never touches your payment info.</li>
+    <li><strong>⚠️ Hidden-city tickets:</strong> Legal but airlines don't like them. The tool always shows a clear <code>TOS-RISK</code> badge and full warnings. You decide.</li>
+  </ul>
+</section>
+
+<section class="block">
+  <h2>Troubleshooting</h2>
+  <dl class="faq">
+    <dt>I get an error running ./install.sh</dt>
+    <dd>Make sure Python 3.10 or newer is installed. Type <code>python3 --version</code> to check.</dd>
+
+    <dt>The website doesn't load at localhost:8721</dt>
+    <dd>Make sure the Terminal window is still open and shows "Uvicorn running...". If you closed it, run <code>python3 ui/server.py</code> again from the flight-hacker folder.</dd>
+
+    <dt>Search is taking a long time</dt>
+    <dd>First searches take 10–30 seconds because we're checking multiple airports and miles programs in parallel. Later searches with the same route are cached and instant.</dd>
+
+    <dt>My miles balances aren't being used</dt>
+    <dd>Open <code>~/Desktop/flight-hacker/data/user_balances.json</code>, edit the numbers, save the file. Refresh the web page.</dd>
+
+    <dt>I don't see award (miles) results</dt>
+    <dd>Verify your Seats.aero key is set: run <code>cat ~/Desktop/flight-hacker/.env</code> and check that <code>SEATS_AERO_API_KEY=pro_xxxxx</code> is filled in.</dd>
+
+    <dt>I'm on Windows</dt>
+    <dd>Install WSL (Windows Subsystem for Linux) from <a href="https://learn.microsoft.com/en-us/windows/wsl/install" target="_blank" rel="noopener">Microsoft's instructions</a>, then follow the Mac steps inside WSL.</dd>
+  </dl>
+</section>
+
+<section class="block">
+  <h2>What this does NOT do</h2>
+  <ul class="features">
+    <li>❌ Does not book the ticket for you. Shows you the cheapest path and links to the airline.</li>
+    <li>❌ Does not touch your credit card. You only enter <em>points balances</em> (totally separate from card numbers).</li>
+    <li>❌ Does not track you. Everything is local.</li>
+    <li>❌ Does not help with hotels, cars, or cruises — just flights.</li>
+  </ul>
+</section>
+
+<footer>
+  <p>MIT license · Free for any use. Made with care for travel-hacking enthusiasts and frequent flyers.</p>
+  <p><a href="https://github.com/joseantoniopau/flight_hacker">github.com/joseantoniopau/flight_hacker</a></p>
+</footer>
+
+</main>
+
+</body>
+</html>

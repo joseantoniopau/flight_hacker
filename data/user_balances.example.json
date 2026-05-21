@@ -1,0 +1,29 @@
+{
+  "_meta": {
+    "version": 1,
+    "updated": "2026-05-21",
+    "note": "Copy to user_balances.json and edit. user_balances.json is gitignored."
+  },
+  "currencies": {
+    "Chase Ultimate Rewards": 145000,
+    "Amex Membership Rewards": 82000,
+    "Citi ThankYou": 30000,
+    "Capital One Miles": 0,
+    "Bilt Rewards": 24000,
+    "Marriott Bonvoy": 0
+  },
+  "programs": {
+    "United MileagePlus": 16000,
+    "American AAdvantage": 8000,
+    "Delta SkyMiles": 0,
+    "Aeroplan": 0,
+    "Virgin Atlantic Flying Club": 0,
+    "Avianca LifeMiles": 0,
+    "Air France/KLM Flying Blue": 0,
+    "British Airways Avios": 0,
+    "Cathay Asia Miles": 0,
+    "Singapore KrisFlyer": 0,
+    "Turkish Miles&Smiles": 0,
+    "Alaska Mileage Plan": 0
+  }
+}

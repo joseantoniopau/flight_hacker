@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>FLIGHT-HACKER</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body class="fh-body">
+
+<!-- ============================================================ -->
+<!-- TOP BAR                                                       -->
+<!-- ============================================================ -->
+<header class="fh-topbar" id="fh-topbar">
+  <div class="fh-topbar__brand">FLIGHT-HACKER&nbsp;<span class="fh-topbar__ver" id="fh-version">v0.1.0</span></div>
+  <div class="fh-topbar__rule"></div>
+  <div class="fh-topbar__route" id="fh-topbar-route">/SEARCH</div>
+  <div class="fh-topbar__live" id="fh-topbar-live">
+    <span class="fh-dot fh-dot--off" id="fh-livedot">○</span>
+    <span id="fh-livetext">Offline</span>
+  </div>
+</header>
+
+<!-- ============================================================ -->
+<!-- ERROR BANNER                                                  -->
+<!-- ============================================================ -->
+<div class="fh-error" id="fh-error" hidden style="display:none">
+  <span class="fh-error__msg" id="fh-error-msg">Error</span>
+  <button class="fh-error__btn" id="fh-error-dismiss">Dismiss</button>
+</div>
+
+<!-- ============================================================ -->
+<!-- APP SHELL                                                     -->
+<!-- ============================================================ -->
+<div class="fh-shell">
+
+  <!-- SIDEBAR -->
+  <nav class="fh-sidebar" id="fh-sidebar">
+    <ul class="fh-nav">
+      <li><a href="#search"      class="fh-nav__link" data-route="search">[1] Search</a></li>
+      <li><a href="#results"     class="fh-nav__link" data-route="results">[2] Results</a></li>
+      <li><a href="#mistakes"    class="fh-nav__link" data-route="mistakes">[3] Mistake fares</a></li>
+      <li><a href="#watchlist"   class="fh-nav__link" data-route="watchlist">[4] Watchlist</a></li>
+      <li><a href="#sweet-spots" class="fh-nav__link" data-route="sweet-spots">[5] Sweet spots</a></li>
+      <li><a href="#balances"    class="fh-nav__link" data-route="balances">[6] Balances</a></li>
+      <li><a href="#settings"    class="fh-nav__link" data-route="settings">[7] Settings</a></li>
+    </ul>
+    <div class="fh-sidebar__divider"></div>
+    <div class="fh-sidebar__hint">
+      <div><span>/</span><span>Focus search</span></div>
+      <div><span>g s</span><span>Go search</span></div>
+      <div><span>g r</span><span>Go results</span></div>
+      <div><span>g m</span><span>Go mistakes</span></div>
+      <div><span>g w</span><span>Go watch</span></div>
+      <div><span>g p</span><span>Go spots</span></div>
+      <div><span>g b</span><span>Go balances</span></div>
+      <div><span>g ,</span><span>Go settings</span></div>
+    </div>
+    <div class="fh-sidebar__divider"></div>
+    <div class="fh-sidebar__mode">
+      <label class="fh-check">
+        <input type="checkbox" id="fh-mockmode" />
+        Mock mode
+      </label>
+    </div>
+  </nav>
+
+  <!-- MAIN CANVAS -->
+  <main class="fh-main" id="fh-main">
+
+    <!-- ============================================================ -->
+    <!-- SECTION: SEARCH                                               -->
+    <!-- ============================================================ -->
+    <section class="fh-section" id="fh-section-search" data-route="search">
+      <h1 class="fh-h1">Search</h1>
+
+      <form id="fh-search-form" class="fh-form">
+
+        <div class="fh-grid fh-grid--2">
+
+          <div class="fh-field">
+            <label class="fh-label">Origins</label>
+            <div class="fh-chips" id="fh-chips-origin"></div>
+            <input type="text" class="fh-input" id="fh-origin-input"
+                   placeholder="Type IATA or city (e.g. JFK, New York)"
+                   autocomplete="off" />
+            <ul class="fh-suggest" id="fh-suggest-origin" hidden></ul>
+            <label class="fh-check" style="margin-top:8px;">
+              <input type="checkbox" id="fh-expand-origins" checked />
+              Include nearby airports (e.g. MIA → MIA + FLL + PBI)
+            </label>
+          </div>
+
+          <div class="fh-field">
+            <label class="fh-label">Destinations</label>
+            <div class="fh-chips" id="fh-chips-dest"></div>
+            <input type="text" class="fh-input" id="fh-dest-input"
+                   placeholder="Type IATA or city (e.g. NRT, Tokyo)"
+                   autocomplete="off" />
+            <ul class="fh-suggest" id="fh-suggest-dest" hidden></ul>
+            <label class="fh-check" style="margin-top:8px;">
+              <input type="checkbox" id="fh-expand-destinations" checked />
+              Include nearby airports (e.g. NRT → NRT + HND)
+            </label>
+          </div>
+
+          <div class="fh-field">
+            <label class="fh-label">Depart</label>
+            <input type="date" class="fh-input" id="fh-depart-from" />
+          </div>
+
+          <div class="fh-field">
+            <label class="fh-label">Return</label>
+            <input type="date" class="fh-input" id="fh-return-from" />
+            <label class="fh-check" style="margin-top:8px;">
+              <input type="checkbox" id="fh-oneway" />
+              One-way (no return)
+            </label>
+          </div>
+
+          <div class="fh-field">
+            <label class="fh-label">Cabin</label>
+            <div class="fh-row fh-row--wrap">
+              <label class="fh-check"><input type="checkbox" name="cabin" value="Y" checked /> Economy</label>
+              <label class="fh-check"><input type="checkbox" name="cabin" value="PE" /> Premium Economy</label>
+              <label class="fh-check"><input type="checkbox" name="cabin" value="J" /> Business</label>
+              <label class="fh-check"><input type="checkbox" name="cabin" value="F" /> First</label>
+            </div>
+          </div>
+
+          <div class="fh-field">
+            <label class="fh-label">Passengers</label>
+            <div class="fh-row">
+              <span class="fh-mini">Adults</span>
+              <input type="number" class="fh-input fh-input--mini" id="fh-adults"   value="1" min="1" max="8" />
+              <span class="fh-mini">Children</span>
+              <input type="number" class="fh-input fh-input--mini" id="fh-children" value="0" min="0" max="8" />
+              <span class="fh-mini">Infants</span>
+              <input type="number" class="fh-input fh-input--mini" id="fh-infants"  value="0" min="0" max="4" />
+            </div>
+          </div>
+
+          <div class="fh-field">
+            <label class="fh-label">Constraints</label>
+            <div class="fh-row">
+              <span class="fh-mini">Max stops</span>
+              <input type="number" class="fh-input fh-input--mini" id="fh-maxstops" value="2" min="0" max="5" />
+              <span class="fh-mini">Max hours</span>
+              <input type="number" class="fh-input fh-input--mini" id="fh-maxhours" value="36" min="1" max="72" />
+            </div>
+          </div>
+
+        </div>
+
+        <div class="fh-divider">Travel-hacking moves</div>
+
+        <div class="fh-row fh-row--wrap">
+          <label class="fh-check"><input type="checkbox" id="fh-comp-pos"     /> Positioning flights</label>
+          <label class="fh-check"><input type="checkbox" id="fh-comp-hidden"  /> Hidden-city</label>
+          <label class="fh-check"><input type="checkbox" id="fh-comp-openjaw" /> Open-jaw</label>
+          <label class="fh-check"><input type="checkbox" id="fh-comp-stopgame"/> Free stopover</label>
+        </div>
+
+        <div class="fh-divider">Payment</div>
+
+        <div class="fh-row fh-row--wrap">
+          <label class="fh-radio"><input type="radio" name="fh-mode" value="cash"  /> Cash only</label>
+          <label class="fh-radio"><input type="radio" name="fh-mode" value="award" /> Miles only</label>
+          <label class="fh-radio"><input type="radio" name="fh-mode" value="both" checked /> Compare both</label>
+        </div>
+
+        <div class="fh-actions">
+          <button type="submit" class="fh-btn fh-btn--primary" id="fh-search-go">Search flights</button>
+          <button type="button" class="fh-btn"                 id="fh-search-reset">Reset</button>
+          <button type="button" class="fh-btn"                 id="fh-search-savewatch">Save as watch</button>
+        </div>
+
+        <div class="fh-progress" id="fh-search-progress" hidden style="display:none">
+          <div class="fh-progress__bar"></div>
+          <div class="fh-progress__label" id="fh-search-progress-label">Searching Google Flights, Seats.aero, and awards…</div>
+        </div>
+      </form>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: RESULTS                                              -->
+    <!-- ============================================================ -->
+    <section class="fh-section" id="fh-section-results" data-route="results" hidden>
+      <h1 class="fh-h1">Results</h1>
+
+      <div class="fh-filters" id="fh-results-filters">
+        <button class="fh-chip fh-chip--filter fh-chip--on" data-filter="all">All</button>
+        <button class="fh-chip fh-chip--filter" data-filter="legal">Legal only</button>
+        <button class="fh-chip fh-chip--filter" data-filter="gray">Allow gray</button>
+        <button class="fh-chip fh-chip--filter" data-filter="award">Miles</button>
+        <button class="fh-chip fh-chip--filter" data-filter="cash">Cash</button>
+        <button class="fh-chip fh-chip--filter" data-filter="J">Premium cabin</button>
+      </div>
+
+      <div class="fh-table-wrap">
+        <table class="fh-table fh-table--results" id="fh-results-table">
+          <thead>
+            <tr>
+              <th data-sort="rank">#</th>
+              <th data-sort="route">Route</th>
+              <th data-sort="carrier">Airline</th>
+              <th data-sort="depart">Departs</th>
+              <th data-sort="duration_min">Duration</th>
+              <th data-sort="stops">Stops</th>
+              <th data-sort="cabin">Cabin</th>
+              <th data-sort="cash_usd" class="fh-num">Cash</th>
+              <th data-sort="miles" class="fh-num">Miles</th>
+              <th data-sort="miles_value_usd" class="fh-num">Miles value</th>
+              <th data-sort="total_usd" class="fh-num">Total</th>
+              <th data-sort="risk">Risk</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="fh-results-tbody">
+            <tr class="fh-empty"><td colspan="13">No results yet. Run a search.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: MISTAKE FARES                                        -->
+    <!-- ============================================================ -->
+    <section class="fh-section" id="fh-section-mistakes" data-route="mistakes" hidden>
+      <h1 class="fh-h1">Mistake Fares</h1>
+
+      <div class="fh-actions">
+        <button class="fh-btn fh-btn--primary" id="fh-mistakes-refresh">Refresh feed</button>
+        <span class="fh-muted" id="fh-mistakes-status">Idle</span>
+      </div>
+
+      <div class="fh-cards" id="fh-mistakes-list">
+        <div class="fh-empty">No deals loaded yet. Click refresh.</div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: WATCHLIST                                            -->
+    <!-- ============================================================ -->
+    <section class="fh-section" id="fh-section-watchlist" data-route="watchlist" hidden>
+      <h1 class="fh-h1">Watchlist</h1>
+
+      <div class="fh-actions">
+        <button class="fh-btn fh-btn--primary" id="fh-watch-new">+ New watch</button>
+      </div>
+
+      <div class="fh-table-wrap">
+        <table class="fh-table fh-table--watch" id="fh-watch-table">
+          <thead>
+            <tr>
+              <th>Route</th>
+              <th>Window</th>
+              <th class="fh-num">Max $</th>
+              <th>Cabin</th>
+              <th>Last check</th>
+              <th class="fh-num">Best found</th>
+              <th class="fh-num">Alerts</th>
+              <th class="fh-th-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="fh-watch-tbody">
+            <tr class="fh-empty"><td colspan="8">No watches. Click + new watch.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- NEW WATCH DRAWER -->
+      <div class="fh-drawer" id="fh-watch-drawer" hidden>
+        <div class="fh-divider">New Watch</div>
+        <div class="fh-grid fh-grid--2">
+          <div class="fh-field">
+            <label class="fh-label" for="fh-watch-origin">Origin</label>
+            <input type="text" class="fh-input" id="fh-watch-origin" name="origin" placeholder="JFK" />
+          </div>
+          <div class="fh-field">
+            <label class="fh-label" for="fh-watch-dest">Destination</label>
+            <input type="text" class="fh-input" id="fh-watch-dest" name="destination" placeholder="NRT" />
+          </div>
+          <div class="fh-field">
+            <label class="fh-label" for="fh-watch-from">Window start</label>
+            <input type="date" class="fh-input" id="fh-watch-from" name="window_from" />
+          </div>
+          <div class="fh-field">
+            <label class="fh-label" for="fh-watch-to">Window end</label>
+            <input type="date" class="fh-input" id="fh-watch-to" name="window_to" />
+          </div>
+          <div class="fh-field">
+            <label class="fh-label" for="fh-watch-max">Max cash $</label>
+            <input type="number" class="fh-input" id="fh-watch-max" name="max_usd" value="600" min="0" />
+          </div>
+          <div class="fh-field">
+            <label class="fh-label" for="fh-watch-cabin">Cabin</label>
+            <select class="fh-input" id="fh-watch-cabin" name="cabin">
+              <option value="Y">Economy</option>
+              <option value="PE">Premium Economy</option>
+              <option value="J" selected>Business</option>
+              <option value="F">First</option>
+            </select>
+          </div>
+        </div>
+        <div class="fh-actions">
+          <button type="button" class="fh-btn fh-btn--primary" id="fh-watch-save">Save watch</button>
+          <button type="button" class="fh-btn"                 id="fh-watch-cancel">Cancel</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: SWEET SPOTS                                          -->
+    <!-- ============================================================ -->
+    <section class="fh-section" id="fh-section-sweet-spots" data-route="sweet-spots" hidden>
+      <h1 class="fh-h1">Sweet Spots</h1>
+
+      <div class="fh-actions">
+        <input type="text" class="fh-input" id="fh-spots-search"
+               placeholder="Filter by program, route, cabin, or region" />
+      </div>
+
+      <div class="fh-table-wrap">
+        <table class="fh-table fh-table--spots" id="fh-spots-table">
+          <thead>
+            <tr>
+              <th data-sort="program">Program</th>
+              <th data-sort="route">Route</th>
+              <th data-sort="cabin">Cabin</th>
+              <th data-sort="miles">Miles</th>
+              <th data-sort="notes">Notes</th>
+              <th data-sort="status">Status</th>
+            </tr>
+          </thead>
+          <tbody id="fh-spots-tbody">
+            <tr class="fh-empty"><td colspan="6">Loading sweet spots...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: BALANCES                                             -->
+    <!-- ============================================================ -->
+    <section class="fh-section" id="fh-section-balances" data-route="balances" hidden>
+      <h1 class="fh-h1">Balances</h1>
+
+      <form id="fh-balances-form" class="fh-form">
+
+        <div class="fh-divider">Credit Card Currencies</div>
+
+        <div class="fh-grid fh-grid--3">
+          <div class="fh-field">
+            <label class="fh-label">Chase Ultimate Rewards</label>
+            <input type="number" class="fh-input" data-currency="UR" value="0" min="0" />
+          </div>
+          <div class="fh-field">
+            <label class="fh-label">Amex Membership Rewards</label>
+            <input type="number" class="fh-input" data-currency="MR" value="0" min="0" />
+          </div>
+          <div class="fh-field">
+            <label class="fh-label">Citi ThankYou Points</label>
+            <input type="number" class="fh-input" data-currency="TY" value="0" min="0" />
+          </div>
+          <div class="fh-field">
+            <label class="fh-label">Capital One Miles</label>
+            <input type="number" class="fh-input" data-currency="VENTURE" value="0" min="0" />
+          </div>
+          <div class="fh-field">
+            <label class="fh-label">Bilt Rewards</label>
+            <input type="number" class="fh-input" data-currency="BILT" value="0" min="0" />
+          </div>
+        </div>
+
+        <div class="fh-divider">Airline Programs</div>
+
+        <div class="fh-table-wrap">
+          <table class="fh-table fh-table--bal" id="fh-bal-table">
+            <colgroup>
+              <col class="fh-col-bal-program" />
+              <col class="fh-col-bal-num" />
+              <col class="fh-col-bal-num" />
+              <col class="fh-col-bal-num" />
+              <col class="fh-col-bal-actions" />
+            </colgroup>
+            <thead>
+              <tr>
+                <th>Program</th>
+                <th class="fh-num">Direct</th>
+                <th class="fh-num">Reachable</th>
+                <th class="fh-num">Effective</th>
+                <th class="fh-th-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="fh-bal-tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="fh-actions">
+          <button type="button" class="fh-btn"               id="fh-bal-add">+ Add Program</button>
+          <button type="submit"  class="fh-btn fh-btn--primary" id="fh-bal-save">Save Balances</button>
+          <span class="fh-muted" id="fh-bal-status"></span>
+        </div>
+      </form>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: SETTINGS                                             -->
+    <!-- ============================================================ -->
+    <section class="fh-section" id="fh-section-settings" data-route="settings" hidden>
+      <h1 class="fh-h1">Settings</h1>
+
+      <form id="fh-settings-form" class="fh-form">
+
+        <div class="fh-grid fh-grid--2">
+          <div class="fh-field">
+            <label class="fh-label">Seats.aero API Key</label>
+            <input type="password" class="fh-input" id="fh-set-seats" placeholder="Award-search provider key (pro_…)" autocomplete="off" />
+            <div class="fh-hint">Used to query award availability across loyalty programs.</div>
+          </div>
+
+          <div class="fh-field">
+            <label class="fh-label">Telegram Webhook URL</label>
+            <input type="text" class="fh-input" id="fh-set-tg" placeholder="https://api.telegram.org/bot.../sendMessage" autocomplete="off" />
+            <div class="fh-hint">Optional: deal alerts get posted here.</div>
+          </div>
+
+          <div class="fh-field">
+            <label class="fh-label">Cents Per Point — Valuation Source</label>
+            <div class="fh-row">
+              <label class="fh-radio"><input type="radio" name="cpp" value="floor"   /> Conservative (floor)</label>
+              <label class="fh-radio"><input type="radio" name="cpp" value="avg" checked /> Average</label>
+              <label class="fh-radio"><input type="radio" name="cpp" value="ceiling" /> Optimistic (ceiling)</label>
+            </div>
+            <div class="fh-hint">Used to convert miles into a dollar-equivalent value for ranking.</div>
+          </div>
+
+          <div class="fh-field">
+            <label class="fh-label">Cache TTL (seconds)</label>
+            <input type="number" class="fh-input" id="fh-set-ttl" value="3600" min="0" step="60" />
+            <div class="fh-hint">How long award/cash quotes are cached. Stored as minutes server-side (rounded down).</div>
+          </div>
+        </div>
+
+        <div class="fh-actions">
+          <button type="submit" class="fh-btn fh-btn--primary" id="fh-set-save">Save Settings</button>
+          <button type="button" class="fh-btn"                 id="fh-set-refresh">Refresh Data</button>
+          <span class="fh-muted" id="fh-set-status"></span>
+        </div>
+
+      </form>
+    </section>
+
+  </main>
+</div>
+
+<!-- ============================================================ -->
+<!-- FOOTER                                                        -->
+<!-- ============================================================ -->
+<footer class="fh-footer" id="fh-footer">
+  <span id="fh-footer-left">Ready</span>
+  <span id="fh-footer-right">Records: 0</span>
+</footer>
+
+<!-- ============================================================ -->
+<!-- DETAILS OVERLAY (RESULT EXPAND)                               -->
+<!-- ============================================================ -->
+<div class="fh-overlay" id="fh-overlay" hidden style="display:none">
+  <div class="fh-overlay__panel">
+    <div class="fh-overlay__head">
+      <span id="fh-overlay-title">Detail</span>
+      <button class="fh-btn" id="fh-overlay-close">Close</button>
+    </div>
+    <div class="fh-overlay__body" id="fh-overlay-body"></div>
+  </div>
+</div>
+
+<script src="mock_api.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

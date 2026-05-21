@@ -1,0 +1,207 @@
+{
+  "_meta": {
+    "version": "2026.05.21",
+    "updated": "2026-05-21",
+    "credit": "Structure adapted from borski/travel-hacking-toolkit (MIT) — github.com/borski/travel-hacking-toolkit. Data independently re-verified for 2026.",
+    "sources": [
+      "https://upgradedpoints.com/credit-cards/chase-ultimate-rewards-transfer-partners/",
+      "https://upgradedpoints.com/credit-cards/amex-membership-rewards-transfer-partners/",
+      "https://upgradedpoints.com/credit-cards/citi-thankyou-points-transfer-partners/",
+      "https://upgradedpoints.com/credit-cards/bilt-rewards-transfer-partners/",
+      "https://awardtravelfinder.com/credit-card-transfers/capital-one-miles",
+      "https://thepointsguy.com/loyalty-programs/chase-ultimate-rewards-transfer-partners/",
+      "https://thepointsguy.com/credit-cards/membership-rewards-partner-guide/",
+      "https://thepointsguy.com/loyalty-programs/capital-one-transfer-partners/",
+      "https://frequentmiler.com/marriott-bonvoy-airline-transfer-partners/"
+    ],
+    "notes": "Ratios shown as 'X:Y' meaning X currency units = Y partner-program miles. Premium ratio applies if cardholder has a card that unlocks the higher ratio (e.g. Citi Strata Premier/Elite). Etihad Guest leaves Amex 2026-06-30 — confirmed cutoff. Bilt added Wyndham as 6th hotel partner Mar 2026."
+  },
+  "_credit": "borski/travel-hacking-toolkit (MIT)",
+  "currencies": {
+    "Chase Ultimate Rewards": {
+      "transfer_partners": [
+        {"program": "Aer Lingus AerClub", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "Air Canada Aeroplan", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "Air France-KLM Flying Blue", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "1 hour"},
+        {"program": "British Airways Executive Club", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "Iberia Plus", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "JetBlue TrueBlue", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "Singapore Airlines KrisFlyer", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "1-2 days"},
+        {"program": "Southwest Rapid Rewards", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "United MileagePlus", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "Virgin Atlantic Flying Club", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "IHG One Rewards", "type": "hotel", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "1 day"},
+        {"program": "Marriott Bonvoy", "type": "hotel", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "2 days"},
+        {"program": "World of Hyatt", "type": "hotel", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "Wyndham Rewards", "type": "hotel", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "1-2 days"}
+      ],
+      "portal_redemption": {
+        "base_cpp": 1.0,
+        "points_boost_min_cpp": 1.5,
+        "points_boost_max_cpp": 2.0,
+        "notes": "Chase Points Boost (launched Jun 2025) replaced fixed 1.25/1.5cpp with dynamic 1.5-2.0cpp (Reserve) or 1.5-1.75cpp (Preferred) on select bookings. Not all bookings qualify — verify quote."
+      }
+    },
+    "Amex Membership Rewards": {
+      "transfer_partners": [
+        {"program": "Aer Lingus AerClub", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "48 hours"},
+        {"program": "Aeromexico Rewards", "type": "airline", "ratio": "1:1.6", "min_transfer": 1000, "transfer_time": "48 hours"},
+        {"program": "Air Canada Aeroplan", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "48 hours"},
+        {"program": "Air France-KLM Flying Blue", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "48 hours"},
+        {"program": "ANA Mileage Club", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "4 days"},
+        {"program": "Avianca LifeMiles", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "72 hours"},
+        {"program": "British Airways Club", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "48 hours"},
+        {"program": "Cathay Pacific", "type": "airline", "ratio": "5:4", "min_transfer": 1000, "transfer_time": "48 hours"},
+        {"program": "Delta SkyMiles", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "48 hours"},
+        {"program": "Emirates Skywards", "type": "airline", "ratio": "5:4", "min_transfer": 1000, "transfer_time": "48 hours"},
+        {"program": "Etihad Guest", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "48 hours", "ends": "2026-06-30", "notes": "Final transfer cutoff 30 Jun 2026"},
+        {"program": "Iberia Plus", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "48 hours"},
+        {"program": "JetBlue TrueBlue", "type": "airline", "ratio": "1:0.8", "min_transfer": 250, "transfer_time": "48 hours"},
+        {"program": "Qantas Frequent Flyer", "type": "airline", "ratio": "1:1", "min_transfer": 500, "transfer_time": "48 hours"},
+        {"program": "Qatar Airways Privilege Club", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "48 hours"},
+        {"program": "Singapore Airlines KrisFlyer", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "48 hours"},
+        {"program": "Virgin Atlantic Flying Club", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "48 hours"},
+        {"program": "Choice Privileges", "type": "hotel", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "48 hours"},
+        {"program": "Hilton Honors", "type": "hotel", "ratio": "1:2", "min_transfer": 1000, "transfer_time": "24 hours"},
+        {"program": "Marriott Bonvoy", "type": "hotel", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "48 hours"}
+      ],
+      "portal_redemption": {
+        "base_cpp": 1.0,
+        "notes": "Amex Travel portal pays 1.0cpp on flights for Platinum/Business Platinum. Hilton 1:2 ratio looks great but Hilton points value is ~0.5cpp so net ~1.0cpp."
+      }
+    },
+    "Citi ThankYou": {
+      "transfer_partners": [
+        {"program": "Aeromexico Rewards", "type": "airline", "ratio_premium": "1:1", "ratio_basic": "1:0.7", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "Air France-KLM Flying Blue", "type": "airline", "ratio_premium": "1:1", "ratio_basic": "1:0.7", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "American Airlines AAdvantage", "type": "airline", "ratio_premium": "1:1", "ratio_basic": "1:0.7", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "Avianca LifeMiles", "type": "airline", "ratio_premium": "1:1", "ratio_basic": "1:0.7", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "Cathay Pacific Asia Miles", "type": "airline", "ratio_premium": "1:1", "ratio_basic": "1:0.7", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "Emirates Skywards", "type": "airline", "ratio_premium": "1:0.8", "ratio_basic": "1:0.56", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "Etihad Guest", "type": "airline", "ratio_premium": "1:1", "ratio_basic": "1:0.7", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "EVA Air Infinity MileageLands", "type": "airline", "ratio_premium": "1:1", "ratio_basic": "1:0.7", "min_transfer": 1000, "transfer_time": "2 days"},
+        {"program": "JetBlue TrueBlue", "type": "airline", "ratio_premium": "1:1", "ratio_basic": "1:0.7", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "Qantas Frequent Flyer", "type": "airline", "ratio_premium": "1:1", "ratio_basic": "1:0.7", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "Qatar Airways Privilege Club", "type": "airline", "ratio_premium": "1:1", "ratio_basic": "1:0.7", "min_transfer": 1000, "transfer_time": "2 days"},
+        {"program": "Singapore Airlines KrisFlyer", "type": "airline", "ratio_premium": "1:1", "ratio_basic": "1:0.7", "min_transfer": 1000, "transfer_time": "2 days"},
+        {"program": "Thai Airways Royal Orchid Plus", "type": "airline", "ratio_premium": "1:1", "ratio_basic": "1:0.7", "min_transfer": 1000, "transfer_time": "4 days"},
+        {"program": "Turkish Airlines Miles&Smiles", "type": "airline", "ratio_premium": "1:1", "ratio_basic": "1:0.7", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "Virgin Atlantic Flying Club", "type": "airline", "ratio_premium": "1:1", "ratio_basic": "1:0.7", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "ALL - Accor Live Limitless", "type": "hotel", "ratio_premium": "2:1", "ratio_basic": "1:0.35", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "Choice Privileges", "type": "hotel", "ratio_premium": "1:2", "ratio_basic": "1:1.4", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "Leading Hotels of the World", "type": "hotel", "ratio_premium": "5:1", "ratio_basic": "1:0.14", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "Preferred Hotels & Resorts", "type": "hotel", "ratio_premium": "1:4", "ratio_basic": "1:2.8", "min_transfer": 1000, "transfer_time": "unknown"},
+        {"program": "Wyndham Rewards", "type": "hotel", "ratio_premium": "1:1", "ratio_basic": "1:0.7", "min_transfer": 1000, "transfer_time": "24 hours"}
+      ],
+      "premium_cards": ["Citi Strata Elite", "Citi Strata Premier", "Citi Prestige (closed)"],
+      "portal_redemption": {
+        "base_cpp": 1.0,
+        "notes": "Citi Travel by Booking portal pays 1.0cpp on flights."
+      }
+    },
+    "Capital One Miles": {
+      "transfer_partners": [
+        {"program": "Aeromexico Rewards", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "Air Canada Aeroplan", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "Air France-KLM Flying Blue", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "Avianca LifeMiles", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "British Airways Club", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "Cathay Pacific Asia Miles", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "Emirates Skywards", "type": "airline", "ratio": "4:3", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "Etihad Guest", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "EVA Air Infinity MileageLands", "type": "airline", "ratio": "4:3", "min_transfer": 1000, "transfer_time": "1-2 days"},
+        {"program": "Finnair Plus", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "Japan Airlines Mileage Bank", "type": "airline", "ratio": "4:3", "min_transfer": 1000, "transfer_time": "instant", "current_bonus": "30% bonus to JAL through 2026-04-30 (effective 1000:975)"},
+        {"program": "JetBlue TrueBlue", "type": "airline", "ratio": "5:3", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "Qantas Frequent Flyer", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "Qatar Airways Privilege Club", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "Singapore Airlines KrisFlyer", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "1-2 days"},
+        {"program": "TAP Air Portugal Miles&Go", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "Turkish Airlines Miles&Smiles", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "Virgin Red", "type": "airline", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "ALL - Accor Live Limitless", "type": "hotel", "ratio": "2:1", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "Choice Privileges", "type": "hotel", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "I Prefer Hotel Rewards", "type": "hotel", "ratio": "1:2", "min_transfer": 1000, "transfer_time": "instant"},
+        {"program": "Wyndham Rewards", "type": "hotel", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "instant"}
+      ],
+      "portal_redemption": {
+        "base_cpp": 1.0,
+        "notes": "Capital One Travel portal pays 1.0cpp; transfers usually beat it for premium-cabin bookings."
+      }
+    },
+    "Bilt Rewards": {
+      "transfer_partners": [
+        {"program": "Aer Lingus AerClub", "type": "airline", "ratio": "1:1", "min_transfer": 2000, "transfer_time": "instant"},
+        {"program": "Air Canada Aeroplan", "type": "airline", "ratio": "1:1", "min_transfer": 2000, "transfer_time": "instant"},
+        {"program": "Air France-KLM Flying Blue", "type": "airline", "ratio": "1:1", "min_transfer": 2000, "transfer_time": "instant"},
+        {"program": "Alaska Atmos Rewards (Alaska + Hawaiian)", "type": "airline", "ratio": "1:1", "min_transfer": 2000, "transfer_time": "instant"},
+        {"program": "Avianca LifeMiles", "type": "airline", "ratio": "1:1", "min_transfer": 2000, "transfer_time": "instant"},
+        {"program": "British Airways Club", "type": "airline", "ratio": "1:1", "min_transfer": 2000, "transfer_time": "instant"},
+        {"program": "Cathay Pacific", "type": "airline", "ratio": "1:1", "min_transfer": 2000, "transfer_time": "instant"},
+        {"program": "Emirates Skywards", "type": "airline", "ratio": "1:1", "min_transfer": 2000, "transfer_time": "instant"},
+        {"program": "Etihad Guest", "type": "airline", "ratio": "1:1", "min_transfer": 2000, "transfer_time": "instant"},
+        {"program": "Iberia Plus", "type": "airline", "ratio": "1:1", "min_transfer": 2000, "transfer_time": "instant"},
+        {"program": "Japan Airlines Mileage Bank", "type": "airline", "ratio": "1:1", "min_transfer": 2000, "transfer_time": "instant"},
+        {"program": "Qatar Airways Privilege Club", "type": "airline", "ratio": "1:1", "min_transfer": 2000, "transfer_time": "instant"},
+        {"program": "Southwest Rapid Rewards", "type": "airline", "ratio": "1:1", "min_transfer": 2000, "transfer_time": "up to 72 hours"},
+        {"program": "TAP Air Portugal Miles&Go", "type": "airline", "ratio": "1:1", "min_transfer": 2000, "transfer_time": "instant"},
+        {"program": "Turkish Airlines Miles&Smiles", "type": "airline", "ratio": "1:1", "min_transfer": 2000, "transfer_time": "instant"},
+        {"program": "United MileagePlus", "type": "airline", "ratio": "1:1", "min_transfer": 2000, "transfer_time": "instant"},
+        {"program": "Virgin Atlantic Flying Club", "type": "airline", "ratio": "1:1", "min_transfer": 2000, "transfer_time": "instant"},
+        {"program": "Virgin Red", "type": "airline", "ratio": "1:1", "min_transfer": 2000, "transfer_time": "instant"},
+        {"program": "ALL - Accor Live Limitless", "type": "hotel", "ratio": "3:2", "min_transfer": 2000, "transfer_time": "instant"},
+        {"program": "Hilton Honors", "type": "hotel", "ratio": "1:1", "min_transfer": 2000, "transfer_time": "instant"},
+        {"program": "IHG One Rewards", "type": "hotel", "ratio": "1:1", "min_transfer": 2000, "transfer_time": "instant"},
+        {"program": "Marriott Bonvoy", "type": "hotel", "ratio": "1:1", "min_transfer": 2000, "transfer_time": "instant"},
+        {"program": "World of Hyatt", "type": "hotel", "ratio": "1:1", "min_transfer": 2000, "transfer_time": "instant"},
+        {"program": "Wyndham Rewards", "type": "hotel", "ratio": "1:1", "min_transfer": 1000, "transfer_time": "instant", "recently_added": "2026-03-01"}
+      ],
+      "portal_redemption": {
+        "base_cpp": 1.25,
+        "notes": "Bilt Travel pays 1.25cpp on flights; Bilt Cruises 1.75cpp; Hotel Collection benefits stack. Bilt is the only major transferable currency that hits Alaska Atmos at 1:1 (along with Marriott)."
+      },
+      "tier_minimums": {
+        "blue": 2000,
+        "silver_and_above": 1000
+      }
+    },
+    "Marriott Bonvoy": {
+      "transfer_partners": [
+        {"program": "Aeromexico Rewards", "type": "airline", "ratio": "3:1", "bonus_per_60k": "+5,000", "min_transfer": 3000, "transfer_time": "1-7 days"},
+        {"program": "Air Canada Aeroplan", "type": "airline", "ratio": "3:1", "bonus_per_60k": "+5,000", "min_transfer": 3000, "transfer_time": "1-7 days"},
+        {"program": "Air France-KLM Flying Blue", "type": "airline", "ratio": "3:1", "bonus_per_60k": "+5,000", "min_transfer": 3000, "transfer_time": "1-7 days"},
+        {"program": "Air New Zealand Airpoints", "type": "airline", "ratio": "200:1", "bonus_per_60k": "n/a", "min_transfer": 3000, "transfer_time": "1-7 days", "notes": "Different ratio — 200 Bonvoy = 1 Airpoint Dollar"},
+        {"program": "Alaska Atmos Rewards", "type": "airline", "ratio": "3:1", "bonus_per_60k": "+5,000", "min_transfer": 3000, "transfer_time": "1-7 days"},
+        {"program": "American Airlines AAdvantage", "type": "airline", "ratio": "3:1", "bonus_per_60k": "none", "min_transfer": 3000, "transfer_time": "1-7 days"},
+        {"program": "ANA Mileage Club", "type": "airline", "ratio": "3:1", "bonus_per_60k": "+5,000", "min_transfer": 3000, "transfer_time": "1-7 days"},
+        {"program": "Asia Miles (Cathay)", "type": "airline", "ratio": "3:1", "bonus_per_60k": "+5,000", "min_transfer": 3000, "transfer_time": "1-7 days"},
+        {"program": "Avianca LifeMiles", "type": "airline", "ratio": "3:1", "bonus_per_60k": "none", "min_transfer": 3000, "transfer_time": "1-7 days"},
+        {"program": "British Airways Club", "type": "airline", "ratio": "3:1", "bonus_per_60k": "+5,000", "min_transfer": 3000, "transfer_time": "1-7 days"},
+        {"program": "China Eastern Eastern Miles", "type": "airline", "ratio": "3:1", "bonus_per_60k": "+5,000", "min_transfer": 3000, "transfer_time": "1-7 days"},
+        {"program": "China Southern Sky Pearl Club", "type": "airline", "ratio": "3:1", "bonus_per_60k": "+5,000", "min_transfer": 3000, "transfer_time": "1-7 days"},
+        {"program": "Delta SkyMiles", "type": "airline", "ratio": "3:1", "bonus_per_60k": "none", "min_transfer": 3000, "transfer_time": "1-7 days"},
+        {"program": "Emirates Skywards", "type": "airline", "ratio": "3:1", "bonus_per_60k": "+5,000", "min_transfer": 3000, "transfer_time": "1-7 days"},
+        {"program": "Etihad Guest", "type": "airline", "ratio": "3:1", "bonus_per_60k": "+5,000", "min_transfer": 3000, "transfer_time": "1-7 days"},
+        {"program": "Frontier Miles", "type": "airline", "ratio": "3:1", "bonus_per_60k": "+5,000", "min_transfer": 3000, "transfer_time": "1-7 days"},
+        {"program": "Hawaiian Airlines (now Atmos)", "type": "airline", "ratio": "3:1", "bonus_per_60k": "+5,000", "min_transfer": 3000, "transfer_time": "1-7 days", "notes": "Routes converted to Atmos Apr 2026"},
+        {"program": "Iberia Plus", "type": "airline", "ratio": "3:1", "bonus_per_60k": "+5,000", "min_transfer": 3000, "transfer_time": "1-7 days"},
+        {"program": "Japan Airlines Mileage Bank", "type": "airline", "ratio": "3:1", "bonus_per_60k": "+5,000", "min_transfer": 3000, "transfer_time": "1-7 days"},
+        {"program": "JetBlue TrueBlue", "type": "airline", "ratio": "3:1", "bonus_per_60k": "+5,000", "min_transfer": 3000, "transfer_time": "1-7 days"},
+        {"program": "Korean Air SKYPASS", "type": "airline", "ratio": "3:1", "bonus_per_60k": "+5,000", "min_transfer": 3000, "transfer_time": "1-7 days"},
+        {"program": "Lufthansa Miles & More", "type": "airline", "ratio": "3:1", "bonus_per_60k": "+5,000", "min_transfer": 3000, "transfer_time": "1-7 days"},
+        {"program": "Qantas Frequent Flyer", "type": "airline", "ratio": "3:1", "bonus_per_60k": "+5,000", "min_transfer": 3000, "transfer_time": "1-7 days"},
+        {"program": "Qatar Airways Privilege Club", "type": "airline", "ratio": "3:1", "bonus_per_60k": "+5,000", "min_transfer": 3000, "transfer_time": "1-7 days"},
+        {"program": "Saudia Alfursan", "type": "airline", "ratio": "3:1", "bonus_per_60k": "+5,000", "min_transfer": 3000, "transfer_time": "1-7 days"},
+        {"program": "Singapore Airlines KrisFlyer", "type": "airline", "ratio": "3:1", "bonus_per_60k": "+5,000", "min_transfer": 3000, "transfer_time": "1-7 days"},
+        {"program": "South African Airways Voyager", "type": "airline", "ratio": "3:1", "bonus_per_60k": "+5,000", "min_transfer": 3000, "transfer_time": "1-7 days"},
+        {"program": "Turkish Airlines Miles&Smiles", "type": "airline", "ratio": "3:1", "bonus_per_60k": "+5,000", "min_transfer": 3000, "transfer_time": "1-7 days"},
+        {"program": "United MileagePlus", "type": "airline", "ratio": "3:1.1", "bonus_per_60k": "+10,000", "min_transfer": 3000, "transfer_time": "1-7 days", "notes": "United gets a 10K bonus per 60K (vs 5K for everyone else) — effective 60K Bonvoy = 30K UA"},
+        {"program": "Virgin Atlantic Flying Club", "type": "airline", "ratio": "3:1", "bonus_per_60k": "+5,000", "min_transfer": 3000, "transfer_time": "1-7 days"}
+      ],
+      "portal_redemption": {
+        "base_cpp": 0.7,
+        "notes": "Marriott Cash + Points and Free Night Awards usually beat airline transfers. Standard 3:1 ratio + 5K bonus per 60K = effective 60K Bonvoy = 25K airline miles for most partners."
+      }
+    }
+  }
+}

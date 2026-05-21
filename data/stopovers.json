@@ -1,0 +1,230 @@
+{
+  "_meta": {
+    "version": "2026.05.21",
+    "updated": "2026-05-21",
+    "credit": "Structure adapted from borski/travel-hacking-toolkit (MIT) — github.com/borski/travel-hacking-toolkit. Data independently re-verified for 2026.",
+    "sources": [
+      "https://thepointsguy.com/loyalty-programs/aeroplan-routing-stopover-rules/",
+      "https://princeoftravel.com/guides/aeroplan-stopovers/",
+      "https://www.icelandair.com/flights/stopover/",
+      "https://aerospaceglobalnews.com/news/2026-guide-airline-stopover-programmes/",
+      "https://onemileatatime.com/guides/airline-award-ticket-holds/",
+      "https://frequentmiler.com/",
+      "https://awardwallet.com"
+    ],
+    "definition": "Stopover = planned interruption >24h (intl) or >4h (domestic). Some programs allow free stopovers, some charge points/cash, most US carriers no longer allow them at all.",
+    "notes": "United Excursionist Perk DISCONTINUED 2025-08-21. Confirmed live: Aeroplan, Alaska Atmos (post-rebrand), Icelandair, TAP, Turkish, Cathay, Flying Blue, ANA, JAL, Korean, Singapore KrisFlyer, Emirates, Copa, Etihad, LH M&M."
+  },
+  "_credit": "borski/travel-hacking-toolkit (MIT)",
+  "allowed": [
+    {
+      "program": "Air Canada Aeroplan",
+      "rule": "1 stopover on one-way; 2 stopovers on round-trip (1 per direction)",
+      "fee_miles": 5000,
+      "max_days": 45,
+      "geography": "Anywhere outside US/Canada (no intra-US/Canada stopovers)",
+      "booking_method": "online",
+      "confidence": "VERIFIED",
+      "notes": "Best stopover deal alive in 2026. Combine with LH First or ANA First for two-destination trip at near-zero marginal cost.",
+      "last_verified": "2026-05-01"
+    },
+    {
+      "program": "Alaska Atmos Rewards",
+      "rule": "1 free stopover on a one-way partner award (2 round-trip)",
+      "fee_miles": 0,
+      "max_days": "unspecified (essentially unlimited within ticket validity)",
+      "geography": "Anywhere on the routing",
+      "booking_method": "phone",
+      "confidence": "VERIFIED",
+      "recently_changed": "2025-08-01",
+      "notes": "Mileage Plan -> Atmos rebrand preserved this rule. Single-partner-per-ticket restriction still applies. Allow 30+ min on phone.",
+      "last_verified": "2026-05-10"
+    },
+    {
+      "program": "Turkish Airlines Miles&Smiles",
+      "rule": "1 free stopover in Istanbul on award itineraries",
+      "fee_miles": 0,
+      "max_days": "unspecified",
+      "geography": "IST only",
+      "booking_method": "phone",
+      "confidence": "LIKELY",
+      "notes": "Famously hard to reach by phone; persistence required.",
+      "last_verified": "2026-04-15"
+    },
+    {
+      "program": "TAP Air Portugal Miles&Go",
+      "rule": "Free stopover in Lisbon (LIS) or Porto (OPO), 1-10 nights",
+      "fee_miles": 0,
+      "max_days": 10,
+      "geography": "LIS or OPO",
+      "booking_method": "online",
+      "confidence": "VERIFIED",
+      "notes": "Also available on TAP cash fares. Partner-discount perks included (hotels, experiences).",
+      "last_verified": "2026-05-10"
+    },
+    {
+      "program": "Icelandair Saga Club",
+      "rule": "Free stopover in Reykjavik (KEF) on every transatlantic itinerary",
+      "fee_miles": 0,
+      "max_days": 7,
+      "max_days_premium": 21,
+      "geography": "KEF only",
+      "booking_method": "online",
+      "confidence": "VERIFIED",
+      "notes": "70+ year program. Saga Premium Flex up to 21 days. Bookable via JetBlue TrueBlue partner award (added 2024) — opens path from Bilt/Chase UR. Single best free-second-country perk in commercial aviation.",
+      "last_verified": "2026-05-15"
+    },
+    {
+      "program": "Singapore Airlines KrisFlyer",
+      "rule": "Saver: 1 stopover RT for $100 (SGD). Advantage: 2 stopovers RT free.",
+      "fee_miles": 0,
+      "fee_usd_saver": 100,
+      "max_days": 30,
+      "geography": "Anywhere on the routing",
+      "booking_method": "online",
+      "confidence": "VERIFIED",
+      "last_verified": "2026-05-12"
+    },
+    {
+      "program": "Emirates Skywards",
+      "rule": "Free stopover in Dubai (DXB) on certain partner award routings",
+      "fee_miles": 0,
+      "max_days": "unspecified",
+      "geography": "DXB only",
+      "booking_method": "phone",
+      "confidence": "LIKELY",
+      "notes": "Less generous than other ME3 — Etihad and Qatar both more flexible.",
+      "last_verified": "2026-04-20"
+    },
+    {
+      "program": "Copa ConnectMiles",
+      "rule": "Free stopover in Panama City (PTY) on award itineraries",
+      "fee_miles": 0,
+      "max_days": "unspecified",
+      "geography": "PTY only",
+      "booking_method": "online",
+      "confidence": "LIKELY",
+      "last_verified": "2026-04-25"
+    },
+    {
+      "program": "Japan Airlines Mileage Bank",
+      "rule": "Up to 3 stopovers allowed on intl partner award (1 in JP, others vary)",
+      "fee_miles": 0,
+      "max_days": "unspecified",
+      "geography": "Partner awards only; JAL metal more restrictive",
+      "booking_method": "phone",
+      "confidence": "VERIFIED",
+      "notes": "Among the most generous OW stopover rules.",
+      "last_verified": "2026-04-30"
+    },
+    {
+      "program": "Cathay Pacific Asia Miles",
+      "rule": "2 stopovers + 2 open jaws + 5 transfers on RT multi-carrier award",
+      "fee_miles": 0,
+      "max_days": "unspecified",
+      "geography": "Anywhere on routing",
+      "booking_method": "online",
+      "confidence": "VERIFIED",
+      "notes": "OneWorld multi-carrier awards are where this shines.",
+      "last_verified": "2026-04-25"
+    },
+    {
+      "program": "Air France-KLM Flying Blue",
+      "rule": "Effectively unlimited stopovers on phone-booked award itineraries",
+      "fee_miles": 0,
+      "max_days": 365,
+      "geography": "Anywhere on routing",
+      "booking_method": "phone",
+      "confidence": "VERIFIED",
+      "notes": "Some agents wrongly claim only AMS/CDG hub stopovers — push back, cite FAQ.",
+      "last_verified": "2026-04-30"
+    },
+    {
+      "program": "ANA Mileage Club",
+      "rule": "1 free stopover on intl partner round-trip awards",
+      "fee_miles": 0,
+      "max_days": "unspecified",
+      "geography": "Anywhere on routing",
+      "booking_method": "online",
+      "confidence": "LIKELY",
+      "notes": "RT-only program — stopover essentially built into the structure.",
+      "last_verified": "2026-04-20"
+    },
+    {
+      "program": "Avianca LifeMiles",
+      "rule": "1 free stopover on Star Alliance partner awards",
+      "fee_miles": 0,
+      "max_days": "unspecified",
+      "geography": "Anywhere on routing",
+      "booking_method": "online",
+      "confidence": "LIKELY",
+      "recently_changed": "2026-05-05",
+      "notes": "Devalued May 2026 — confirm rule still applies on multi-segment awards.",
+      "last_verified": "2026-05-15"
+    },
+    {
+      "program": "Etihad Guest",
+      "rule": "1 free stopover in Abu Dhabi (AUH) on award itineraries",
+      "fee_miles": 0,
+      "max_days": "unspecified",
+      "geography": "AUH only",
+      "booking_method": "phone",
+      "confidence": "LIKELY",
+      "last_verified": "2026-04-20"
+    },
+    {
+      "program": "Qatar Airways Privilege Club",
+      "rule": "1 free stopover in Doha (DOH) on certain awards",
+      "fee_miles": 0,
+      "max_days": "unspecified",
+      "geography": "DOH only",
+      "booking_method": "phone",
+      "confidence": "UNVERIFIED",
+      "notes": "Less generous than other ME3 stopovers; agent-dependent.",
+      "last_verified": "2026-04-15"
+    },
+    {
+      "program": "Lufthansa Miles & More",
+      "rule": "Up to 2 stopovers + 2 open jaws on round-trip award",
+      "fee_miles": 0,
+      "max_days": "unspecified",
+      "geography": "Anywhere on routing",
+      "booking_method": "online",
+      "confidence": "LIKELY",
+      "notes": "Heavy YQ surcharges are the catch.",
+      "last_verified": "2026-04-25"
+    },
+    {
+      "program": "Korean Air SKYPASS",
+      "rule": "1 free stopover on round-trip intl awards",
+      "fee_miles": 0,
+      "max_days": "unspecified",
+      "geography": "Anywhere on routing",
+      "booking_method": "phone",
+      "confidence": "LIKELY",
+      "last_verified": "2026-04-28"
+    }
+  ],
+  "discontinued": [
+    {
+      "program": "United MileagePlus (Excursionist Perk)",
+      "discontinued_date": "2025-08-21",
+      "rule_was": "Free one-way award within multi-city itineraries of 3+ one-ways with specific geographic/cabin conditions",
+      "notes": "Eliminated August 21, 2025 alongside instant upgrades and upgrade chart."
+    }
+  ],
+  "not_allowed": [
+    {"program": "American Airlines AAdvantage", "notes": "Long layovers up to 24h international permitted but no stopover perk"},
+    {"program": "Delta SkyMiles", "notes": "Long layovers up to 24h international permitted only"},
+    {"program": "British Airways Club Avios", "notes": "Each segment priced separately as own award"},
+    {"program": "Iberia Plus Avios", "notes": "Each segment priced separately"},
+    {"program": "Aer Lingus AerClub Avios", "notes": "Each segment priced separately"},
+    {"program": "JetBlue TrueBlue", "notes": "Revenue-based, segment-priced (but Icelandair partner award unlocks KEF stopover)"},
+    {"program": "Southwest Rapid Rewards", "notes": "Revenue-based, no stopover concept"},
+    {"program": "Frontier Miles", "notes": "Revenue-based, no stopovers"},
+    {"program": "Spirit Free Spirit", "notes": "Revenue-based, no stopovers"},
+    {"program": "Virgin Atlantic Flying Club", "notes": "No formal stopover program on awards"},
+    {"program": "Hawaiian Airlines (now Atmos)", "notes": "Routes converting to Alaska Atmos through Apr 2026; old HA rules dead"},
+    {"program": "United MileagePlus", "notes": "Excursionist Perk discontinued Aug 2025; no stopover replacement"}
+  ]
+}

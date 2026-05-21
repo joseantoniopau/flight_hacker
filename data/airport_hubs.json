@@ -1,0 +1,1325 @@
+{
+  "_meta": {
+    "version": "1.0.0",
+    "generated": "2026-05-21",
+    "purpose": "Combinatorial positioning-flight search. Each hub lists nearby airports reachable by ground transport so the planner can split an itinerary at the LCC hub it actually serves. Distances/costs verified against carrier and operator pages May 2026; refresh quarterly.",
+    "category_codes": {
+      "lcc_hub": "Dominated by low-cost carriers; good for short-haul positioning legs.",
+      "long_haul_hub": "Primary intercontinental gateway; good for the expensive leg of a split itinerary.",
+      "both": "Significant LCC and long-haul presence."
+    },
+    "ground_cost_unit": "USD (approximate one-way, public-transport tier; taxis and private transfers ignored)",
+    "ground_minutes": "Door-to-door public/operator-bus transit time, traffic-typical"
+  },
+  "regions": {
+    "NA": [
+      {
+        "iata": "JFK", "city": "New York", "country": "US", "region": "NA",
+        "lat": 40.6413, "lon": -73.7781,
+        "lcc_carriers": ["JetBlue", "Spirit", "Frontier"],
+        "major_long_haul_carriers": ["American", "Delta", "British Airways", "Air France", "Lufthansa", "Emirates", "Qatar Airways"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "LGA", "ground_minutes": 50, "ground_cost_usd": 18, "transport": "bus_subway"},
+          {"iata": "EWR", "ground_minutes": 75, "ground_cost_usd": 23, "transport": "private_shuttle"}
+        ]
+      },
+      {
+        "iata": "LGA", "city": "New York", "country": "US", "region": "NA",
+        "lat": 40.7769, "lon": -73.8740,
+        "lcc_carriers": ["Frontier", "Spirit"],
+        "major_long_haul_carriers": ["American", "Delta", "United"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "JFK", "ground_minutes": 50, "ground_cost_usd": 18, "transport": "bus_subway"},
+          {"iata": "EWR", "ground_minutes": 75, "ground_cost_usd": 23, "transport": "private_shuttle"}
+        ]
+      },
+      {
+        "iata": "EWR", "city": "Newark", "country": "US", "region": "NA",
+        "lat": 40.6895, "lon": -74.1745,
+        "lcc_carriers": ["Spirit", "Allegiant", "Breeze"],
+        "major_long_haul_carriers": ["United", "Lufthansa", "Air India", "Virgin Atlantic"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "JFK", "ground_minutes": 75, "ground_cost_usd": 23, "transport": "private_shuttle"},
+          {"iata": "LGA", "ground_minutes": 70, "ground_cost_usd": 23, "transport": "private_shuttle"},
+          {"iata": "PHL", "ground_minutes": 120, "ground_cost_usd": 30, "transport": "amtrak_regional"}
+        ]
+      },
+      {
+        "iata": "BOS", "city": "Boston", "country": "US", "region": "NA",
+        "lat": 42.3656, "lon": -71.0096,
+        "lcc_carriers": ["JetBlue", "Spirit", "Breeze"],
+        "major_long_haul_carriers": ["American", "Delta", "British Airways", "Lufthansa", "Aer Lingus"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "MHT", "ground_minutes": 75, "ground_cost_usd": 25, "transport": "flixbus"},
+          {"iata": "PVD", "ground_minutes": 90, "ground_cost_usd": 12, "transport": "mbta_commuter_rail"}
+        ]
+      },
+      {
+        "iata": "PHL", "city": "Philadelphia", "country": "US", "region": "NA",
+        "lat": 39.8744, "lon": -75.2424,
+        "lcc_carriers": ["Frontier", "Spirit"],
+        "major_long_haul_carriers": ["American", "British Airways", "Lufthansa", "Qatar Airways"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "EWR", "ground_minutes": 120, "ground_cost_usd": 30, "transport": "amtrak_regional"},
+          {"iata": "BWI", "ground_minutes": 105, "ground_cost_usd": 18, "transport": "amtrak_regional"}
+        ]
+      },
+      {
+        "iata": "BWI", "city": "Baltimore", "country": "US", "region": "NA",
+        "lat": 39.1754, "lon": -76.6683,
+        "lcc_carriers": ["Southwest", "Spirit", "Frontier"],
+        "major_long_haul_carriers": ["British Airways", "Condor"],
+        "category": "lcc_hub",
+        "nearby_hubs": [
+          {"iata": "DCA", "ground_minutes": 80, "ground_cost_usd": 12, "transport": "marc_metro"},
+          {"iata": "IAD", "ground_minutes": 130, "ground_cost_usd": 18, "transport": "marc_metro_silver_line"},
+          {"iata": "PHL", "ground_minutes": 105, "ground_cost_usd": 18, "transport": "amtrak_regional"}
+        ]
+      },
+      {
+        "iata": "DCA", "city": "Washington", "country": "US", "region": "NA",
+        "lat": 38.8512, "lon": -77.0402,
+        "lcc_carriers": ["Frontier", "Spirit", "JetBlue"],
+        "major_long_haul_carriers": ["American", "Delta", "United"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "IAD", "ground_minutes": 70, "ground_cost_usd": 12, "transport": "metro_silver_line"},
+          {"iata": "BWI", "ground_minutes": 80, "ground_cost_usd": 12, "transport": "marc_metro"}
+        ]
+      },
+      {
+        "iata": "IAD", "city": "Washington Dulles", "country": "US", "region": "NA",
+        "lat": 38.9531, "lon": -77.4565,
+        "lcc_carriers": ["Frontier", "JetBlue"],
+        "major_long_haul_carriers": ["United", "Lufthansa", "Air France", "British Airways", "Qatar Airways", "Emirates"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "DCA", "ground_minutes": 70, "ground_cost_usd": 12, "transport": "metro_silver_line"},
+          {"iata": "BWI", "ground_minutes": 130, "ground_cost_usd": 18, "transport": "marc_metro_silver_line"}
+        ]
+      },
+      {
+        "iata": "ORD", "city": "Chicago", "country": "US", "region": "NA",
+        "lat": 41.9742, "lon": -87.9073,
+        "lcc_carriers": ["Frontier", "Spirit"],
+        "major_long_haul_carriers": ["American", "United", "Lufthansa", "ANA", "Cathay Pacific"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "MDW", "ground_minutes": 90, "ground_cost_usd": 5, "transport": "cta_blue_orange"},
+          {"iata": "MKE", "ground_minutes": 120, "ground_cost_usd": 25, "transport": "coach_usa"}
+        ]
+      },
+      {
+        "iata": "MDW", "city": "Chicago Midway", "country": "US", "region": "NA",
+        "lat": 41.7868, "lon": -87.7522,
+        "lcc_carriers": ["Southwest", "Frontier", "Volaris"],
+        "major_long_haul_carriers": [],
+        "category": "lcc_hub",
+        "nearby_hubs": [
+          {"iata": "ORD", "ground_minutes": 90, "ground_cost_usd": 5, "transport": "cta_blue_orange"}
+        ]
+      },
+      {
+        "iata": "ATL", "city": "Atlanta", "country": "US", "region": "NA",
+        "lat": 33.6407, "lon": -84.4277,
+        "lcc_carriers": ["Spirit", "Frontier", "Southwest"],
+        "major_long_haul_carriers": ["Delta", "Korean Air", "Air France", "KLM", "Lufthansa"],
+        "category": "long_haul_hub",
+        "nearby_hubs": []
+      },
+      {
+        "iata": "MIA", "city": "Miami", "country": "US", "region": "NA",
+        "lat": 25.7959, "lon": -80.2870,
+        "lcc_carriers": ["Frontier"],
+        "major_long_haul_carriers": ["American", "British Airways", "Lufthansa", "LATAM", "Iberia"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "FLL", "ground_minutes": 60, "ground_cost_usd": 10, "transport": "tri_rail"},
+          {"iata": "PBI", "ground_minutes": 110, "ground_cost_usd": 12, "transport": "tri_rail"}
+        ]
+      },
+      {
+        "iata": "FLL", "city": "Fort Lauderdale", "country": "US", "region": "NA",
+        "lat": 26.0742, "lon": -80.1506,
+        "lcc_carriers": ["JetBlue", "Spirit", "Southwest", "Frontier", "Avianca"],
+        "major_long_haul_carriers": ["Norse Atlantic", "Azul"],
+        "category": "lcc_hub",
+        "nearby_hubs": [
+          {"iata": "MIA", "ground_minutes": 60, "ground_cost_usd": 10, "transport": "tri_rail"},
+          {"iata": "PBI", "ground_minutes": 60, "ground_cost_usd": 8, "transport": "tri_rail"}
+        ]
+      },
+      {
+        "iata": "MCO", "city": "Orlando", "country": "US", "region": "NA",
+        "lat": 28.4312, "lon": -81.3081,
+        "lcc_carriers": ["Spirit", "Frontier", "JetBlue", "Southwest", "Breeze"],
+        "major_long_haul_carriers": ["Lufthansa", "British Airways", "Aer Lingus", "Norse Atlantic"],
+        "category": "both",
+        "nearby_hubs": [
+          {"iata": "TPA", "ground_minutes": 140, "ground_cost_usd": 20, "transport": "flixbus"},
+          {"iata": "SFB", "ground_minutes": 50, "ground_cost_usd": 25, "transport": "shuttle"}
+        ]
+      },
+      {
+        "iata": "DFW", "city": "Dallas", "country": "US", "region": "NA",
+        "lat": 32.8998, "lon": -97.0403,
+        "lcc_carriers": ["Spirit", "Frontier"],
+        "major_long_haul_carriers": ["American", "British Airways", "Lufthansa", "Qantas", "Qatar Airways"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "DAL", "ground_minutes": 45, "ground_cost_usd": 3, "transport": "dart_rail"}
+        ]
+      },
+      {
+        "iata": "IAH", "city": "Houston", "country": "US", "region": "NA",
+        "lat": 29.9844, "lon": -95.3414,
+        "lcc_carriers": ["Spirit", "Frontier"],
+        "major_long_haul_carriers": ["United", "Lufthansa", "ANA", "Qatar Airways", "Air China"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "HOU", "ground_minutes": 75, "ground_cost_usd": 6, "transport": "metro_bus"}
+        ]
+      },
+      {
+        "iata": "HOU", "city": "Houston Hobby", "country": "US", "region": "NA",
+        "lat": 29.6454, "lon": -95.2789,
+        "lcc_carriers": ["Southwest", "Spirit", "Frontier"],
+        "major_long_haul_carriers": [],
+        "category": "lcc_hub",
+        "nearby_hubs": [
+          {"iata": "IAH", "ground_minutes": 75, "ground_cost_usd": 6, "transport": "metro_bus"}
+        ]
+      },
+      {
+        "iata": "DEN", "city": "Denver", "country": "US", "region": "NA",
+        "lat": 39.8561, "lon": -104.6737,
+        "lcc_carriers": ["Frontier", "Spirit", "Southwest"],
+        "major_long_haul_carriers": ["United", "Lufthansa", "British Airways", "Icelandair"],
+        "category": "both",
+        "nearby_hubs": []
+      },
+      {
+        "iata": "LAS", "city": "Las Vegas", "country": "US", "region": "NA",
+        "lat": 36.0840, "lon": -115.1537,
+        "lcc_carriers": ["Spirit", "Frontier", "Allegiant", "Southwest"],
+        "major_long_haul_carriers": ["British Airways", "Korean Air", "Virgin Atlantic"],
+        "category": "lcc_hub",
+        "nearby_hubs": []
+      },
+      {
+        "iata": "PHX", "city": "Phoenix", "country": "US", "region": "NA",
+        "lat": 33.4373, "lon": -112.0078,
+        "lcc_carriers": ["Frontier", "Spirit", "Southwest"],
+        "major_long_haul_carriers": ["American", "British Airways", "Condor"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "AZA", "ground_minutes": 75, "ground_cost_usd": 30, "transport": "valley_metro_shuttle"}
+        ]
+      },
+      {
+        "iata": "SEA", "city": "Seattle", "country": "US", "region": "NA",
+        "lat": 47.4502, "lon": -122.3088,
+        "lcc_carriers": ["Spirit", "Frontier"],
+        "major_long_haul_carriers": ["Alaska", "Delta", "British Airways", "Lufthansa", "Korean Air", "Emirates"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "PAE", "ground_minutes": 70, "ground_cost_usd": 30, "transport": "shuttle"},
+          {"iata": "BLI", "ground_minutes": 150, "ground_cost_usd": 35, "transport": "amtrak_cascades"}
+        ]
+      },
+      {
+        "iata": "SFO", "city": "San Francisco", "country": "US", "region": "NA",
+        "lat": 37.6213, "lon": -122.3790,
+        "lcc_carriers": ["Frontier", "Spirit"],
+        "major_long_haul_carriers": ["United", "Lufthansa", "Air France", "ANA", "Cathay Pacific", "Singapore Airlines"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "OAK", "ground_minutes": 75, "ground_cost_usd": 13, "transport": "bart_connector"},
+          {"iata": "SJC", "ground_minutes": 85, "ground_cost_usd": 12, "transport": "caltrain_vta"}
+        ]
+      },
+      {
+        "iata": "OAK", "city": "Oakland", "country": "US", "region": "NA",
+        "lat": 37.7126, "lon": -122.2197,
+        "lcc_carriers": ["Southwest", "Spirit", "Frontier"],
+        "major_long_haul_carriers": ["Norse Atlantic", "Hawaiian"],
+        "category": "lcc_hub",
+        "nearby_hubs": [
+          {"iata": "SFO", "ground_minutes": 75, "ground_cost_usd": 13, "transport": "bart_connector"},
+          {"iata": "SJC", "ground_minutes": 75, "ground_cost_usd": 10, "transport": "bart_vta"}
+        ]
+      },
+      {
+        "iata": "SJC", "city": "San Jose", "country": "US", "region": "NA",
+        "lat": 37.3639, "lon": -121.9289,
+        "lcc_carriers": ["Southwest", "Frontier", "Spirit"],
+        "major_long_haul_carriers": ["Air Canada", "ANA", "Hainan"],
+        "category": "lcc_hub",
+        "nearby_hubs": [
+          {"iata": "SFO", "ground_minutes": 85, "ground_cost_usd": 12, "transport": "caltrain_vta"},
+          {"iata": "OAK", "ground_minutes": 75, "ground_cost_usd": 10, "transport": "bart_vta"}
+        ]
+      },
+      {
+        "iata": "LAX", "city": "Los Angeles", "country": "US", "region": "NA",
+        "lat": 33.9416, "lon": -118.4085,
+        "lcc_carriers": ["Spirit", "Frontier", "JetBlue"],
+        "major_long_haul_carriers": ["American", "Delta", "United", "British Airways", "Air France", "Qantas", "Emirates", "Singapore Airlines"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "BUR", "ground_minutes": 90, "ground_cost_usd": 12, "transport": "flyaway_metrolink"},
+          {"iata": "LGB", "ground_minutes": 90, "ground_cost_usd": 6, "transport": "metro_266"},
+          {"iata": "SNA", "ground_minutes": 90, "ground_cost_usd": 15, "transport": "flixbus"},
+          {"iata": "ONT", "ground_minutes": 110, "ground_cost_usd": 18, "transport": "flixbus"}
+        ]
+      },
+      {
+        "iata": "BUR", "city": "Burbank", "country": "US", "region": "NA",
+        "lat": 34.2007, "lon": -118.3587,
+        "lcc_carriers": ["Southwest", "JetBlue", "Avelo"],
+        "major_long_haul_carriers": [],
+        "category": "lcc_hub",
+        "nearby_hubs": [
+          {"iata": "LAX", "ground_minutes": 90, "ground_cost_usd": 12, "transport": "flyaway_metrolink"},
+          {"iata": "ONT", "ground_minutes": 110, "ground_cost_usd": 20, "transport": "metrolink"}
+        ]
+      },
+      {
+        "iata": "LGB", "city": "Long Beach", "country": "US", "region": "NA",
+        "lat": 33.8177, "lon": -118.1516,
+        "lcc_carriers": ["Southwest", "JetBlue", "Hawaiian"],
+        "major_long_haul_carriers": [],
+        "category": "lcc_hub",
+        "nearby_hubs": [
+          {"iata": "LAX", "ground_minutes": 90, "ground_cost_usd": 6, "transport": "metro_266"},
+          {"iata": "SNA", "ground_minutes": 60, "ground_cost_usd": 15, "transport": "shuttle"}
+        ]
+      },
+      {
+        "iata": "SNA", "city": "Santa Ana / Orange County", "country": "US", "region": "NA",
+        "lat": 33.6757, "lon": -117.8682,
+        "lcc_carriers": ["Southwest", "Frontier", "Spirit"],
+        "major_long_haul_carriers": [],
+        "category": "lcc_hub",
+        "nearby_hubs": [
+          {"iata": "LAX", "ground_minutes": 90, "ground_cost_usd": 15, "transport": "flixbus"},
+          {"iata": "LGB", "ground_minutes": 60, "ground_cost_usd": 15, "transport": "shuttle"},
+          {"iata": "ONT", "ground_minutes": 75, "ground_cost_usd": 18, "transport": "shuttle"}
+        ]
+      },
+      {
+        "iata": "ONT", "city": "Ontario CA", "country": "US", "region": "NA",
+        "lat": 34.0560, "lon": -117.6012,
+        "lcc_carriers": ["Southwest", "Frontier"],
+        "major_long_haul_carriers": ["China Airlines"],
+        "category": "lcc_hub",
+        "nearby_hubs": [
+          {"iata": "LAX", "ground_minutes": 110, "ground_cost_usd": 18, "transport": "flixbus"},
+          {"iata": "BUR", "ground_minutes": 110, "ground_cost_usd": 20, "transport": "metrolink"},
+          {"iata": "SNA", "ground_minutes": 75, "ground_cost_usd": 18, "transport": "shuttle"}
+        ]
+      },
+      {
+        "iata": "YYZ", "city": "Toronto Pearson", "country": "CA", "region": "NA",
+        "lat": 43.6777, "lon": -79.6248,
+        "lcc_carriers": ["Flair", "WestJet", "Porter"],
+        "major_long_haul_carriers": ["Air Canada", "Lufthansa", "Cathay Pacific", "Emirates", "British Airways"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "YTZ", "ground_minutes": 50, "ground_cost_usd": 8, "transport": "up_express_ttc"},
+          {"iata": "YHM", "ground_minutes": 75, "ground_cost_usd": 20, "transport": "go_transit"}
+        ]
+      },
+      {
+        "iata": "YTZ", "city": "Toronto Billy Bishop", "country": "CA", "region": "NA",
+        "lat": 43.6273, "lon": -79.3964,
+        "lcc_carriers": ["Porter"],
+        "major_long_haul_carriers": ["Air Canada Express"],
+        "category": "lcc_hub",
+        "nearby_hubs": [
+          {"iata": "YYZ", "ground_minutes": 50, "ground_cost_usd": 8, "transport": "up_express_ttc"}
+        ]
+      },
+      {
+        "iata": "YUL", "city": "Montreal", "country": "CA", "region": "NA",
+        "lat": 45.4706, "lon": -73.7408,
+        "lcc_carriers": ["Flair", "Porter"],
+        "major_long_haul_carriers": ["Air Canada", "Air France", "KLM", "Lufthansa"],
+        "category": "long_haul_hub",
+        "nearby_hubs": []
+      },
+      {
+        "iata": "YYC", "city": "Calgary", "country": "CA", "region": "NA",
+        "lat": 51.1215, "lon": -114.0076,
+        "lcc_carriers": ["WestJet", "Flair", "Lynx"],
+        "major_long_haul_carriers": ["Air Canada", "British Airways", "KLM"],
+        "category": "both",
+        "nearby_hubs": []
+      },
+      {
+        "iata": "YVR", "city": "Vancouver", "country": "CA", "region": "NA",
+        "lat": 49.1939, "lon": -123.1844,
+        "lcc_carriers": ["WestJet", "Flair", "Swoop"],
+        "major_long_haul_carriers": ["Air Canada", "Cathay Pacific", "Lufthansa", "Korean Air", "Singapore Airlines"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "YXX", "ground_minutes": 90, "ground_cost_usd": 12, "transport": "translink_bus"},
+          {"iata": "BLI", "ground_minutes": 90, "ground_cost_usd": 35, "transport": "quick_shuttle"}
+        ]
+      },
+      {
+        "iata": "MEX", "city": "Mexico City", "country": "MX", "region": "NA",
+        "lat": 19.4361, "lon": -99.0719,
+        "lcc_carriers": ["Volaris", "VivaAerobus"],
+        "major_long_haul_carriers": ["Aeromexico", "Lufthansa", "Air France", "British Airways", "United"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "TLC", "ground_minutes": 110, "ground_cost_usd": 12, "transport": "caminante_bus"},
+          {"iata": "NLU", "ground_minutes": 90, "ground_cost_usd": 5, "transport": "mexibus"}
+        ]
+      },
+      {
+        "iata": "CUN", "city": "Cancun", "country": "MX", "region": "NA",
+        "lat": 21.0365, "lon": -86.8771,
+        "lcc_carriers": ["Volaris", "VivaAerobus", "Spirit", "Frontier"],
+        "major_long_haul_carriers": ["Aeromexico", "British Airways", "Lufthansa", "Air France"],
+        "category": "both",
+        "nearby_hubs": [
+          {"iata": "CZM", "ground_minutes": 150, "ground_cost_usd": 25, "transport": "ado_bus_ferry"}
+        ]
+      }
+    ],
+    "EU": [
+      {
+        "iata": "LHR", "city": "London Heathrow", "country": "GB", "region": "EU",
+        "lat": 51.4700, "lon": -0.4543,
+        "lcc_carriers": [],
+        "major_long_haul_carriers": ["British Airways", "Virgin Atlantic", "American", "United", "Lufthansa", "Emirates", "Qatar Airways", "Singapore Airlines", "Cathay Pacific"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "LGW", "ground_minutes": 90, "ground_cost_usd": 35, "transport": "national_express"},
+          {"iata": "STN", "ground_minutes": 120, "ground_cost_usd": 35, "transport": "national_express"},
+          {"iata": "LTN", "ground_minutes": 105, "ground_cost_usd": 30, "transport": "national_express"},
+          {"iata": "LCY", "ground_minutes": 90, "ground_cost_usd": 18, "transport": "elizabeth_line_dlr"}
+        ]
+      },
+      {
+        "iata": "LGW", "city": "London Gatwick", "country": "GB", "region": "EU",
+        "lat": 51.1537, "lon": -0.1821,
+        "lcc_carriers": ["easyJet", "Ryanair", "Wizz Air", "Vueling"],
+        "major_long_haul_carriers": ["British Airways", "Virgin Atlantic", "Norse Atlantic", "Emirates", "TUI"],
+        "category": "both",
+        "nearby_hubs": [
+          {"iata": "LHR", "ground_minutes": 90, "ground_cost_usd": 35, "transport": "national_express"},
+          {"iata": "STN", "ground_minutes": 150, "ground_cost_usd": 40, "transport": "national_express"},
+          {"iata": "LTN", "ground_minutes": 150, "ground_cost_usd": 40, "transport": "national_express"}
+        ]
+      },
+      {
+        "iata": "STN", "city": "London Stansted", "country": "GB", "region": "EU",
+        "lat": 51.8860, "lon": 0.2389,
+        "lcc_carriers": ["Ryanair", "easyJet", "Jet2", "Wizz Air"],
+        "major_long_haul_carriers": ["Emirates"],
+        "category": "lcc_hub",
+        "nearby_hubs": [
+          {"iata": "LHR", "ground_minutes": 120, "ground_cost_usd": 35, "transport": "national_express"},
+          {"iata": "LGW", "ground_minutes": 150, "ground_cost_usd": 40, "transport": "national_express"},
+          {"iata": "LTN", "ground_minutes": 75, "ground_cost_usd": 25, "transport": "national_express_100"}
+        ]
+      },
+      {
+        "iata": "LTN", "city": "London Luton", "country": "GB", "region": "EU",
+        "lat": 51.8747, "lon": -0.3683,
+        "lcc_carriers": ["easyJet", "Ryanair", "Wizz Air"],
+        "major_long_haul_carriers": [],
+        "category": "lcc_hub",
+        "nearby_hubs": [
+          {"iata": "LHR", "ground_minutes": 105, "ground_cost_usd": 30, "transport": "national_express"},
+          {"iata": "STN", "ground_minutes": 75, "ground_cost_usd": 25, "transport": "national_express_100"}
+        ]
+      },
+      {
+        "iata": "LCY", "city": "London City", "country": "GB", "region": "EU",
+        "lat": 51.5048, "lon": 0.0495,
+        "lcc_carriers": [],
+        "major_long_haul_carriers": ["British Airways", "KLM", "Lufthansa"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "LHR", "ground_minutes": 90, "ground_cost_usd": 18, "transport": "elizabeth_line_dlr"}
+        ]
+      },
+      {
+        "iata": "MAN", "city": "Manchester", "country": "GB", "region": "EU",
+        "lat": 53.3537, "lon": -2.2750,
+        "lcc_carriers": ["Ryanair", "easyJet", "Jet2"],
+        "major_long_haul_carriers": ["Virgin Atlantic", "Emirates", "Qatar Airways", "Singapore Airlines"],
+        "category": "both",
+        "nearby_hubs": [
+          {"iata": "LPL", "ground_minutes": 90, "ground_cost_usd": 15, "transport": "national_rail"},
+          {"iata": "LBA", "ground_minutes": 110, "ground_cost_usd": 18, "transport": "national_express"}
+        ]
+      },
+      {
+        "iata": "EDI", "city": "Edinburgh", "country": "GB", "region": "EU",
+        "lat": 55.9500, "lon": -3.3725,
+        "lcc_carriers": ["Ryanair", "easyJet", "Jet2", "Wizz Air"],
+        "major_long_haul_carriers": ["British Airways", "Delta", "United", "Emirates"],
+        "category": "lcc_hub",
+        "nearby_hubs": [
+          {"iata": "GLA", "ground_minutes": 90, "ground_cost_usd": 18, "transport": "citylink_bus"},
+          {"iata": "PIK", "ground_minutes": 110, "ground_cost_usd": 20, "transport": "scotrail"}
+        ]
+      },
+      {
+        "iata": "CDG", "city": "Paris Charles de Gaulle", "country": "FR", "region": "EU",
+        "lat": 49.0097, "lon": 2.5479,
+        "lcc_carriers": ["easyJet", "Vueling", "Transavia"],
+        "major_long_haul_carriers": ["Air France", "Delta", "American", "Emirates", "Qatar Airways", "Singapore Airlines"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "ORY", "ground_minutes": 75, "ground_cost_usd": 12, "transport": "orlyval_rer"},
+          {"iata": "BVA", "ground_minutes": 150, "ground_cost_usd": 22, "transport": "aerobus_shuttle"}
+        ]
+      },
+      {
+        "iata": "ORY", "city": "Paris Orly", "country": "FR", "region": "EU",
+        "lat": 48.7233, "lon": 2.3794,
+        "lcc_carriers": ["Vueling", "Transavia", "easyJet", "Wizz Air"],
+        "major_long_haul_carriers": ["Air France", "Air Caraibes", "French Bee", "Norse Atlantic"],
+        "category": "both",
+        "nearby_hubs": [
+          {"iata": "CDG", "ground_minutes": 75, "ground_cost_usd": 12, "transport": "orlyval_rer"},
+          {"iata": "BVA", "ground_minutes": 150, "ground_cost_usd": 25, "transport": "aerobus_metro"}
+        ]
+      },
+      {
+        "iata": "BVA", "city": "Paris Beauvais", "country": "FR", "region": "EU",
+        "lat": 49.4544, "lon": 2.1128,
+        "lcc_carriers": ["Ryanair", "Wizz Air"],
+        "major_long_haul_carriers": [],
+        "category": "lcc_hub",
+        "nearby_hubs": [
+          {"iata": "CDG", "ground_minutes": 150, "ground_cost_usd": 22, "transport": "aerobus_shuttle"},
+          {"iata": "ORY", "ground_minutes": 150, "ground_cost_usd": 25, "transport": "aerobus_metro"}
+        ]
+      },
+      {
+        "iata": "AMS", "city": "Amsterdam", "country": "NL", "region": "EU",
+        "lat": 52.3105, "lon": 4.7683,
+        "lcc_carriers": ["easyJet", "Transavia", "Ryanair", "Vueling"],
+        "major_long_haul_carriers": ["KLM", "Delta", "Emirates", "Singapore Airlines", "China Eastern"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "EIN", "ground_minutes": 110, "ground_cost_usd": 20, "transport": "ns_train_bus_401"},
+          {"iata": "RTM", "ground_minutes": 60, "ground_cost_usd": 15, "transport": "ns_train"}
+        ]
+      },
+      {
+        "iata": "EIN", "city": "Eindhoven", "country": "NL", "region": "EU",
+        "lat": 51.4500, "lon": 5.3744,
+        "lcc_carriers": ["Ryanair", "Wizz Air", "Transavia"],
+        "major_long_haul_carriers": [],
+        "category": "lcc_hub",
+        "nearby_hubs": [
+          {"iata": "AMS", "ground_minutes": 110, "ground_cost_usd": 20, "transport": "ns_train_bus_401"},
+          {"iata": "DUS", "ground_minutes": 150, "ground_cost_usd": 30, "transport": "flixbus"}
+        ]
+      },
+      {
+        "iata": "FRA", "city": "Frankfurt", "country": "DE", "region": "EU",
+        "lat": 50.0379, "lon": 8.5622,
+        "lcc_carriers": ["Ryanair", "Condor"],
+        "major_long_haul_carriers": ["Lufthansa", "United", "Singapore Airlines", "Korean Air", "Emirates", "Qatar Airways"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "HHN", "ground_minutes": 130, "ground_cost_usd": 22, "transport": "flibco_bus"},
+          {"iata": "CGN", "ground_minutes": 80, "ground_cost_usd": 25, "transport": "ice_train"}
+        ]
+      },
+      {
+        "iata": "HHN", "city": "Frankfurt Hahn", "country": "DE", "region": "EU",
+        "lat": 49.9487, "lon": 7.2639,
+        "lcc_carriers": ["Ryanair", "Wizz Air"],
+        "major_long_haul_carriers": [],
+        "category": "lcc_hub",
+        "nearby_hubs": [
+          {"iata": "FRA", "ground_minutes": 130, "ground_cost_usd": 22, "transport": "flibco_bus"},
+          {"iata": "LUX", "ground_minutes": 90, "ground_cost_usd": 20, "transport": "flibco_bus"}
+        ]
+      },
+      {
+        "iata": "MUC", "city": "Munich", "country": "DE", "region": "EU",
+        "lat": 48.3537, "lon": 11.7750,
+        "lcc_carriers": ["easyJet", "Ryanair"],
+        "major_long_haul_carriers": ["Lufthansa", "United", "Air China", "Emirates", "Qatar Airways", "ANA"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "MUC", "ground_minutes": 0, "ground_cost_usd": 0, "transport": "self"},
+          {"iata": "NUE", "ground_minutes": 90, "ground_cost_usd": 25, "transport": "db_ice"}
+        ]
+      },
+      {
+        "iata": "MAD", "city": "Madrid", "country": "ES", "region": "EU",
+        "lat": 40.4936, "lon": -3.5668,
+        "lcc_carriers": ["Ryanair", "Vueling", "easyJet", "Wizz Air"],
+        "major_long_haul_carriers": ["Iberia", "American", "Air France", "LATAM", "Emirates", "Qatar Airways"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "BCN", "ground_minutes": 180, "ground_cost_usd": 60, "transport": "renfe_ave"}
+        ]
+      },
+      {
+        "iata": "BCN", "city": "Barcelona", "country": "ES", "region": "EU",
+        "lat": 41.2974, "lon": 2.0833,
+        "lcc_carriers": ["Vueling", "Ryanair", "easyJet", "Wizz Air"],
+        "major_long_haul_carriers": ["Iberia", "American", "Delta", "Lufthansa", "Qatar Airways", "Aeromexico"],
+        "category": "both",
+        "nearby_hubs": [
+          {"iata": "GRO", "ground_minutes": 105, "ground_cost_usd": 23, "transport": "sagales_bus_602"},
+          {"iata": "REU", "ground_minutes": 105, "ground_cost_usd": 18, "transport": "hispano_igualadina_bus"},
+          {"iata": "MAD", "ground_minutes": 180, "ground_cost_usd": 60, "transport": "renfe_ave"}
+        ]
+      },
+      {
+        "iata": "GRO", "city": "Girona", "country": "ES", "region": "EU",
+        "lat": 41.9010, "lon": 2.7606,
+        "lcc_carriers": ["Ryanair"],
+        "major_long_haul_carriers": [],
+        "category": "lcc_hub",
+        "nearby_hubs": [
+          {"iata": "BCN", "ground_minutes": 105, "ground_cost_usd": 23, "transport": "sagales_bus_602"}
+        ]
+      },
+      {
+        "iata": "REU", "city": "Reus", "country": "ES", "region": "EU",
+        "lat": 41.1474, "lon": 1.1672,
+        "lcc_carriers": ["Ryanair", "Jet2", "TUI"],
+        "major_long_haul_carriers": [],
+        "category": "lcc_hub",
+        "nearby_hubs": [
+          {"iata": "BCN", "ground_minutes": 105, "ground_cost_usd": 18, "transport": "hispano_igualadina_bus"}
+        ]
+      },
+      {
+        "iata": "FCO", "city": "Rome Fiumicino", "country": "IT", "region": "EU",
+        "lat": 41.8003, "lon": 12.2389,
+        "lcc_carriers": ["Ryanair", "Vueling", "Wizz Air", "easyJet"],
+        "major_long_haul_carriers": ["ITA Airways", "Delta", "American", "Emirates", "Qatar Airways"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "CIA", "ground_minutes": 75, "ground_cost_usd": 12, "transport": "atral_bus"}
+        ]
+      },
+      {
+        "iata": "MXP", "city": "Milan Malpensa", "country": "IT", "region": "EU",
+        "lat": 45.6306, "lon": 8.7281,
+        "lcc_carriers": ["easyJet", "Ryanair", "Wizz Air"],
+        "major_long_haul_carriers": ["ITA Airways", "Emirates", "Cathay Pacific", "Singapore Airlines", "American"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "BGY", "ground_minutes": 85, "ground_cost_usd": 13, "transport": "flixbus"},
+          {"iata": "LIN", "ground_minutes": 75, "ground_cost_usd": 15, "transport": "malpensa_shuttle"}
+        ]
+      },
+      {
+        "iata": "BGY", "city": "Milan Bergamo", "country": "IT", "region": "EU",
+        "lat": 45.6739, "lon": 9.7041,
+        "lcc_carriers": ["Ryanair", "Wizz Air"],
+        "major_long_haul_carriers": [],
+        "category": "lcc_hub",
+        "nearby_hubs": [
+          {"iata": "MXP", "ground_minutes": 85, "ground_cost_usd": 13, "transport": "flixbus"},
+          {"iata": "LIN", "ground_minutes": 75, "ground_cost_usd": 12, "transport": "orio_shuttle"},
+          {"iata": "VRN", "ground_minutes": 90, "ground_cost_usd": 18, "transport": "flixbus"}
+        ]
+      },
+      {
+        "iata": "LIN", "city": "Milan Linate", "country": "IT", "region": "EU",
+        "lat": 45.4451, "lon": 9.2767,
+        "lcc_carriers": ["easyJet", "ITA Airways"],
+        "major_long_haul_carriers": ["ITA Airways", "Lufthansa", "Air France"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "MXP", "ground_minutes": 75, "ground_cost_usd": 15, "transport": "malpensa_shuttle"},
+          {"iata": "BGY", "ground_minutes": 75, "ground_cost_usd": 12, "transport": "orio_shuttle"}
+        ]
+      },
+      {
+        "iata": "VCE", "city": "Venice Marco Polo", "country": "IT", "region": "EU",
+        "lat": 45.5053, "lon": 12.3519,
+        "lcc_carriers": ["easyJet", "Vueling", "Volotea"],
+        "major_long_haul_carriers": ["ITA Airways", "Emirates", "Delta"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "TSF", "ground_minutes": 60, "ground_cost_usd": 12, "transport": "atvo_bus"}
+        ]
+      },
+      {
+        "iata": "TSF", "city": "Treviso", "country": "IT", "region": "EU",
+        "lat": 45.6484, "lon": 12.1944,
+        "lcc_carriers": ["Ryanair", "Wizz Air"],
+        "major_long_haul_carriers": [],
+        "category": "lcc_hub",
+        "nearby_hubs": [
+          {"iata": "VCE", "ground_minutes": 60, "ground_cost_usd": 12, "transport": "atvo_bus"}
+        ]
+      },
+      {
+        "iata": "DUB", "city": "Dublin", "country": "IE", "region": "EU",
+        "lat": 53.4213, "lon": -6.2700,
+        "lcc_carriers": ["Ryanair"],
+        "major_long_haul_carriers": ["Aer Lingus", "United", "American", "Delta", "Emirates", "Etihad"],
+        "category": "long_haul_hub",
+        "nearby_hubs": []
+      },
+      {
+        "iata": "OPO", "city": "Porto", "country": "PT", "region": "EU",
+        "lat": 41.2481, "lon": -8.6814,
+        "lcc_carriers": ["Ryanair", "easyJet", "Wizz Air"],
+        "major_long_haul_carriers": ["TAP", "United"],
+        "category": "lcc_hub",
+        "nearby_hubs": [
+          {"iata": "LIS", "ground_minutes": 200, "ground_cost_usd": 35, "transport": "cp_alfa_pendular"}
+        ]
+      },
+      {
+        "iata": "LIS", "city": "Lisbon", "country": "PT", "region": "EU",
+        "lat": 38.7813, "lon": -9.1359,
+        "lcc_carriers": ["Ryanair", "easyJet"],
+        "major_long_haul_carriers": ["TAP", "United", "Delta", "Emirates", "LATAM"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "OPO", "ground_minutes": 200, "ground_cost_usd": 35, "transport": "cp_alfa_pendular"}
+        ]
+      },
+      {
+        "iata": "ATH", "city": "Athens", "country": "GR", "region": "EU",
+        "lat": 37.9364, "lon": 23.9445,
+        "lcc_carriers": ["Ryanair", "Wizz Air", "easyJet"],
+        "major_long_haul_carriers": ["Aegean", "Emirates", "Qatar Airways", "Delta", "United"],
+        "category": "long_haul_hub",
+        "nearby_hubs": []
+      },
+      {
+        "iata": "ARN", "city": "Stockholm Arlanda", "country": "SE", "region": "EU",
+        "lat": 59.6519, "lon": 17.9186,
+        "lcc_carriers": ["Norwegian", "Ryanair"],
+        "major_long_haul_carriers": ["SAS", "Lufthansa", "Qatar Airways"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "NYO", "ground_minutes": 100, "ground_cost_usd": 25, "transport": "flygbussarna"}
+        ]
+      },
+      {
+        "iata": "CPH", "city": "Copenhagen", "country": "DK", "region": "EU",
+        "lat": 55.6181, "lon": 12.6561,
+        "lcc_carriers": ["Norwegian", "Ryanair", "easyJet"],
+        "major_long_haul_carriers": ["SAS", "Air France", "Emirates", "Singapore Airlines"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "MMX", "ground_minutes": 60, "ground_cost_usd": 18, "transport": "oresund_train"}
+        ]
+      },
+      {
+        "iata": "HEL", "city": "Helsinki", "country": "FI", "region": "EU",
+        "lat": 60.3172, "lon": 24.9633,
+        "lcc_carriers": ["Norwegian", "Ryanair"],
+        "major_long_haul_carriers": ["Finnair", "Lufthansa", "Qatar Airways"],
+        "category": "long_haul_hub",
+        "nearby_hubs": []
+      },
+      {
+        "iata": "OSL", "city": "Oslo", "country": "NO", "region": "EU",
+        "lat": 60.1939, "lon": 11.1004,
+        "lcc_carriers": ["Norwegian", "Ryanair", "Wizz Air"],
+        "major_long_haul_carriers": ["SAS", "KLM", "Air France"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "TRF", "ground_minutes": 120, "ground_cost_usd": 35, "transport": "torpekspressen"},
+          {"iata": "RYG", "ground_minutes": 80, "ground_cost_usd": 25, "transport": "ryg_express"}
+        ]
+      },
+      {
+        "iata": "RIX", "city": "Riga", "country": "LV", "region": "EU",
+        "lat": 56.9236, "lon": 23.9711,
+        "lcc_carriers": ["Ryanair", "Wizz Air", "airBaltic"],
+        "major_long_haul_carriers": ["airBaltic"],
+        "category": "lcc_hub",
+        "nearby_hubs": []
+      },
+      {
+        "iata": "KEF", "city": "Reykjavik Keflavik", "country": "IS", "region": "EU",
+        "lat": 63.9850, "lon": -22.6056,
+        "lcc_carriers": ["PLAY"],
+        "major_long_haul_carriers": ["Icelandair", "Delta", "United"],
+        "category": "both",
+        "nearby_hubs": []
+      },
+      {
+        "iata": "KRK", "city": "Krakow", "country": "PL", "region": "EU",
+        "lat": 50.0777, "lon": 19.7848,
+        "lcc_carriers": ["Ryanair", "Wizz Air", "easyJet"],
+        "major_long_haul_carriers": ["LOT", "Lufthansa"],
+        "category": "lcc_hub",
+        "nearby_hubs": [
+          {"iata": "KTW", "ground_minutes": 110, "ground_cost_usd": 12, "transport": "flixbus"}
+        ]
+      },
+      {
+        "iata": "WAW", "city": "Warsaw Chopin", "country": "PL", "region": "EU",
+        "lat": 52.1657, "lon": 20.9671,
+        "lcc_carriers": ["Wizz Air", "Ryanair"],
+        "major_long_haul_carriers": ["LOT", "Lufthansa", "Emirates", "Qatar Airways"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "WMI", "ground_minutes": 75, "ground_cost_usd": 8, "transport": "modlin_bus"}
+        ]
+      },
+      {
+        "iata": "BUD", "city": "Budapest", "country": "HU", "region": "EU",
+        "lat": 47.4369, "lon": 19.2556,
+        "lcc_carriers": ["Wizz Air", "Ryanair"],
+        "major_long_haul_carriers": ["Lufthansa", "Emirates", "Qatar Airways", "Air China"],
+        "category": "both",
+        "nearby_hubs": []
+      },
+      {
+        "iata": "PRG", "city": "Prague", "country": "CZ", "region": "EU",
+        "lat": 50.1008, "lon": 14.2600,
+        "lcc_carriers": ["Wizz Air", "Ryanair", "easyJet"],
+        "major_long_haul_carriers": ["Lufthansa", "Air France", "Emirates", "Korean Air"],
+        "category": "long_haul_hub",
+        "nearby_hubs": []
+      },
+      {
+        "iata": "ZRH", "city": "Zurich", "country": "CH", "region": "EU",
+        "lat": 47.4647, "lon": 8.5492,
+        "lcc_carriers": ["easyJet"],
+        "major_long_haul_carriers": ["SWISS", "Lufthansa", "United", "Emirates", "Singapore Airlines"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "BSL", "ground_minutes": 60, "ground_cost_usd": 35, "transport": "sbb_ice"},
+          {"iata": "GVA", "ground_minutes": 165, "ground_cost_usd": 90, "transport": "sbb_ic"}
+        ]
+      },
+      {
+        "iata": "GVA", "city": "Geneva", "country": "CH", "region": "EU",
+        "lat": 46.2381, "lon": 6.1090,
+        "lcc_carriers": ["easyJet"],
+        "major_long_haul_carriers": ["SWISS", "Air France", "United", "Emirates"],
+        "category": "both",
+        "nearby_hubs": [
+          {"iata": "LYS", "ground_minutes": 120, "ground_cost_usd": 25, "transport": "flixbus"}
+        ]
+      },
+      {
+        "iata": "BRU", "city": "Brussels", "country": "BE", "region": "EU",
+        "lat": 50.9014, "lon": 4.4844,
+        "lcc_carriers": ["Brussels Airlines", "Ryanair"],
+        "major_long_haul_carriers": ["Brussels Airlines", "Lufthansa", "United", "Emirates", "Qatar Airways"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "CRL", "ground_minutes": 60, "ground_cost_usd": 18, "transport": "flibco_bus"}
+        ]
+      },
+      {
+        "iata": "CRL", "city": "Brussels Charleroi", "country": "BE", "region": "EU",
+        "lat": 50.4592, "lon": 4.4525,
+        "lcc_carriers": ["Ryanair", "Wizz Air"],
+        "major_long_haul_carriers": [],
+        "category": "lcc_hub",
+        "nearby_hubs": [
+          {"iata": "BRU", "ground_minutes": 60, "ground_cost_usd": 18, "transport": "flibco_bus"}
+        ]
+      },
+      {
+        "iata": "VIE", "city": "Vienna", "country": "AT", "region": "EU",
+        "lat": 48.1103, "lon": 16.5697,
+        "lcc_carriers": ["Wizz Air", "Ryanair", "easyJet"],
+        "major_long_haul_carriers": ["Austrian", "Lufthansa", "Emirates", "Qatar Airways"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "BTS", "ground_minutes": 75, "ground_cost_usd": 12, "transport": "flixbus_slovak_lines"}
+        ]
+      }
+    ],
+    "APAC": [
+      {
+        "iata": "NRT", "city": "Tokyo Narita", "country": "JP", "region": "APAC",
+        "lat": 35.7647, "lon": 140.3863,
+        "lcc_carriers": ["Peach", "Jetstar Japan", "ZIPAIR", "Spring Japan"],
+        "major_long_haul_carriers": ["ANA", "JAL", "United", "Delta", "American", "Lufthansa"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "HND", "ground_minutes": 90, "ground_cost_usd": 24, "transport": "limousine_bus"}
+        ]
+      },
+      {
+        "iata": "HND", "city": "Tokyo Haneda", "country": "JP", "region": "APAC",
+        "lat": 35.5494, "lon": 139.7798,
+        "lcc_carriers": ["Peach", "Skymark"],
+        "major_long_haul_carriers": ["ANA", "JAL", "Delta", "American", "British Airways", "Singapore Airlines", "Cathay Pacific"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "NRT", "ground_minutes": 90, "ground_cost_usd": 24, "transport": "limousine_bus"}
+        ]
+      },
+      {
+        "iata": "KIX", "city": "Osaka Kansai", "country": "JP", "region": "APAC",
+        "lat": 34.4347, "lon": 135.2440,
+        "lcc_carriers": ["Peach", "Jetstar Japan", "Spring Japan"],
+        "major_long_haul_carriers": ["ANA", "JAL", "Cathay Pacific", "Singapore Airlines", "Lufthansa"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "ITM", "ground_minutes": 75, "ground_cost_usd": 13, "transport": "hankyu_limousine_bus"}
+        ]
+      },
+      {
+        "iata": "ITM", "city": "Osaka Itami", "country": "JP", "region": "APAC",
+        "lat": 34.7855, "lon": 135.4382,
+        "lcc_carriers": [],
+        "major_long_haul_carriers": ["ANA", "JAL"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "KIX", "ground_minutes": 75, "ground_cost_usd": 13, "transport": "hankyu_limousine_bus"}
+        ]
+      },
+      {
+        "iata": "ICN", "city": "Seoul Incheon", "country": "KR", "region": "APAC",
+        "lat": 37.4602, "lon": 126.4407,
+        "lcc_carriers": ["Jeju Air", "Jin Air", "T'way", "Air Premia", "Air Busan"],
+        "major_long_haul_carriers": ["Korean Air", "Asiana", "Delta", "Lufthansa", "Emirates", "Singapore Airlines"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "GMP", "ground_minutes": 45, "ground_cost_usd": 11, "transport": "arex_train"}
+        ]
+      },
+      {
+        "iata": "GMP", "city": "Seoul Gimpo", "country": "KR", "region": "APAC",
+        "lat": 37.5587, "lon": 126.7906,
+        "lcc_carriers": ["Jeju Air", "Jin Air", "T'way"],
+        "major_long_haul_carriers": ["Korean Air", "Asiana", "China Eastern", "JAL", "ANA"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "ICN", "ground_minutes": 45, "ground_cost_usd": 11, "transport": "arex_train"}
+        ]
+      },
+      {
+        "iata": "PVG", "city": "Shanghai Pudong", "country": "CN", "region": "APAC",
+        "lat": 31.1443, "lon": 121.8083,
+        "lcc_carriers": ["Spring Airlines", "Juneyao"],
+        "major_long_haul_carriers": ["China Eastern", "American", "United", "Lufthansa", "Air France", "Emirates"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "SHA", "ground_minutes": 75, "ground_cost_usd": 8, "transport": "maglev_metro_2"}
+        ]
+      },
+      {
+        "iata": "SHA", "city": "Shanghai Hongqiao", "country": "CN", "region": "APAC",
+        "lat": 31.1979, "lon": 121.3363,
+        "lcc_carriers": ["Spring Airlines", "Juneyao"],
+        "major_long_haul_carriers": ["China Eastern", "ANA", "JAL", "Korean Air"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "PVG", "ground_minutes": 75, "ground_cost_usd": 8, "transport": "maglev_metro_2"}
+        ]
+      },
+      {
+        "iata": "PEK", "city": "Beijing Capital", "country": "CN", "region": "APAC",
+        "lat": 40.0801, "lon": 116.5846,
+        "lcc_carriers": [],
+        "major_long_haul_carriers": ["Air China", "United", "American", "Lufthansa", "Emirates", "Qatar Airways"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "PKX", "ground_minutes": 120, "ground_cost_usd": 6, "transport": "beijing_metro_19"}
+        ]
+      },
+      {
+        "iata": "PKX", "city": "Beijing Daxing", "country": "CN", "region": "APAC",
+        "lat": 39.5098, "lon": 116.4106,
+        "lcc_carriers": ["Spring Airlines", "China United"],
+        "major_long_haul_carriers": ["China Eastern", "China Southern", "British Airways"],
+        "category": "both",
+        "nearby_hubs": [
+          {"iata": "PEK", "ground_minutes": 120, "ground_cost_usd": 6, "transport": "beijing_metro_19"}
+        ]
+      },
+      {
+        "iata": "HKG", "city": "Hong Kong", "country": "HK", "region": "APAC",
+        "lat": 22.3080, "lon": 113.9185,
+        "lcc_carriers": ["HK Express", "Greater Bay Airlines"],
+        "major_long_haul_carriers": ["Cathay Pacific", "United", "American", "Lufthansa", "Emirates", "Singapore Airlines", "Qatar Airways"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "MFM", "ground_minutes": 75, "ground_cost_usd": 25, "transport": "turbojet_ferry"},
+          {"iata": "SZX", "ground_minutes": 90, "ground_cost_usd": 20, "transport": "cross_border_coach"}
+        ]
+      },
+      {
+        "iata": "MFM", "city": "Macau", "country": "MO", "region": "APAC",
+        "lat": 22.1496, "lon": 113.5915,
+        "lcc_carriers": ["Air Macau", "AirAsia"],
+        "major_long_haul_carriers": ["Air Macau"],
+        "category": "lcc_hub",
+        "nearby_hubs": [
+          {"iata": "HKG", "ground_minutes": 75, "ground_cost_usd": 25, "transport": "turbojet_ferry"},
+          {"iata": "ZUH", "ground_minutes": 45, "ground_cost_usd": 5, "transport": "shuttle_bus_lotus_bridge"}
+        ]
+      },
+      {
+        "iata": "TPE", "city": "Taipei Taoyuan", "country": "TW", "region": "APAC",
+        "lat": 25.0797, "lon": 121.2342,
+        "lcc_carriers": ["Tigerair Taiwan", "Starlux", "AirAsia", "Scoot"],
+        "major_long_haul_carriers": ["EVA Air", "China Airlines", "United", "Delta", "Lufthansa", "Emirates"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "TSA", "ground_minutes": 65, "ground_cost_usd": 7, "transport": "taoyuan_mrt"}
+        ]
+      },
+      {
+        "iata": "TSA", "city": "Taipei Songshan", "country": "TW", "region": "APAC",
+        "lat": 25.0697, "lon": 121.5519,
+        "lcc_carriers": [],
+        "major_long_haul_carriers": ["EVA Air", "China Airlines", "JAL", "ANA"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "TPE", "ground_minutes": 65, "ground_cost_usd": 7, "transport": "taoyuan_mrt"}
+        ]
+      },
+      {
+        "iata": "SIN", "city": "Singapore Changi", "country": "SG", "region": "APAC",
+        "lat": 1.3644, "lon": 103.9915,
+        "lcc_carriers": ["Scoot", "AirAsia", "Jetstar Asia"],
+        "major_long_haul_carriers": ["Singapore Airlines", "United", "Lufthansa", "Emirates", "Qatar Airways", "Cathay Pacific"],
+        "category": "long_haul_hub",
+        "nearby_hubs": []
+      },
+      {
+        "iata": "KUL", "city": "Kuala Lumpur", "country": "MY", "region": "APAC",
+        "lat": 2.7456, "lon": 101.7099,
+        "lcc_carriers": ["AirAsia", "Batik Air Malaysia", "Scoot"],
+        "major_long_haul_carriers": ["Malaysia Airlines", "Emirates", "Qatar Airways", "Cathay Pacific"],
+        "category": "both",
+        "nearby_hubs": [
+          {"iata": "SZB", "ground_minutes": 70, "ground_cost_usd": 8, "transport": "klia_transit_rapidkl"}
+        ]
+      },
+      {
+        "iata": "SZB", "city": "Subang", "country": "MY", "region": "APAC",
+        "lat": 3.1308, "lon": 101.5494,
+        "lcc_carriers": ["Firefly", "Batik Air Malaysia"],
+        "major_long_haul_carriers": [],
+        "category": "lcc_hub",
+        "nearby_hubs": [
+          {"iata": "KUL", "ground_minutes": 70, "ground_cost_usd": 8, "transport": "klia_transit_rapidkl"}
+        ]
+      },
+      {
+        "iata": "BKK", "city": "Bangkok Suvarnabhumi", "country": "TH", "region": "APAC",
+        "lat": 13.6900, "lon": 100.7501,
+        "lcc_carriers": ["AirAsia", "Scoot", "Thai Vietjet"],
+        "major_long_haul_carriers": ["Thai Airways", "Emirates", "Qatar Airways", "Singapore Airlines", "Lufthansa"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "DMK", "ground_minutes": 60, "ground_cost_usd": 0, "transport": "aot_free_shuttle"}
+        ]
+      },
+      {
+        "iata": "DMK", "city": "Bangkok Don Mueang", "country": "TH", "region": "APAC",
+        "lat": 13.9126, "lon": 100.6068,
+        "lcc_carriers": ["AirAsia", "Nok Air", "Thai Lion", "Thai Vietjet"],
+        "major_long_haul_carriers": [],
+        "category": "lcc_hub",
+        "nearby_hubs": [
+          {"iata": "BKK", "ground_minutes": 60, "ground_cost_usd": 0, "transport": "aot_free_shuttle"}
+        ]
+      },
+      {
+        "iata": "MNL", "city": "Manila", "country": "PH", "region": "APAC",
+        "lat": 14.5086, "lon": 121.0194,
+        "lcc_carriers": ["Cebu Pacific", "AirAsia Philippines", "Philippines AirAsia"],
+        "major_long_haul_carriers": ["Philippine Airlines", "Cathay Pacific", "Emirates", "Qatar Airways", "Delta"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "CRK", "ground_minutes": 120, "ground_cost_usd": 8, "transport": "p2p_bus"}
+        ]
+      },
+      {
+        "iata": "CGK", "city": "Jakarta", "country": "ID", "region": "APAC",
+        "lat": -6.1256, "lon": 106.6559,
+        "lcc_carriers": ["Lion Air", "AirAsia Indonesia", "Citilink", "Batik Air"],
+        "major_long_haul_carriers": ["Garuda Indonesia", "Singapore Airlines", "Emirates", "Qatar Airways"],
+        "category": "both",
+        "nearby_hubs": [
+          {"iata": "HLP", "ground_minutes": 90, "ground_cost_usd": 5, "transport": "damri_bus"}
+        ]
+      },
+      {
+        "iata": "SUB", "city": "Surabaya", "country": "ID", "region": "APAC",
+        "lat": -7.3797, "lon": 112.7868,
+        "lcc_carriers": ["Lion Air", "Citilink", "AirAsia"],
+        "major_long_haul_carriers": ["Garuda Indonesia", "Singapore Airlines"],
+        "category": "lcc_hub",
+        "nearby_hubs": []
+      },
+      {
+        "iata": "BLR", "city": "Bangalore", "country": "IN", "region": "APAC",
+        "lat": 13.1986, "lon": 77.7066,
+        "lcc_carriers": ["IndiGo", "Akasa", "SpiceJet"],
+        "major_long_haul_carriers": ["Air India", "British Airways", "Lufthansa", "Emirates", "Qatar Airways", "Singapore Airlines"],
+        "category": "long_haul_hub",
+        "nearby_hubs": []
+      },
+      {
+        "iata": "BOM", "city": "Mumbai", "country": "IN", "region": "APAC",
+        "lat": 19.0896, "lon": 72.8656,
+        "lcc_carriers": ["IndiGo", "Akasa", "SpiceJet"],
+        "major_long_haul_carriers": ["Air India", "British Airways", "Lufthansa", "Emirates", "Qatar Airways", "United"],
+        "category": "long_haul_hub",
+        "nearby_hubs": []
+      },
+      {
+        "iata": "DEL", "city": "Delhi", "country": "IN", "region": "APAC",
+        "lat": 28.5562, "lon": 77.1000,
+        "lcc_carriers": ["IndiGo", "Akasa", "SpiceJet"],
+        "major_long_haul_carriers": ["Air India", "United", "American", "Lufthansa", "Emirates", "Qatar Airways", "ANA"],
+        "category": "long_haul_hub",
+        "nearby_hubs": []
+      },
+      {
+        "iata": "MAA", "city": "Chennai", "country": "IN", "region": "APAC",
+        "lat": 12.9941, "lon": 80.1709,
+        "lcc_carriers": ["IndiGo", "SpiceJet"],
+        "major_long_haul_carriers": ["Air India", "Singapore Airlines", "Lufthansa", "Emirates", "Qatar Airways"],
+        "category": "long_haul_hub",
+        "nearby_hubs": []
+      },
+      {
+        "iata": "HYD", "city": "Hyderabad", "country": "IN", "region": "APAC",
+        "lat": 17.2403, "lon": 78.4294,
+        "lcc_carriers": ["IndiGo", "SpiceJet", "Akasa"],
+        "major_long_haul_carriers": ["Air India", "Lufthansa", "Emirates", "British Airways", "Qatar Airways"],
+        "category": "long_haul_hub",
+        "nearby_hubs": []
+      }
+    ],
+    "MEA": [
+      {
+        "iata": "DXB", "city": "Dubai", "country": "AE", "region": "MEA",
+        "lat": 25.2532, "lon": 55.3657,
+        "lcc_carriers": ["flydubai"],
+        "major_long_haul_carriers": ["Emirates", "United", "British Airways", "Lufthansa", "Singapore Airlines", "Cathay Pacific"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "DWC", "ground_minutes": 75, "ground_cost_usd": 8, "transport": "rta_bus_f55"},
+          {"iata": "SHJ", "ground_minutes": 60, "ground_cost_usd": 5, "transport": "rta_bus_e306"},
+          {"iata": "AUH", "ground_minutes": 90, "ground_cost_usd": 12, "transport": "etihad_express"}
+        ]
+      },
+      {
+        "iata": "AUH", "city": "Abu Dhabi", "country": "AE", "region": "MEA",
+        "lat": 24.4330, "lon": 54.6511,
+        "lcc_carriers": ["Wizz Air Abu Dhabi", "Air Arabia Abu Dhabi"],
+        "major_long_haul_carriers": ["Etihad", "British Airways", "Lufthansa", "Singapore Airlines"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "DXB", "ground_minutes": 90, "ground_cost_usd": 12, "transport": "etihad_express"}
+        ]
+      },
+      {
+        "iata": "DOH", "city": "Doha", "country": "QA", "region": "MEA",
+        "lat": 25.2731, "lon": 51.6080,
+        "lcc_carriers": [],
+        "major_long_haul_carriers": ["Qatar Airways", "British Airways", "American", "Lufthansa", "ANA"],
+        "category": "long_haul_hub",
+        "nearby_hubs": []
+      },
+      {
+        "iata": "JED", "city": "Jeddah", "country": "SA", "region": "MEA",
+        "lat": 21.6796, "lon": 39.1565,
+        "lcc_carriers": ["flynas", "flyadeal"],
+        "major_long_haul_carriers": ["Saudia", "Lufthansa", "British Airways", "Emirates", "Air France"],
+        "category": "long_haul_hub",
+        "nearby_hubs": []
+      },
+      {
+        "iata": "RUH", "city": "Riyadh", "country": "SA", "region": "MEA",
+        "lat": 24.9576, "lon": 46.6988,
+        "lcc_carriers": ["flynas", "flyadeal"],
+        "major_long_haul_carriers": ["Saudia", "Riyadh Air", "Lufthansa", "British Airways", "Emirates"],
+        "category": "long_haul_hub",
+        "nearby_hubs": []
+      },
+      {
+        "iata": "IST", "city": "Istanbul", "country": "TR", "region": "MEA",
+        "lat": 41.2753, "lon": 28.7519,
+        "lcc_carriers": ["AnadoluJet"],
+        "major_long_haul_carriers": ["Turkish Airlines", "Lufthansa", "Emirates", "Qatar Airways", "United"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "SAW", "ground_minutes": 200, "ground_cost_usd": 10, "transport": "havabus_havaist"}
+        ]
+      },
+      {
+        "iata": "SAW", "city": "Istanbul Sabiha Gokcen", "country": "TR", "region": "MEA",
+        "lat": 40.8986, "lon": 29.3092,
+        "lcc_carriers": ["Pegasus", "AnadoluJet"],
+        "major_long_haul_carriers": ["Turkish Airlines", "Pegasus"],
+        "category": "lcc_hub",
+        "nearby_hubs": [
+          {"iata": "IST", "ground_minutes": 200, "ground_cost_usd": 10, "transport": "havabus_havaist"}
+        ]
+      },
+      {
+        "iata": "TLV", "city": "Tel Aviv", "country": "IL", "region": "MEA",
+        "lat": 32.0114, "lon": 34.8867,
+        "lcc_carriers": ["Wizz Air", "Ryanair", "easyJet"],
+        "major_long_haul_carriers": ["El Al", "United", "Delta", "Lufthansa", "Emirates"],
+        "category": "long_haul_hub",
+        "nearby_hubs": []
+      }
+    ],
+    "LATAM": [
+      {
+        "iata": "GRU", "city": "Sao Paulo Guarulhos", "country": "BR", "region": "LATAM",
+        "lat": -23.4356, "lon": -46.4731,
+        "lcc_carriers": ["GOL", "Azul"],
+        "major_long_haul_carriers": ["LATAM", "American", "United", "Delta", "Lufthansa", "Emirates", "Qatar Airways"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "VCP", "ground_minutes": 105, "ground_cost_usd": 15, "transport": "lirex_bus"},
+          {"iata": "CGH", "ground_minutes": 75, "ground_cost_usd": 12, "transport": "airport_bus_service"}
+        ]
+      },
+      {
+        "iata": "GIG", "city": "Rio de Janeiro Galeao", "country": "BR", "region": "LATAM",
+        "lat": -22.8099, "lon": -43.2505,
+        "lcc_carriers": ["GOL", "Azul"],
+        "major_long_haul_carriers": ["LATAM", "Air France", "KLM", "United", "American", "British Airways"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "SDU", "ground_minutes": 60, "ground_cost_usd": 8, "transport": "airport_express"}
+        ]
+      },
+      {
+        "iata": "EZE", "city": "Buenos Aires Ezeiza", "country": "AR", "region": "LATAM",
+        "lat": -34.8222, "lon": -58.5358,
+        "lcc_carriers": ["Flybondi", "JetSMART"],
+        "major_long_haul_carriers": ["Aerolineas Argentinas", "American", "Delta", "United", "Air France", "Lufthansa"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "AEP", "ground_minutes": 90, "ground_cost_usd": 8, "transport": "tienda_leon"}
+        ]
+      },
+      {
+        "iata": "SCL", "city": "Santiago", "country": "CL", "region": "LATAM",
+        "lat": -33.3930, "lon": -70.7858,
+        "lcc_carriers": ["JetSMART", "Sky Airline"],
+        "major_long_haul_carriers": ["LATAM", "American", "Delta", "Iberia", "Air France"],
+        "category": "long_haul_hub",
+        "nearby_hubs": []
+      },
+      {
+        "iata": "LIM", "city": "Lima", "country": "PE", "region": "LATAM",
+        "lat": -12.0219, "lon": -77.1143,
+        "lcc_carriers": ["JetSMART", "Sky Airline"],
+        "major_long_haul_carriers": ["LATAM", "American", "Delta", "United", "Iberia", "KLM"],
+        "category": "long_haul_hub",
+        "nearby_hubs": []
+      },
+      {
+        "iata": "BOG", "city": "Bogota", "country": "CO", "region": "LATAM",
+        "lat": 4.7016, "lon": -74.1469,
+        "lcc_carriers": ["Wingo", "JetSMART"],
+        "major_long_haul_carriers": ["Avianca", "American", "Delta", "United", "Iberia", "Air France"],
+        "category": "long_haul_hub",
+        "nearby_hubs": []
+      },
+      {
+        "iata": "GDL", "city": "Guadalajara", "country": "MX", "region": "LATAM",
+        "lat": 20.5218, "lon": -103.3111,
+        "lcc_carriers": ["Volaris", "VivaAerobus"],
+        "major_long_haul_carriers": ["Aeromexico", "American", "United", "Delta"],
+        "category": "lcc_hub",
+        "nearby_hubs": []
+      },
+      {
+        "iata": "MTY", "city": "Monterrey", "country": "MX", "region": "LATAM",
+        "lat": 25.7785, "lon": -100.1078,
+        "lcc_carriers": ["Volaris", "VivaAerobus"],
+        "major_long_haul_carriers": ["Aeromexico", "American", "United", "Delta"],
+        "category": "lcc_hub",
+        "nearby_hubs": []
+      },
+      {
+        "iata": "PTY", "city": "Panama City", "country": "PA", "region": "LATAM",
+        "lat": 9.0714, "lon": -79.3835,
+        "lcc_carriers": ["Wingo"],
+        "major_long_haul_carriers": ["Copa", "American", "United", "Air France", "KLM", "Iberia"],
+        "category": "long_haul_hub",
+        "nearby_hubs": []
+      },
+      {
+        "iata": "SJO", "city": "San Jose CR", "country": "CR", "region": "LATAM",
+        "lat": 9.9939, "lon": -84.2089,
+        "lcc_carriers": ["Spirit", "Frontier", "JetBlue", "Volaris Costa Rica"],
+        "major_long_haul_carriers": ["Iberia", "Air France", "British Airways", "Lufthansa", "Edelweiss"],
+        "category": "both",
+        "nearby_hubs": [
+          {"iata": "LIR", "ground_minutes": 240, "ground_cost_usd": 25, "transport": "interbus"}
+        ]
+      }
+    ],
+    "OCE": [
+      {
+        "iata": "SYD", "city": "Sydney", "country": "AU", "region": "OCE",
+        "lat": -33.9461, "lon": 151.1772,
+        "lcc_carriers": ["Jetstar", "Bonza"],
+        "major_long_haul_carriers": ["Qantas", "United", "American", "Delta", "Emirates", "Singapore Airlines", "Qatar Airways"],
+        "category": "long_haul_hub",
+        "nearby_hubs": []
+      },
+      {
+        "iata": "MEL", "city": "Melbourne", "country": "AU", "region": "OCE",
+        "lat": -37.6690, "lon": 144.8410,
+        "lcc_carriers": ["Jetstar", "Bonza"],
+        "major_long_haul_carriers": ["Qantas", "United", "Delta", "Emirates", "Singapore Airlines", "Qatar Airways"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "AVV", "ground_minutes": 80, "ground_cost_usd": 25, "transport": "skybus"}
+        ]
+      },
+      {
+        "iata": "BNE", "city": "Brisbane", "country": "AU", "region": "OCE",
+        "lat": -27.3942, "lon": 153.1218,
+        "lcc_carriers": ["Jetstar", "Bonza"],
+        "major_long_haul_carriers": ["Qantas", "Virgin Australia", "Emirates", "Singapore Airlines", "Qatar Airways"],
+        "category": "long_haul_hub",
+        "nearby_hubs": [
+          {"iata": "OOL", "ground_minutes": 110, "ground_cost_usd": 25, "transport": "con_x_ion_shuttle"}
+        ]
+      },
+      {
+        "iata": "AKL", "city": "Auckland", "country": "NZ", "region": "OCE",
+        "lat": -37.0082, "lon": 174.7917,
+        "lcc_carriers": ["Jetstar"],
+        "major_long_haul_carriers": ["Air New Zealand", "Qantas", "United", "Emirates", "Singapore Airlines", "Qatar Airways"],
+        "category": "long_haul_hub",
+        "nearby_hubs": []
+      },
+      {
+        "iata": "CHC", "city": "Christchurch", "country": "NZ", "region": "OCE",
+        "lat": -43.4894, "lon": 172.5322,
+        "lcc_carriers": ["Jetstar"],
+        "major_long_haul_carriers": ["Air New Zealand", "Singapore Airlines", "Emirates", "Qantas"],
+        "category": "long_haul_hub",
+        "nearby_hubs": []
+      }
+    ]
+  }
+}

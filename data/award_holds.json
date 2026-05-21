@@ -1,0 +1,102 @@
+{
+  "_meta": {
+    "version": "2026.05.21",
+    "updated": "2026-05-21",
+    "credit": "Structure adapted from borski/travel-hacking-toolkit (MIT) — github.com/borski/travel-hacking-toolkit. Data independently re-verified for 2026.",
+    "sources": [
+      "https://onemileatatime.com/guides/airline-award-ticket-holds/",
+      "https://www.point.me/insights/award-holds/",
+      "https://upgradedpoints.com",
+      "https://frequentmiler.com"
+    ],
+    "definition": "An award hold reserves a saver seat for a window of hours/days BEFORE points are in your account, letting you transfer credit-card points without losing the seat. Only a handful of programs offer real holds.",
+    "strategy": "Hold matters because (a) point transfers take minutes to 4 days and (b) saver inventory is volatile. AA's 24h hold + 1-2h Amex transfer is the standard playbook. For Marriott (3-7 day transfers) use LH M&M's 5-day hold."
+  },
+  "_credit": "borski/travel-hacking-toolkit (MIT)",
+  "allowed": [
+    {
+      "program": "American AAdvantage",
+      "hold_hours": 24,
+      "cost": 0,
+      "booking_method": "online (aa.com) for most; phone for partner awards on some routes",
+      "notes": "Hold window reduced from 5 days to 24h on Apr 30, 2025. Hold NOT available within 6 days of departure or on Web Specials. Direct online self-serve is best in the industry.",
+      "recently_changed": "2025-04-30",
+      "last_verified": "2026-05-12"
+    },
+    {
+      "program": "Lufthansa Miles & More",
+      "hold_hours": 120,
+      "cost": "USD 20 phone-booking fee at ticketing",
+      "booking_method": "phone (1-800-581-6400)",
+      "notes": "5-day hold — longest of any major program. Critical for Marriott Bonvoy transfers (3-7 days). Select partner holds permitted.",
+      "last_verified": "2026-05-05"
+    },
+    {
+      "program": "Air France-KLM Flying Blue",
+      "hold_hours": 72,
+      "cost": "USD 25 phone-booking fee",
+      "booking_method": "phone",
+      "notes": "3-day hold; agent-discretionary on some routes.",
+      "last_verified": "2026-04-30"
+    },
+    {
+      "program": "Cathay Pacific Asia Miles",
+      "hold_hours": 72,
+      "cost": "0 for Cathay metal; USD 39 for partner awards",
+      "booking_method": "phone (1-833-933-2244)",
+      "notes": "3-day hold; partner award holds cost extra.",
+      "last_verified": "2026-05-05"
+    },
+    {
+      "program": "Finnair Plus",
+      "hold_hours": 72,
+      "cost": 0,
+      "booking_method": "phone",
+      "notes": "3-day hold; useful since Avios programs all draw from same balance.",
+      "last_verified": "2026-04-20"
+    },
+    {
+      "program": "Turkish Airlines Miles&Smiles",
+      "hold_hours": 48,
+      "cost": 0,
+      "booking_method": "phone",
+      "notes": "2-day hold but Turkish call centers are famously slow — budget time.",
+      "last_verified": "2026-04-15"
+    },
+    {
+      "program": "Virgin Atlantic Flying Club",
+      "hold_hours": 48,
+      "cost": 0,
+      "booking_method": "phone",
+      "notes": "1-2 day hold, agent-dependent. Useful for ANA F bookings (which are phone-only anyway).",
+      "last_verified": "2026-05-10"
+    },
+    {
+      "program": "Singapore Airlines KrisFlyer",
+      "hold_hours": 48,
+      "cost": "USD 25 or 2,500 miles",
+      "booking_method": "phone (agent-discretionary)",
+      "notes": "Not guaranteed — agent's call. Worth asking on Suites awards.",
+      "last_verified": "2026-04-25"
+    }
+  ],
+  "not_allowed": [
+    {"program": "United MileagePlus", "notes": "No holds; points must be in account at booking."},
+    {"program": "Alaska Atmos Rewards", "notes": "No holds. 24-hour cancellation policy is the closest analog (refundable within 24h)."},
+    {"program": "Delta SkyMiles", "notes": "No holds; revenue-based instant ticketing."},
+    {"program": "Air Canada Aeroplan", "notes": "No formal hold; 24-hour cancellation grace period instead."},
+    {"program": "British Airways Club Avios", "notes": "No holds."},
+    {"program": "Iberia Plus Avios", "notes": "No holds."},
+    {"program": "Aer Lingus AerClub Avios", "notes": "No holds."},
+    {"program": "ANA Mileage Club", "notes": "No holds; points must be in account before booking."},
+    {"program": "Qatar Privilege Club Avios", "notes": "No holds."},
+    {"program": "Korean Air SKYPASS", "notes": "No holds; family-pool transfers + 5-day ticketing window are the workaround."},
+    {"program": "Etihad Guest", "notes": "No holds."},
+    {"program": "Emirates Skywards", "notes": "No holds."},
+    {"program": "Avianca LifeMiles", "notes": "No holds; LifeMiles+ subscribers get instant 10% discount but no hold mechanism."},
+    {"program": "Air France-KLM Flying Blue (online)", "notes": "Online bookings cannot be held — phone only (see allowed list)."},
+    {"program": "JetBlue TrueBlue", "notes": "Revenue-based; no holds."},
+    {"program": "Southwest Rapid Rewards", "notes": "Revenue-based; no holds."},
+    {"program": "Hawaiian Airlines (transitioning to Atmos)", "notes": "Routes transitioning to Alaska Atmos through Apr 2026; legacy hold not available."}
+  ]
+}
