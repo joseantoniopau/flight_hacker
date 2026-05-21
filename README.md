@@ -5,11 +5,11 @@
 This is a free tool that runs on your own computer. It searches Google Flights AND the world of airline miles redemptions at the same time, then tells you the cheapest way to book — whether that's paying cash or using points you already have.
 
 ```
-                              ▄▄▄▄▄▄▄▄
-                  ┏━━━━━━━━━━━┃ FLIGHT-HACKER
-                  ┃ cash + award + composed │
-                  ┃ ranked. risk-badged.    │
-                  ┗━━━━━━━━━━━━━━━━━━━━━━━━━┛
+┌────────────────────────────────────────┐
+│            flight-hacker               │
+│   cash + award + composed · ranked     │
+│      risk-badged · self-hosted         │
+└────────────────────────────────────────┘
 ```
 
 ---
