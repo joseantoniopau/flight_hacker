@@ -12,7 +12,7 @@
 <!-- TOP BAR                                                       -->
 <!-- ============================================================ -->
 <header class="fh-topbar" id="fh-topbar">
-  <div class="fh-topbar__brand">FLIGHT-HACKER&nbsp;<span class="fh-topbar__ver" id="fh-version">v0.1.0</span></div>
+  <div class="fh-topbar__brand">Flight-Hacker&nbsp;<span class="fh-topbar__ver" id="fh-version">v0.1.0</span></div>
   <div class="fh-topbar__rule"></div>
   <div class="fh-topbar__route" id="fh-topbar-route">/SEARCH</div>
   <div class="fh-topbar__live" id="fh-topbar-live">
@@ -37,26 +37,26 @@
   <!-- SIDEBAR -->
   <nav class="fh-sidebar" id="fh-sidebar">
     <ul class="fh-nav">
-      <li><a href="#search"      class="fh-nav__link" data-route="search">[1] Search</a></li>
-      <li><a href="#results"     class="fh-nav__link" data-route="results">[2] Results</a></li>
-      <li><a href="#mistakes"    class="fh-nav__link" data-route="mistakes">[3] Mistake fares</a></li>
-      <li><a href="#watchlist"   class="fh-nav__link" data-route="watchlist">[4] Watchlist</a></li>
-      <li><a href="#sweet-spots" class="fh-nav__link" data-route="sweet-spots">[5] Sweet spots</a></li>
-      <li><a href="#balances"    class="fh-nav__link" data-route="balances">[6] Balances</a></li>
-      <li><a href="#settings"    class="fh-nav__link" data-route="settings">[7] Settings</a></li>
-      <li><a href="#flex"        class="fh-nav__link" data-route="flex">[8] Flex Dates</a></li>
+      <li><a href="#search"      class="fh-nav__link" data-route="search"><span class="fh-nav__num">01</span><span class="fh-nav__label">Search</span></a></li>
+      <li><a href="#results"     class="fh-nav__link" data-route="results"><span class="fh-nav__num">02</span><span class="fh-nav__label">Results</span></a></li>
+      <li><a href="#mistakes"    class="fh-nav__link" data-route="mistakes"><span class="fh-nav__num">03</span><span class="fh-nav__label">Mistake fares</span></a></li>
+      <li><a href="#watchlist"   class="fh-nav__link" data-route="watchlist"><span class="fh-nav__num">04</span><span class="fh-nav__label">Watchlist</span></a></li>
+      <li><a href="#sweet-spots" class="fh-nav__link" data-route="sweet-spots"><span class="fh-nav__num">05</span><span class="fh-nav__label">Sweet spots</span></a></li>
+      <li><a href="#balances"    class="fh-nav__link" data-route="balances"><span class="fh-nav__num">06</span><span class="fh-nav__label">Balances</span></a></li>
+      <li><a href="#settings"    class="fh-nav__link" data-route="settings"><span class="fh-nav__num">07</span><span class="fh-nav__label">Settings</span></a></li>
+      <li><a href="#flex"        class="fh-nav__link" data-route="flex"><span class="fh-nav__num">08</span><span class="fh-nav__label">Flex dates</span></a></li>
     </ul>
     <div class="fh-sidebar__divider"></div>
     <div class="fh-sidebar__hint">
-      <div><span>/</span><span>Focus search</span></div>
-      <div><span>g s</span><span>Go search</span></div>
-      <div><span>g r</span><span>Go results</span></div>
-      <div><span>g m</span><span>Go mistakes</span></div>
-      <div><span>g w</span><span>Go watch</span></div>
-      <div><span>g p</span><span>Go spots</span></div>
-      <div><span>g b</span><span>Go balances</span></div>
-      <div><span>g ,</span><span>Go settings</span></div>
-      <div><span>g f</span><span>Go flex dates</span></div>
+      <div><span class="fh-sidebar__hint-key">/</span><span>Focus search</span></div>
+      <div><span class="fh-sidebar__hint-key">g s</span><span>Search</span></div>
+      <div><span class="fh-sidebar__hint-key">g r</span><span>Results</span></div>
+      <div><span class="fh-sidebar__hint-key">g m</span><span>Mistakes</span></div>
+      <div><span class="fh-sidebar__hint-key">g w</span><span>Watch</span></div>
+      <div><span class="fh-sidebar__hint-key">g p</span><span>Spots</span></div>
+      <div><span class="fh-sidebar__hint-key">g b</span><span>Balances</span></div>
+      <div><span class="fh-sidebar__hint-key">g ,</span><span>Settings</span></div>
+      <div><span class="fh-sidebar__hint-key">g f</span><span>Flex dates</span></div>
     </div>
     <div class="fh-sidebar__divider"></div>
     <div class="fh-sidebar__mode">
@@ -74,7 +74,9 @@
     <!-- SECTION: SEARCH                                               -->
     <!-- ============================================================ -->
     <section class="fh-section" id="fh-section-search" data-route="search">
-      <h1 class="fh-h1">Search</h1>
+      <div class="fh-kicker"><span class="fh-kicker__num">01</span> / Search</div>
+      <h1 class="fh-h1">Find your trip</h1>
+      <p class="fh-deck">One unified search across cash fares and miles redemptions.</p>
 
       <form id="fh-search-form" class="fh-form">
 
@@ -87,7 +89,7 @@
                    placeholder="Type IATA or city (e.g. JFK, New York)"
                    autocomplete="off" />
             <ul class="fh-suggest" id="fh-suggest-origin" hidden></ul>
-            <label class="fh-check" style="margin-top:8px;">
+            <label class="fh-check">
               <input type="checkbox" id="fh-expand-origins" checked />
               Include nearby airports (e.g. MIA → MIA + FLL + PBI)
             </label>
@@ -100,7 +102,7 @@
                    placeholder="Type IATA or city (e.g. NRT, Tokyo)"
                    autocomplete="off" />
             <ul class="fh-suggest" id="fh-suggest-dest" hidden></ul>
-            <label class="fh-check" style="margin-top:8px;">
+            <label class="fh-check">
               <input type="checkbox" id="fh-expand-destinations" checked />
               Include nearby airports (e.g. NRT → NRT + HND)
             </label>
@@ -114,7 +116,7 @@
           <div class="fh-field">
             <label class="fh-label">Return</label>
             <input type="date" class="fh-input" id="fh-return-from" />
-            <label class="fh-check" style="margin-top:8px;">
+            <label class="fh-check">
               <input type="checkbox" id="fh-oneway" />
               One-way (no return)
             </label>
@@ -188,7 +190,9 @@
     <!-- SECTION: RESULTS                                              -->
     <!-- ============================================================ -->
     <section class="fh-section" id="fh-section-results" data-route="results" hidden>
-      <h1 class="fh-h1">Results</h1>
+      <div class="fh-kicker"><span class="fh-kicker__num">02</span> / Results</div>
+      <h1 class="fh-h1">Cheapest path first</h1>
+      <p class="fh-deck">Cash and award redemptions ranked by total cost.</p>
 
       <div class="fh-filters" id="fh-results-filters">
         <button class="fh-chip fh-chip--filter fh-chip--on" data-filter="all">All</button>
@@ -219,7 +223,14 @@
             </tr>
           </thead>
           <tbody id="fh-results-tbody">
-            <tr class="fh-empty"><td colspan="13">No results yet. Run a search.</td></tr>
+            <tr class="fh-empty"><td colspan="13">
+              <div class="fh-empty__block">
+                <div class="fh-empty__glyph">◆</div>
+                <div class="fh-empty__title">No results yet</div>
+                <div class="fh-empty__sub">Fill out the search form and we'll rank cash and miles redemptions side by side.</div>
+                <a class="fh-btn fh-btn--mini fh-empty__cta" href="#search">Go to search</a>
+              </div>
+            </td></tr>
           </tbody>
         </table>
       </div>
@@ -229,7 +240,9 @@
     <!-- SECTION: MISTAKE FARES                                        -->
     <!-- ============================================================ -->
     <section class="fh-section" id="fh-section-mistakes" data-route="mistakes" hidden>
-      <h1 class="fh-h1">Mistake Fares</h1>
+      <div class="fh-kicker"><span class="fh-kicker__num">03</span> / Deals</div>
+      <h1 class="fh-h1">Mistake fares</h1>
+      <p class="fh-deck">Live feed from 9 aggregators. Acts fast — these die quickly.</p>
 
       <div class="fh-actions">
         <button class="fh-btn fh-btn--primary" id="fh-mistakes-refresh">Refresh feed</button>
@@ -237,7 +250,14 @@
       </div>
 
       <div class="fh-cards" id="fh-mistakes-list">
-        <div class="fh-empty">No deals loaded yet. Click refresh.</div>
+        <div class="fh-empty">
+          <div class="fh-empty__block">
+            <div class="fh-empty__glyph">⊕</div>
+            <div class="fh-empty__title">No deals loaded yet</div>
+            <div class="fh-empty__sub">Pull the live aggregator feed to surface mistake fares before they're patched.</div>
+            <button type="button" class="fh-btn fh-btn--mini fh-empty__cta" id="fh-mistakes-empty-refresh">Refresh feed</button>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -245,7 +265,9 @@
     <!-- SECTION: WATCHLIST                                            -->
     <!-- ============================================================ -->
     <section class="fh-section" id="fh-section-watchlist" data-route="watchlist" hidden>
-      <h1 class="fh-h1">Watchlist</h1>
+      <div class="fh-kicker"><span class="fh-kicker__num">04</span> / Watchlist</div>
+      <h1 class="fh-h1">Watched routes</h1>
+      <p class="fh-deck">Runs hourly. Pings you when prices break your thresholds.</p>
 
       <div class="fh-actions">
         <button class="fh-btn fh-btn--primary" id="fh-watch-new">+ New watch</button>
@@ -266,7 +288,14 @@
             </tr>
           </thead>
           <tbody id="fh-watch-tbody">
-            <tr class="fh-empty"><td colspan="8">No watches. Click + new watch.</td></tr>
+            <tr class="fh-empty"><td colspan="8">
+              <div class="fh-empty__block">
+                <div class="fh-empty__glyph">◐</div>
+                <div class="fh-empty__title">No watches yet</div>
+                <div class="fh-empty__sub">Save a route from search, or add one directly here. We'll re-check it hourly and ping you when prices drop.</div>
+                <button type="button" class="fh-btn fh-btn--mini fh-empty__cta" id="fh-watch-empty-new">+ New watch</button>
+              </div>
+            </td></tr>
           </tbody>
         </table>
       </div>
@@ -316,7 +345,9 @@
     <!-- SECTION: SWEET SPOTS                                          -->
     <!-- ============================================================ -->
     <section class="fh-section" id="fh-section-sweet-spots" data-route="sweet-spots" hidden>
-      <h1 class="fh-h1">Sweet Spots</h1>
+      <div class="fh-kicker"><span class="fh-kicker__num">05</span> / Library</div>
+      <h1 class="fh-h1">Sweet spots</h1>
+      <p class="fh-deck">25 curated landmark redemptions, updated for 2026.</p>
 
       <div class="fh-actions">
         <input type="text" class="fh-input" id="fh-spots-search"
@@ -336,7 +367,13 @@
             </tr>
           </thead>
           <tbody id="fh-spots-tbody">
-            <tr class="fh-empty"><td colspan="6">Loading sweet spots...</td></tr>
+            <tr class="fh-empty"><td colspan="6">
+              <div class="fh-empty__block">
+                <div class="fh-empty__glyph">✱</div>
+                <div class="fh-empty__title">Loading sweet spots…</div>
+                <div class="fh-empty__sub">Curated landmark redemptions across the major loyalty programs.</div>
+              </div>
+            </td></tr>
           </tbody>
         </table>
       </div>
@@ -346,7 +383,9 @@
     <!-- SECTION: BALANCES                                             -->
     <!-- ============================================================ -->
     <section class="fh-section" id="fh-section-balances" data-route="balances" hidden>
-      <h1 class="fh-h1">Balances</h1>
+      <div class="fh-kicker"><span class="fh-kicker__num">06</span> / You</div>
+      <h1 class="fh-h1">Your points</h1>
+      <p class="fh-deck">Drive the effective-balance math behind every recommendation.</p>
 
       <form id="fh-balances-form" class="fh-form">
 
@@ -411,7 +450,9 @@
     <!-- SECTION: SETTINGS                                             -->
     <!-- ============================================================ -->
     <section class="fh-section" id="fh-section-settings" data-route="settings" hidden>
-      <h1 class="fh-h1">Settings</h1>
+      <div class="fh-kicker"><span class="fh-kicker__num">07</span> / Settings</div>
+      <h1 class="fh-h1">Preferences</h1>
+      <p class="fh-deck">API keys, alert channels, valuation source.</p>
 
       <form id="fh-settings-form" class="fh-form">
 
@@ -458,8 +499,10 @@
     <!-- SECTION: FLEX DATES                                           -->
     <!-- ============================================================ -->
     <section class="fh-section" id="fh-section-flex" data-route="flex" hidden>
-      <h1 class="fh-h1">Flex Dates</h1>
-      <p class="fh-muted" style="margin-top:-8px;margin-bottom:16px;">
+      <div class="fh-kicker"><span class="fh-kicker__num">08</span> / Flex</div>
+      <h1 class="fh-h1">Flexible dates</h1>
+      <p class="fh-deck">Heatmap of cheapest days across a date window.</p>
+      <p class="fh-hint" style="margin-bottom:var(--s-6);">
         Pick a window. We scan each day in parallel and show the cheapest fare in a color-coded calendar.
         Click any day to drill into a full search for that date.
       </p>
@@ -545,8 +588,14 @@
         <div class="fh-cal-legend" id="fh-cal-legend"></div>
       </div>
 
-      <div class="fh-flex-empty" id="fh-flex-empty">No calendar loaded yet. Fill the form and click <b>Search calendar</b>.</div>
-      <div class="fh-muted" id="fh-flex-footer" style="margin-top:12px;"></div>
+      <div class="fh-flex-empty" id="fh-flex-empty">
+        <div class="fh-empty__block">
+          <div class="fh-empty__glyph">▦</div>
+          <div class="fh-empty__title">No calendar loaded yet</div>
+          <div class="fh-empty__sub">Pick an origin, destination, and date window. We'll scan each day in parallel.</div>
+        </div>
+      </div>
+      <div class="fh-muted fh-flex-footer" id="fh-flex-footer"></div>
     </section>
 
   </main>
@@ -556,8 +605,17 @@
 <!-- FOOTER                                                        -->
 <!-- ============================================================ -->
 <footer class="fh-footer" id="fh-footer">
-  <span id="fh-footer-left">Ready</span>
-  <span id="fh-footer-right">Records: 0</span>
+  <span class="fh-footer__left">
+    <span id="fh-footer-version">v0.1.0</span>
+    <span class="fh-footer__sep">·</span>
+    <span class="fh-footer__build" id="fh-footer-build">build a4f9c2</span>
+    <span class="fh-footer__sep">·</span>
+    <span id="fh-footer-left">Ready</span>
+  </span>
+  <span class="fh-footer__right">
+    <span class="fh-mini">Records</span>
+    <span class="fh-footer__count" id="fh-footer-right">0</span>
+  </span>
 </footer>
 
 <!-- ============================================================ -->
@@ -572,6 +630,11 @@
     <div class="fh-overlay__body" id="fh-overlay-body"></div>
   </div>
 </div>
+
+<!-- ============================================================ -->
+<!-- TOAST STACK (bottom-right notifications)                      -->
+<!-- ============================================================ -->
+<div class="fh-toasts" id="fh-toasts" aria-live="polite" aria-atomic="false"></div>
 
 <script src="mock_api.js"></script>
 <script src="app.js"></script>

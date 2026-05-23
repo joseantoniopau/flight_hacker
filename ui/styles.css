@@ -57,14 +57,23 @@
              "IBM Plex Mono", ui-monospace, SFMono-Regular,
              "SF Mono", "Menlo", "Consolas", monospace;
 
-  /* scale */
-  --t-xs: 11px;
-  --t-sm: 12px;
-  --t-md: 13px;
-  --t-lg: 14px;
-  --t-xl: 16px;
-  --t-h:  18px;
-  --t-hh: 22px;
+  /* type scale — deliberate, used everywhere */
+  --t-xs:  11px;   /* micro labels, kickers, hints      */
+  --t-sm:  12px;   /* secondary body, table cells       */
+  --t-md:  13px;   /* primary body, inputs              */
+  --t-lg:  14px;   /* emphasized body, card route       */
+  --t-xl:  16px;   /* h3, deck                          */
+  --t-h:   20px;   /* h2 (reserved)                     */
+  --t-hh:  26px;   /* h1 — section headers              */
+
+  /* type weights — single source of truth */
+  --w-reg: 400;
+  --w-med: 500;
+  --w-bold: 600;
+
+  /* control heights — buttons + inputs share the same rail */
+  --h-ctl:    36px;
+  --h-ctl-sm: 28px;
 
   /* radii kept at 0 — brutalist */
   --r: 0;
@@ -78,11 +87,13 @@
   --s-6: 24px;
   --s-8: 32px;
   --s-10: 48px;
+  --s-12: 64px;
 
-  /* timing */
+  /* timing — Linear-style, 100ms cubic */
   --ease: cubic-bezier(.4, 0, .2, 1);
-  --t-fast: 80ms;
-  --t-med:  140ms;
+  --t-fast: 100ms;
+  --t-med:  180ms;
+  --t-slow: 260ms;
 }
 
 * { box-sizing: border-box; }
@@ -113,30 +124,36 @@ body.fh-body {
    TOP BAR
    ============================================================ */
 
+/* Hairline above the topbar — gives the chrome a "lifted" feel without shadows */
 .fh-topbar {
   display: grid;
   grid-template-columns: auto 1fr auto auto;
   align-items: center;
   gap: var(--s-5);
-  padding: 14px var(--s-6);
+  padding: var(--s-4) var(--s-6);
+  border-top: 1px solid var(--fh-panel-2);
   border-bottom: 1px solid var(--fh-rule);
   background: var(--fh-bg);
   position: sticky;
   top: 0;
   z-index: 10;
   font-size: var(--t-sm);
+  min-height: 52px;
 }
 .fh-topbar__brand {
-  font-size: var(--t-md);
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  font-size: var(--t-lg);
+  font-weight: var(--w-bold);
+  letter-spacing: -0.01em;
   white-space: nowrap;
   color: var(--fh-text);
 }
 .fh-topbar__ver {
   color: var(--fh-text-mut);
-  font-weight: 400;
+  font-weight: var(--w-reg);
+  font-size: var(--t-xs);
   margin-left: var(--s-2);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 /* Replace ASCII rule with a real thin line drawn via the column. */
 .fh-topbar__rule {
@@ -144,33 +161,35 @@ body.fh-body {
   user-select: none;
   position: relative;
   height: 1px;
-  border-top: 1px dashed var(--fh-rule);
+  border-top: 1px solid var(--fh-rule);
   align-self: center;
   overflow: hidden;
   font-size: 0;
 }
 .fh-topbar__route {
   color: var(--fh-text);
-  font-size: var(--t-sm);
-  letter-spacing: 0.06em;
+  font-size: var(--t-xs);
+  letter-spacing: 0.10em;
   text-transform: uppercase;
-  padding: 2px 8px;
+  padding: 4px 10px;
   border: 1px solid var(--fh-rule);
   background: var(--fh-panel);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
 }
 .fh-topbar__live {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: var(--fh-text-sec);
+  color: var(--fh-text-mut);
   font-size: var(--t-xs);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
 }
 .fh-dot {
-  font-size: 10px;
+  font-size: 0;
   line-height: 1;
-  width: 8px; height: 8px;
+  width: 6px; height: 6px;
   display: inline-block;
   border-radius: 50%;
   text-indent: -9999px;
@@ -188,13 +207,37 @@ body.fh-body {
   align-items: center;
   justify-content: space-between;
   gap: var(--s-4);
-  padding: 10px var(--s-6);
+  padding: var(--s-3) var(--s-6);
   border-top: 1px solid var(--fh-rule);
+  /* Faint hairline above the top border for the same "lifted" chrome feel
+     used by the topbar. */
+  box-shadow: inset 0 1px 0 0 var(--fh-panel-2);
   color: var(--fh-text-mut);
   font-size: var(--t-xs);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
   background: var(--fh-bg);
+  min-height: 38px;
+}
+.fh-footer__left,
+.fh-footer__right {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-3);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+.fh-footer__build {
+  color: var(--fh-text-dim);
+  font-size: var(--t-xs);
+  letter-spacing: 0.06em;
+}
+.fh-footer__sep {
+  color: var(--fh-text-dim);
+  user-select: none;
+}
+.fh-footer__count {
+  color: var(--fh-accent);
 }
 
 /* ============================================================
@@ -266,12 +309,21 @@ body.fh-body {
   padding: var(--s-6) 0;
   display: flex;
   flex-direction: column;
-  gap: var(--s-5);
+  gap: var(--s-6);
   position: sticky;
   top: 0;
   align-self: start;
   height: 100vh;
   overflow-y: auto;
+  /* Subtle scroll indicator at the bottom — a 12px gradient fade fades when
+     content scrolls. No shadow, just a tonal hairline. */
+  background-image:
+    linear-gradient(var(--fh-panel) 30%, transparent),
+    linear-gradient(transparent, var(--fh-panel) 70%);
+  background-repeat: no-repeat;
+  background-size: 100% 14px, 100% 14px;
+  background-position: 0 0, 0 100%;
+  background-attachment: local, local;
 }
 
 /* nav */
@@ -287,25 +339,65 @@ body.fh-body {
   display: flex;
   align-items: center;
   gap: var(--s-3);
-  padding: 10px var(--s-5);
+  padding: 9px var(--s-5);
   color: var(--fh-text-sec);
   text-decoration: none;
   font-size: var(--t-sm);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-transform: none;
   border-left: 2px solid transparent;
   transition: color var(--t-fast) var(--ease),
               background var(--t-fast) var(--ease),
-              border-color var(--t-fast) var(--ease);
+              border-color var(--t-fast) var(--ease),
+              padding-left var(--t-fast) var(--ease);
 }
+.fh-nav__num {
+  color: var(--fh-text-dim);
+  font-size: var(--t-xs);
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  min-width: 18px;
+  transition: color var(--t-fast) var(--ease);
+}
+.fh-nav__link--active .fh-nav__num { color: var(--fh-accent); }
+.fh-nav__link:hover .fh-nav__num   { color: var(--fh-text-mut); }
+.fh-nav__link--active:hover .fh-nav__num { color: var(--fh-accent); }
+.fh-nav__label { flex: 0 1 auto; }
 .fh-nav__link:hover {
   color: var(--fh-text);
   background: var(--fh-panel-2);
+  padding-left: calc(var(--s-5) + 4px);
 }
 .fh-nav__link--active {
   color: var(--fh-accent);
   background: var(--fh-panel-2);
   border-left-color: var(--fh-accent);
+  font-weight: var(--w-med);
+  position: relative;
+}
+/* Active-link underline draw — animated when newly activated. */
+.fh-nav__link--active::after {
+  content: "";
+  position: absolute;
+  left: var(--s-5);
+  right: var(--s-5);
+  bottom: 4px;
+  height: 1px;
+  background: var(--fh-accent);
+  transform-origin: left center;
+  transform: scaleX(0);
+}
+.fh-nav__link[data-underline="draw"]::after {
+  animation: fh-nav-underline-draw 250ms var(--ease) forwards;
+}
+@keyframes fh-nav-underline-draw {
+  0%   { transform: scaleX(0); }
+  100% { transform: scaleX(1); }
+}
+.fh-nav__link--active:hover {
+  /* don't indent the active link — its identity is set */
+  padding-left: var(--s-5);
 }
 
 /* sidebar dividers (former ━━━━ lines, now real rules) */
@@ -325,20 +417,30 @@ body.fh-body {
   padding: 0 var(--s-5);
   color: var(--fh-text-mut);
   font-size: var(--t-xs);
-  line-height: 1.9;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: none;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--s-2);
 }
 .fh-sidebar__hint > div {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: var(--s-3);
 }
-.fh-sidebar__hint > div > span:first-child {
+.fh-sidebar__hint-key {
+  display: inline-block;
+  padding: 2px 6px;
+  background: var(--fh-bg);
+  border: 1px solid var(--fh-rule);
   color: var(--fh-text-sec);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  min-width: 24px;
+  text-align: center;
 }
 
 /* mock toggle */
@@ -349,54 +451,100 @@ body.fh-body {
    ============================================================ */
 
 .fh-main {
-  padding: var(--s-8) var(--s-8) var(--s-10);
+  padding: var(--s-10) var(--s-10) var(--s-10);
   overflow-x: auto;
   min-width: 0;
 }
 
 .fh-section { max-width: 100%; }
-.fh-section + .fh-section { margin-top: var(--s-8); }
+.fh-section + .fh-section { margin-top: var(--s-10); }
+
+/* Section transition — fade-in when becoming visible. The animation is keyed
+   off the [data-transition="in"] attribute set by app.js when the hash changes
+   so a hard-swap is replaced by a 200ms ease-in. */
+.fh-section[data-transition="in"] {
+  animation: fh-section-fade-in var(--t-med) var(--ease) both;
+}
+@keyframes fh-section-fade-in {
+  0%   { opacity: 0; transform: translateY(4px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Section kicker — small tracking text above the h1, Linear-style.
+   Pattern: "01 / Search" — a section number + a category. */
+.fh-kicker {
+  display: inline-block;
+  margin: 0 0 var(--s-3);
+  padding: 0;
+  color: var(--fh-text-mut);
+  font-size: var(--t-xs);
+  font-weight: var(--w-med);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+.fh-kicker__num {
+  color: var(--fh-accent);
+  margin-right: var(--s-1);
+}
 
 /* section header — refined typographic display */
 .fh-h1 {
   font-size: var(--t-hh);
-  font-weight: 600;
-  letter-spacing: -0.015em;
-  margin: 0 0 var(--s-6);
-  padding-bottom: var(--s-4);
-  border-bottom: 1px solid var(--fh-rule);
+  font-weight: var(--w-bold);
+  letter-spacing: -0.02em;
+  margin: 0 0 var(--s-3);
+  padding-bottom: 0;
+  border-bottom: none;
   color: var(--fh-text);
   font-family: var(--fh-mono);
+  line-height: 1.15;
   position: relative;
 }
-/* subtle accent block before the title — brutalist mark */
-.fh-h1::before {
-  content: "";
-  display: inline-block;
-  width: 4px;
-  height: 14px;
-  background: var(--fh-accent);
-  margin-right: var(--s-3);
-  vertical-align: -2px;
+
+/* deck — one-line subtitle under h1, sets the section's tone */
+.fh-deck {
+  margin: 0 0 var(--s-6);
+  padding: 0 0 var(--s-6);
+  color: var(--fh-text-sec);
+  font-size: var(--t-xl);
+  font-weight: var(--w-reg);
+  letter-spacing: -0.005em;
+  line-height: 1.45;
+  border-bottom: 1px solid var(--fh-rule);
+  max-width: 78ch;
 }
 
-/* dividers inside sections (former ━━ COMPOSERS ━━) */
+/* h3 — sub-section break inside a section */
+.fh-h3 {
+  font-size: var(--t-lg);
+  font-weight: var(--w-bold);
+  letter-spacing: -0.005em;
+  margin: var(--s-8) 0 var(--s-3);
+  color: var(--fh-text);
+  font-family: var(--fh-mono);
+}
+
+/* dividers inside sections — refined, no full-width line, just a label
+   above its block with a thin accent rule on the left. */
 .fh-divider {
-  margin: var(--s-6) 0 var(--s-3);
-  padding-bottom: var(--s-2);
+  margin: var(--s-8) 0 var(--s-4);
+  padding: 0 0 var(--s-2) 0;
   color: var(--fh-text-mut);
   font-size: var(--t-xs);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
+  font-weight: var(--w-med);
   border-bottom: 1px solid var(--fh-rule);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.fh-muted   { color: var(--fh-text-mut); text-transform: uppercase; letter-spacing: 0.08em; font-size: var(--t-xs); }
-.fh-mini    { color: var(--fh-text-mut); font-size: var(--t-xs); text-transform: uppercase; letter-spacing: 0.08em; }
-.fh-hint    { color: var(--fh-text-mut); font-size: var(--t-xs); margin-top: 4px; letter-spacing: 0.04em; }
+.fh-muted   { color: var(--fh-text-mut); font-size: var(--t-xs); letter-spacing: 0.04em; }
+.fh-mini    { color: var(--fh-text-mut); font-size: var(--t-xs); letter-spacing: 0.06em; text-transform: uppercase; }
+.fh-hint    { color: var(--fh-text-mut); font-size: var(--t-xs); margin-top: var(--s-1); letter-spacing: 0.02em; line-height: 1.5; }
 
 /* ============================================================
    FORMS
@@ -404,31 +552,43 @@ body.fh-body {
 
 .fh-form { display: block; }
 
-.fh-grid     { display: grid; gap: var(--s-5) var(--s-6); }
+/* Form rhythm — 24px between fieldsets, 12px between related fields. */
+.fh-grid     { display: grid; gap: var(--s-6) var(--s-6); }
 .fh-grid--2  { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .fh-grid--3  { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
 .fh-row         { display: flex; align-items: center; gap: var(--s-2); flex-wrap: nowrap; }
-.fh-row--wrap   { flex-wrap: wrap; gap: var(--s-4) var(--s-5); }
+.fh-row--wrap   { flex-wrap: wrap; gap: var(--s-3) var(--s-5); }
 
 .fh-field      { display: block; min-width: 0; }
 .fh-label {
   display: block;
   margin-bottom: var(--s-2);
   font-size: var(--t-xs);
-  letter-spacing: 0.10em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--fh-text-mut);
-  font-weight: 500;
+  font-weight: var(--w-med);
+}
+/* Required-field indicator — subtle accent dot before the label text */
+.fh-label--req::before {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  background: var(--fh-accent);
+  margin-right: var(--s-2);
+  vertical-align: 2px;
 }
 
-/* input — flat, sharp corner, hairline border */
+/* input — flat, sharp corner, hairline border, fixed 36px height */
 .fh-input {
   appearance: none;
   -webkit-appearance: none;
   display: block;
   width: 100%;
-  padding: 10px 12px;
+  height: var(--h-ctl);
+  padding: 0 12px;
   background: var(--fh-panel);
   color: var(--fh-text);
   border: 1px solid var(--fh-rule);
@@ -438,25 +598,41 @@ body.fh-body {
   font-size: var(--t-md);
   line-height: 1.4;
   transition: border-color var(--t-fast) var(--ease),
-              background var(--t-fast) var(--ease);
+              background var(--t-fast) var(--ease),
+              outline-color var(--t-fast) var(--ease);
   caret-color: var(--fh-accent);
 }
 .fh-input::placeholder {
   color: var(--fh-text-dim);
-  letter-spacing: 0.02em;
+  letter-spacing: 0;
 }
 .fh-input:hover  { border-color: var(--fh-rule-strong); }
-.fh-input:focus {
-  outline: none;
+.fh-input:focus,
+.fh-input:focus-visible {
+  outline: 2px solid var(--fh-accent);
+  outline-offset: 1px;
   border-color: var(--fh-accent);
   background: var(--fh-panel-2);
 }
 .fh-input[disabled], .fh-input:disabled {
-  color: var(--fh-text-mut);
-  background: var(--fh-bg);
+  color: var(--fh-text);
+  background: var(--fh-panel);
+  opacity: 0.4;
   cursor: not-allowed;
 }
-.fh-input--mini { width: 64px; padding: 6px 8px; font-size: var(--t-sm); }
+.fh-input--mini {
+  width: 64px;
+  height: var(--h-ctl-sm);
+  padding: 0 8px;
+  font-size: var(--t-sm);
+}
+
+/* textarea relaxes the strict 36px height rule */
+textarea.fh-input {
+  height: auto;
+  padding: 10px 12px;
+  min-height: 80px;
+}
 
 /* date input quirks (WebKit) */
 .fh-input[type="date"] {
@@ -471,12 +647,15 @@ body.fh-body {
   cursor: pointer;
   user-select: none;
   font-size: var(--t-sm);
-  letter-spacing: 0.04em;
+  letter-spacing: 0;
   color: var(--fh-text-sec);
   padding: 4px 0;
   transition: color var(--t-fast) var(--ease);
 }
 .fh-check:hover { color: var(--fh-text); }
+/* checkbox that hangs under a control gets a small breathing gap. */
+.fh-field > .fh-input + .fh-check,
+.fh-field > .fh-suggest + .fh-check { margin-top: var(--s-2); }
 .fh-check input[type="checkbox"] {
   appearance: none;
   -webkit-appearance: none;
@@ -532,11 +711,17 @@ select.fh-input {
     linear-gradient(45deg, transparent 50%, var(--fh-text-sec) 50%),
     linear-gradient(135deg, var(--fh-text-sec) 50%, transparent 50%);
   background-position:
-    calc(100% - 14px) 50%,
-    calc(100% - 9px) 50%;
+    calc(100% - 14px) 52%,
+    calc(100% - 9px) 52%;
   background-size: 5px 5px, 5px 5px;
   background-repeat: no-repeat;
   padding-right: 28px;
+  cursor: pointer;
+}
+select.fh-input:hover {
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--fh-text) 50%),
+    linear-gradient(135deg, var(--fh-text) 50%, transparent 50%);
 }
 
 /* ============================================================
@@ -612,61 +797,110 @@ select.fh-input {
    BUTTONS
    ============================================================ */
 
+/* Buttons — three tiers, single height rail.
+   - primary: lime fill, top inset highlight for depth
+   - secondary (default): border-only on transparent
+   - tertiary: link-like, no border
+   All same 36px height; mini variant is 28px. Subtle 100ms transitions,
+   :active gets a -1px translate so the click feels physical. */
 .fh-btn {
   appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: transparent;
   color: var(--fh-text);
   border: 1px solid var(--fh-rule-strong);
-  padding: 9px 16px;
+  height: var(--h-ctl);
+  padding: 0 16px;
   font: inherit;
   font-family: var(--fh-mono);
   font-size: var(--t-sm);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-weight: var(--w-med);
+  letter-spacing: 0.02em;
+  text-transform: none;
   cursor: pointer;
+  white-space: nowrap;
+  transform: translateY(0);
   transition: background var(--t-fast) var(--ease),
               color var(--t-fast) var(--ease),
-              border-color var(--t-fast) var(--ease);
-  white-space: nowrap;
+              border-color var(--t-fast) var(--ease),
+              transform var(--t-fast) var(--ease);
 }
 .fh-btn:hover {
   border-color: var(--fh-text);
   background: var(--fh-panel-2);
 }
-.fh-btn:active { background: var(--fh-panel-3); }
-.fh-btn:disabled { color: var(--fh-text-dim); border-color: var(--fh-rule); cursor: not-allowed; }
+.fh-btn:active {
+  background: var(--fh-panel-3);
+  transform: translateY(-1px);
+}
+.fh-btn:disabled {
+  color: var(--fh-text);
+  border-color: var(--fh-rule);
+  opacity: 0.4;
+  cursor: not-allowed;
+}
 .fh-btn:focus-visible { outline: 2px solid var(--fh-accent); outline-offset: 2px; }
 
+/* Primary — accent fill, 1px inset top highlight for depth (no drop shadow). */
 .fh-btn--primary {
   background: var(--fh-accent);
   color: var(--fh-accent-fg);
   border-color: var(--fh-accent);
-  font-weight: 600;
+  font-weight: var(--w-bold);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
 }
 .fh-btn--primary:hover {
   background: var(--fh-accent-hi);
   border-color: var(--fh-accent-hi);
   color: var(--fh-accent-fg);
 }
-.fh-btn--mini {
-  padding: 4px 10px;
-  font-size: var(--t-xs);
-  letter-spacing: 0.05em;
+.fh-btn--primary:active {
+  background: var(--fh-accent);
+  transform: translateY(-1px);
 }
+
+/* Tertiary — link-like, no border, used for soft secondary actions. */
+.fh-btn--ghost {
+  border-color: transparent;
+  color: var(--fh-text-sec);
+  padding: 0 12px;
+}
+.fh-btn--ghost:hover {
+  border-color: transparent;
+  background: var(--fh-panel-2);
+  color: var(--fh-text);
+}
+
+.fh-btn--mini {
+  height: var(--h-ctl-sm);
+  padding: 0 10px;
+  font-size: var(--t-xs);
+  letter-spacing: 0.04em;
+}
+
+/* Destructive — quiet by default, red border only on hover. */
 .fh-btn--danger {
-  color: var(--fh-warn);
-  border-color: var(--fh-warn);
+  color: var(--fh-text);
+  border-color: var(--fh-rule-strong);
 }
 .fh-btn--danger:hover {
-  background: var(--fh-warn);
-  color: var(--fh-bg);
+  color: var(--fh-warn);
+  border-color: var(--fh-warn);
+  background: transparent;
+}
+.fh-btn--danger:active {
+  background: var(--fh-warn-soft);
+  transform: translateY(-1px);
 }
 
 .fh-actions {
   display: flex;
   gap: var(--s-3);
-  margin-top: var(--s-5);
+  margin-top: var(--s-6);
   flex-wrap: wrap;
+  align-items: center;
 }
 
 /* radio (button-like styling matching the fh-check pattern) */
@@ -739,7 +973,7 @@ select.fh-input {
 }
 
 .fh-chip--filter {
-  padding: 6px 12px;
+  padding: 5px 11px;
   background: transparent;
   border: 1px solid var(--fh-rule);
   color: var(--fh-text-sec);
@@ -748,13 +982,23 @@ select.fh-input {
   font-size: var(--t-xs);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  transition: all var(--t-fast) var(--ease);
+  font-weight: var(--w-med);
+  transition: color var(--t-fast) var(--ease),
+              border-color var(--t-fast) var(--ease),
+              background var(--t-fast) var(--ease);
 }
-.fh-chip--filter:hover { color: var(--fh-text); border-color: var(--fh-rule-strong); }
+.fh-chip--filter:hover {
+  color: var(--fh-text);
+  border-color: var(--fh-rule-strong);
+}
+/* Active chip — cleaner contrast and wider horizontal "wings" so it
+   reads as the selected segment. */
 .fh-chip--on {
   background: var(--fh-accent);
   color: var(--fh-accent-fg);
   border-color: var(--fh-accent);
+  padding: 5px 14px;
+  font-weight: var(--w-bold);
 }
 .fh-chip--on:hover {
   background: var(--fh-accent-hi);
@@ -769,7 +1013,11 @@ select.fh-input {
 .fh-table-wrap {
   border: 1px solid var(--fh-rule);
   overflow-x: auto;
+  overflow-y: auto;
+  max-height: 78vh;
   background: var(--fh-panel);
+  /* contain stacking so sticky <th> doesn't bleed under sidebar/topbar */
+  position: relative;
 }
 .fh-table {
   width: 100%;
@@ -778,31 +1026,42 @@ select.fh-input {
 }
 .fh-table th {
   text-align: left;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--fh-rule-strong);
+  padding: 9px 14px;
+  /* The thicker bottom border doubles as a shadow substitute — it stays
+     visible when the body scrolls under the sticky header. */
+  border-bottom: 2px solid var(--fh-rule-strong);
+  /* Right-edge hairline divider for visual column separation. */
+  border-right: 1px solid var(--fh-rule);
   color: var(--fh-text-mut);
   font-size: var(--t-xs);
   letter-spacing: 0.10em;
   text-transform: uppercase;
-  font-weight: 500;
+  font-weight: var(--w-med);
   background: var(--fh-panel);
   position: sticky;
   top: 0;
+  z-index: 2;
   cursor: pointer;
   user-select: none;
   white-space: nowrap;
   transition: color var(--t-fast) var(--ease);
 }
+.fh-table th:last-child { border-right: none; }
 .fh-table th:hover { color: var(--fh-text); }
+/* Sort indicator: reserve space with an invisible glyph; surface a dim
+   hover hint; flip to accent only on the active sort column. */
 .fh-table th::after {
-  content: " ·";
+  content: " ↕";
   color: transparent;
   margin-left: 4px;
+  transition: color var(--t-fast) var(--ease);
 }
+.fh-table th:hover::after { color: var(--fh-text-dim); }
 .fh-table th.fh-sort--asc::after  { content: " ↑"; color: var(--fh-accent); }
 .fh-table th.fh-sort--desc::after { content: " ↓"; color: var(--fh-accent); }
 .fh-table td {
-  padding: 10px 12px;
+  padding: 0 14px;
+  height: 44px;                /* consistent row height across all tables */
   border-bottom: 1px solid var(--fh-rule);
   color: var(--fh-text);
   vertical-align: middle;
@@ -810,13 +1069,37 @@ select.fh-input {
 }
 .fh-table tr:last-child td { border-bottom: none; }
 .fh-table tbody tr {
-  transition: background var(--t-fast) var(--ease);
+  transition: background var(--t-fast) var(--ease),
+              border-left-color var(--t-fast) var(--ease);
+}
+/* Ultra-subtle zebra striping using existing panel surfaces.
+   Even rows: panel-2 (slightly raised), odd rows: panel (default).
+   The 6% lightness gap is intentional — anything more breaks the
+   brutalist palette. Applied only to data tables; the balances form
+   table needs a consistent input surface and is left alone. */
+.fh-table--results tbody tr:nth-child(even),
+.fh-table--watch   tbody tr:nth-child(even),
+.fh-table--spots   tbody tr:nth-child(even) {
+  background: var(--fh-panel-2);
 }
 .fh-table tbody tr:hover {
   background: var(--fh-panel-2);
 }
 .fh-num { text-align: right; font-variant-numeric: tabular-nums; }
 .fh-mono-em { color: var(--fh-text); font-weight: 600; }
+
+/* First column tighter (rank). 50px keeps single- and double-digit
+   ranks aligned without crowding 3-digit edge cases. */
+.fh-table--results th:first-child,
+.fh-table--results td:first-child {
+  width: 50px;
+  min-width: 50px;
+}
+
+/* Action button column right-aligned on the results table — buttons
+   read as a group, anchored to the right edge of the row. */
+.fh-table--results th:last-child,
+.fh-table--results td:last-child { text-align: right; }
 
 /* th alignment helpers — needed because `.fh-table th` (0,1,1) outranks bare
    `.fh-num` (0,1,0); without these the numeric headers would stay left-aligned
@@ -849,14 +1132,40 @@ select.fh-input {
    breathe but keep the input full-width inside it */
 .fh-table--bal td > .fh-input { width: 100%; }
 
-/* empty state */
+/* empty state — refined.  In table cells the markup is flat text;
+   in card grids the JS may inject the full block with glyph + msg + sub. */
 .fh-empty td,
 .fh-empty {
   text-align: center !important;
   color: var(--fh-text-mut);
-  padding: var(--s-8) var(--s-4) !important;
+  padding: var(--s-10) var(--s-4) !important;
+  height: auto !important;
+  font-size: var(--t-md);
+  letter-spacing: 0;
+}
+.fh-empty__block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-3);
+  padding: var(--s-2) 0;
+}
+.fh-empty__title {
+  color: var(--fh-text);
+  font-size: var(--t-md);
+  font-weight: var(--w-med);
+  letter-spacing: 0;
+}
+.fh-empty__sub {
+  color: var(--fh-text-mut);
   font-size: var(--t-sm);
-  letter-spacing: 0.04em;
+  letter-spacing: 0;
+  max-width: 44ch;
+  line-height: 1.5;
+}
+.fh-empty__cta {
+  margin-top: var(--s-3);
 }
 
 /* ============================================================
@@ -864,18 +1173,49 @@ select.fh-input {
    ============================================================ */
 
 .fh-risk {
-  display: inline-block;
-  padding: 2px 8px;
-  font-size: var(--t-xs);
-  letter-spacing: 0.08em;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 7px;
+  font-size: 10px;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
   border: 1px solid currentColor;
-  font-weight: 500;
-  line-height: 1.5;
+  font-weight: var(--w-med);
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+  vertical-align: 1px;
+}
+/* Leading dot — a single colored bullet in front of the label that reads as
+   a status indicator without needing extra wrapping markup. The bullet
+   inherits currentColor so each risk variant gets the matching tone for
+   free. Only painted on the three explicit variants so the placeholder
+   "<span class='fh-risk'>-</span>" (used for unknown risk) stays a quiet
+   dash with no false-positive dot. */
+.fh-risk--legal::before,
+.fh-risk--gray::before,
+.fh-risk--tos::before {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  background: currentColor;
+  flex: 0 0 auto;
 }
 .fh-risk--legal { color: var(--fh-ok);   background: var(--fh-ok-bg);   border-color: var(--fh-ok-rule); }
 .fh-risk--gray  { color: var(--fh-gray); background: var(--fh-gray-bg); border-color: var(--fh-gray-rule); }
 .fh-risk--tos   { color: var(--fh-tos);  background: var(--fh-tos-bg);  border-color: var(--fh-tos-rule); }
+
+/* TOS-RISK gets a subtle border pulse — a discernible attention nudge that
+   never crosses the line into noisy. The border alpha cycles 1.0 → 0.55 →
+   1.0 every 1.5s. No box-shadow (would violate the no-shadow rule). */
+.fh-risk--tos {
+  animation: fh-risk-tos-pulse 1.5s ease-in-out infinite;
+}
+@keyframes fh-risk-tos-pulse {
+  0%, 100% { border-color: var(--fh-tos-rule); }
+  50%      { border-color: var(--fh-tos); }
+}
 
 
 /* ============================================================
@@ -952,23 +1292,32 @@ select.fh-input {
 .fh-card {
   background: var(--fh-panel);
   border: 1px solid var(--fh-rule);
+  /* Reserve the left edge for the slide-in accent rule on hover (matches
+     the .fh-card--deal style so card width never jumps). */
+  border-left: 2px solid transparent;
   padding: var(--s-4);
   display: flex;
   flex-direction: column;
-  gap: var(--s-2);
-  transition: border-color var(--t-fast) var(--ease);
+  gap: var(--s-3);
+  transition: border-color var(--t-fast) var(--ease),
+              border-left-color var(--t-fast) var(--ease);
 }
-.fh-card:hover { border-color: var(--fh-rule-strong); }
+.fh-card:hover {
+  border-color: var(--fh-rule-strong);
+  border-left-color: var(--fh-accent);
+}
 .fh-card__head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: var(--s-3);
+  padding-bottom: var(--s-2);
+  border-bottom: 1px solid var(--fh-rule);
 }
 .fh-card__route {
   font-size: var(--t-lg);
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  font-weight: var(--w-bold);
+  letter-spacing: -0.01em;
   color: var(--fh-text);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -977,8 +1326,9 @@ select.fh-input {
 .fh-card__price {
   color: var(--fh-accent);
   font-size: var(--t-md);
-  font-weight: 500;
+  font-weight: var(--w-med);
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 .fh-card__meta {
   display: flex;
@@ -993,7 +1343,7 @@ select.fh-input {
 .fh-card__body {
   color: var(--fh-text-sec);
   font-size: var(--t-sm);
-  line-height: 1.55;
+  line-height: 1.6;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -1003,7 +1353,9 @@ select.fh-input {
   display: flex;
   gap: var(--s-2);
   margin-top: auto;
-  padding-top: var(--s-2);
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--fh-rule);
+  justify-content: flex-end;
 }
 
 /* mistakes status line — Title Case per pass-4 redesign, so explicitly
@@ -1133,7 +1485,7 @@ select.fh-input {
   outline: 2px solid var(--fh-accent);
   outline-offset: 2px;
 }
-.fh-input:focus-visible { outline: none; }   /* handled by border-color */
+/* inputs handle their own ring via .fh-input:focus rule above (offset 1px) */
 
 /* ============================================================
    FLEX DATES — calendar heatmap
@@ -1188,30 +1540,43 @@ select.fh-input {
 .fh-cal-cell {
   background: var(--fh-panel);
   border: 1px solid transparent;
-  padding: var(--s-3);
-  min-height: 76px;
+  /* Taller vertical padding gives cells breathing room without growing
+     horizontally and risking grid wrap. */
+  padding: 16px var(--s-3);
+  min-height: 92px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  position: relative;
   transition: background var(--t-fast) var(--ease),
               border-color var(--t-fast) var(--ease),
               transform var(--t-fast) var(--ease);
 }
 .fh-cal-cell:hover {
-  border-color: var(--fh-rule-bright);
+  border-color: var(--fh-accent);
   transform: translateY(-1px);
 }
+/* Brief flash on click — :active is enough for sync feedback. 50ms reads
+   as tactile without lingering. */
+.fh-cal-cell:active {
+  background: var(--fh-accent-soft);
+  transition: background 50ms var(--ease);
+}
 .fh-cal-cell__date {
-  font-size: var(--t-xs);
+  font-size: var(--t-sm);
   color: var(--fh-text-mut);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
 }
 .fh-cal-cell__price {
   font-size: var(--t-lg);
-  font-weight: 600;
+  font-weight: var(--w-bold);
   color: var(--fh-text);
   font-variant-numeric: tabular-nums;
+  text-align: center;
+  /* The price sits in the visual middle of the cell. */
+  margin: auto 0;
 }
 .fh-cal-cell__meta {
   font-size: 10px;
@@ -1238,8 +1603,23 @@ select.fh-input {
 }
 .fh-cal-cell--cheap .fh-cal-cell__price { color: var(--fh-accent); }
 
+/* Cheapest day in the window — flagged in JS via .fh-cal-cell--lowest.
+   A 1px outline that grows to 3px on a 2s linear loop. Outline (not
+   box-shadow) keeps the no-shadow constraint clean. */
+.fh-cal-cell--lowest {
+  outline: 1px solid var(--fh-accent);
+  outline-offset: -1px;
+  animation: fh-cal-lowest-pulse 2s linear infinite;
+}
+@keyframes fh-cal-lowest-pulse {
+  0%, 100% { outline-width: 1px; outline-offset: -1px; }
+  50%      { outline-width: 3px; outline-offset: -3px; }
+}
+
 .fh-cal-cell--mid-low { background: var(--fh-panel-2); }
 .fh-cal-cell--mid-high { background: var(--fh-panel); }
+/* Mid-high + expensive: dim the price so cheap days pop typographically. */
+.fh-cal-cell--mid-high .fh-cal-cell__price,
 .fh-cal-cell--expensive .fh-cal-cell__price { color: var(--fh-text-mut); }
 .fh-cal-cell--expensive { opacity: 0.78; }
 
@@ -1283,13 +1663,15 @@ select.fh-input {
 }
 
 .fh-flex-empty {
-  margin-top: var(--s-5);
-  padding: var(--s-5);
+  margin-top: var(--s-6);
+  padding: var(--s-10) var(--s-6);
   border: 1px dashed var(--fh-rule);
   text-align: center;
   color: var(--fh-text-mut);
   background: var(--fh-panel);
 }
+.fh-flex-empty .fh-empty__block { padding: 0; }
+.fh-flex-footer { margin-top: var(--s-3); }
 
 /* ============================================================
    CARRIER LOGO (results table, mistakes cards, sweet spots)
@@ -1340,28 +1722,44 @@ select.fh-input {
 .fh-row--top-deal td:first-child { font-weight: 600; }
 
 /* ============================================================
-   RESULTS ROW HOVER — accent border-left, no background flash
+   RESULTS ROW HOVER — accent border-left slides in via translateX
+   ------------------------------------------------------------
+   Pattern: a transparent 2px border-left is always reserved so the row
+   width never jumps. On hover the border flips accent AND the row slides
+   2px right, producing the "rule swings in from the left" feel without a
+   layout shift on neighbours.
    ============================================================ */
 .fh-table--results tbody tr,
 .fh-table--watch tbody tr,
 .fh-table--spots tbody tr {
-  /* Shift the row in 2px so we can land an accent rule on hover without
-     causing a width jump. Border-left is transparent until hover. */
   border-left: 2px solid transparent;
   transition: border-left-color var(--t-fast) var(--ease),
-              background var(--t-fast) var(--ease);
+              background var(--t-fast) var(--ease),
+              transform var(--t-fast) var(--ease);
 }
 .fh-table--results tbody tr:hover,
 .fh-table--watch tbody tr:hover,
 .fh-table--spots tbody tr:hover {
   border-left-color: var(--fh-accent);
+  transform: translateX(2px);
 }
+/* Top-deal row — same border treatment, but the accent-soft background
+   stays so the row stands out at rest. Hover deepens the soft fill. */
 .fh-table--results tbody tr.fh-row--top-deal {
   border-left-color: var(--fh-accent);
-  background: rgba(205, 240, 74, 0.03);
+  background: rgba(205, 240, 74, 0.04);
 }
 .fh-table--results tbody tr.fh-row--top-deal:hover {
   background: var(--fh-accent-soft);
+}
+/* Active/expanded row — full accent border + accent-soft fill. Wired
+   by JS via .fh-row--active on the row that owns the open overlay. */
+.fh-table--results tbody tr.fh-row--active,
+.fh-table--watch   tbody tr.fh-row--active,
+.fh-table--spots   tbody tr.fh-row--active {
+  border-left-color: var(--fh-accent);
+  background: var(--fh-accent-soft);
+  transform: translateX(2px);
 }
 
 /* ============================================================
@@ -1369,18 +1767,25 @@ select.fh-input {
    ============================================================ */
 .fh-deal-tag {
   display: inline-block;
-  padding: 1px 6px;
+  padding: 2px 7px;
   margin-left: var(--s-2);
   background: var(--fh-accent);
   color: var(--fh-accent-fg);
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  font-weight: var(--w-bold);
   text-transform: uppercase;
   vertical-align: 2px;
+  /* match the brutalist palette — no border-radius, hairline of own color */
+  border: 1px solid var(--fh-accent);
 }
 .fh-card--deal {
-  border-left: 3px solid var(--fh-accent);
+  /* override the transparent slide-in border with a solid accent rule —
+     deal cards announce themselves up-front. */
+  border-left: 2px solid var(--fh-accent);
+}
+.fh-card--deal:hover {
+  border-left-color: var(--fh-accent-hi);
 }
 .fh-card__src {
   color: var(--fh-text-mut);
@@ -1405,9 +1810,34 @@ select.fh-input {
 /* ============================================================
    STATUS DOTS (watchlist freshness)
    ============================================================ */
-.fh-dot--ok    { background: var(--fh-ok);    box-shadow: 0 0 0 3px rgba(110, 231, 163, 0.10); }
-.fh-dot--warn  { background: var(--fh-gray);  box-shadow: 0 0 0 3px rgba(240, 196, 59, 0.10); }
-.fh-dot--stale { background: var(--fh-tos);   box-shadow: 0 0 0 3px rgba(244, 116, 97, 0.10); }
+/* Watchlist freshness dots — 6px filled core with a 2px outline ring in
+   matching color, drawn via outline (not box-shadow) to stay strictly
+   shadow-free. The outline-offset of -1px tucks the ring just outside the
+   core. */
+.fh-dot--ok    {
+  background: var(--fh-ok);
+  outline: 2px solid var(--fh-ok);
+  outline-offset: -1px;
+  box-shadow: 0 0 0 3px rgba(110, 231, 163, 0.10);
+}
+.fh-dot--warn  {
+  background: var(--fh-gray);
+  outline: 2px solid var(--fh-gray);
+  outline-offset: -1px;
+  box-shadow: 0 0 0 3px rgba(240, 196, 59, 0.10);
+}
+.fh-dot--stale {
+  background: var(--fh-tos);
+  outline: 2px solid var(--fh-tos);
+  outline-offset: -1px;
+  /* Stale dots pulse to nudge the user — warning behavior matches the
+     watchlist "this hasn't refreshed in a while" semantics. */
+  animation: fh-dot-stale-pulse 1.6s ease-in-out infinite;
+}
+@keyframes fh-dot-stale-pulse {
+  0%, 100% { background: var(--fh-tos);                opacity: 1;    }
+  50%      { background: var(--fh-tos-bg);             opacity: 0.78; }
+}
 
 /* Pulse animation for the topbar live dot during a search. */
 .fh-dot--pulse {
@@ -1429,44 +1859,56 @@ select.fh-input {
    ============================================================ */
 .fh-nav__link { position: relative; }
 .fh-nav__badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   margin-left: auto;
-  padding: 1px 6px;
+  padding: 0 5px;
+  height: 16px;
+  background: var(--fh-panel-3);
+  color: var(--fh-accent);
+  font-size: 10px;
+  font-weight: var(--w-bold);
+  letter-spacing: 0.02em;
+  font-family: var(--fh-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  min-width: 18px;
+  text-align: center;
+  border: 1px solid var(--fh-rule-strong);
+  transition: color var(--t-fast) var(--ease),
+              background var(--t-fast) var(--ease),
+              border-color var(--t-fast) var(--ease);
+}
+.fh-nav__link--active .fh-nav__badge {
   background: var(--fh-accent);
   color: var(--fh-accent-fg);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  font-family: var(--fh-mono);
-  min-width: 16px;
-  text-align: center;
+  border-color: var(--fh-accent);
 }
 
 /* ============================================================
    SECTION HEADER MICRO-ICONS
    ------------------------------------------------------------
-   Each section's <h1> gets a glyph BEFORE the accent block. CSS
-   sets them per section-route via the parent .fh-section[data-route].
-   Kept in monospace pixel grid; no decorative font.
+   The section glyph now lives on the kicker line as a tiny leading
+   mark — quieter than dropping it next to the h1. The h1 itself is
+   pure type, no decoration.
    ============================================================ */
-.fh-section[data-route] > .fh-h1 {
-  display: flex;
-  align-items: center;
-  gap: var(--s-3);
-}
-.fh-section[data-route] > .fh-h1::after {
+.fh-section[data-route] > .fh-kicker::before {
   content: "";
+  color: var(--fh-text-dim);
+  margin-right: var(--s-2);
   display: inline-block;
-  width: 14px;
-  height: 14px;
+  font-size: var(--t-sm);
+  vertical-align: baseline;
 }
-.fh-section[data-route="search"]      > .fh-h1::after { content: "✦"; color: var(--fh-text-mut); width: auto; height: auto; font-size: var(--t-md); }
-.fh-section[data-route="results"]     > .fh-h1::after { content: "◆"; color: var(--fh-text-mut); width: auto; height: auto; font-size: var(--t-md); }
-.fh-section[data-route="mistakes"]    > .fh-h1::after { content: "⊕"; color: var(--fh-text-mut); width: auto; height: auto; font-size: var(--t-md); }
-.fh-section[data-route="watchlist"]   > .fh-h1::after { content: "◐"; color: var(--fh-text-mut); width: auto; height: auto; font-size: var(--t-md); }
-.fh-section[data-route="sweet-spots"] > .fh-h1::after { content: "✱"; color: var(--fh-text-mut); width: auto; height: auto; font-size: var(--t-md); }
-.fh-section[data-route="balances"]    > .fh-h1::after { content: "▼"; color: var(--fh-text-mut); width: auto; height: auto; font-size: var(--t-md); }
-.fh-section[data-route="settings"]    > .fh-h1::after { content: "⚙"; color: var(--fh-text-mut); width: auto; height: auto; font-size: var(--t-md); }
+.fh-section[data-route="search"]      > .fh-kicker::before { content: "✦"; }
+.fh-section[data-route="results"]     > .fh-kicker::before { content: "◆"; }
+.fh-section[data-route="mistakes"]    > .fh-kicker::before { content: "⊕"; }
+.fh-section[data-route="watchlist"]   > .fh-kicker::before { content: "◐"; }
+.fh-section[data-route="sweet-spots"] > .fh-kicker::before { content: "✱"; }
+.fh-section[data-route="balances"]    > .fh-kicker::before { content: "▼"; }
+.fh-section[data-route="settings"]    > .fh-kicker::before { content: "⚙"; }
+.fh-section[data-route="flex"]        > .fh-kicker::before { content: "▦"; }
 
 /* ============================================================
    EMPTY-STATE GLYPH
@@ -1474,9 +1916,10 @@ select.fh-input {
 .fh-empty__glyph {
   font-size: 24px;
   color: var(--fh-text-dim);
-  letter-spacing: 0.5em;
-  margin-bottom: var(--s-2);
+  letter-spacing: 0;
+  margin-bottom: var(--s-1);
   user-select: none;
+  line-height: 1;
 }
 .fh-empty__text {
   font-size: var(--t-sm);
@@ -1513,6 +1956,136 @@ select.fh-input {
 }
 
 /* ============================================================
+   DATA-DISPLAY POLISH (Linear / Vercel / Stripe-tier)
+   ------------------------------------------------------------
+   Cross-cutting refinements that span multiple existing
+   surfaces. Keep this block self-contained so it's easy to
+   read as "the polish pass" diff.
+   ============================================================ */
+
+/* --- Book-link buttons: subtle arrow micro-animation on hover --------- */
+/* The Book → and Open in Google Flights → buttons end with a literal "→".
+   Tagging the anchor with .fh-arrow-link makes the trailing arrow slide
+   2px right on hover. Plays at 100ms ease so it reads as direction, not
+   distraction. The translation lives on a ::after pseudo so the original
+   text node can keep its inline-text behavior. */
+.fh-arrow-link {
+  position: relative;
+  /* Hide the original trailing arrow (kept in markup for non-JS / a11y
+     screen-reader announcement) when we paint the animated one. */
+}
+.fh-arrow-link__arrow {
+  display: inline-block;
+  margin-left: 2px;
+  transition: transform 100ms var(--ease);
+  will-change: transform;
+}
+.fh-arrow-link:hover .fh-arrow-link__arrow {
+  transform: translateX(2px);
+}
+
+/* --- Sweet-spot status pill — uses .fh-risk classes directly (see JS) so
+   the leading dot + tighter padding from RISK BADGES apply uniformly. The
+   sweet-spot rows print with statusBadge() which emits a .fh-risk--legal
+   / --gray pill; no extra CSS needed here. */
+
+/* --- Search progress chip — percentage estimate from elapsed/expected.
+   The label already uses tabular-nums; the chip is just a sub-element
+   that renders e.g. "● Searching 6 routes × 1 cabin — 8s / ~12s". */
+.fh-progress__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin-left: var(--s-3);
+  padding: 1px 7px;
+  background: var(--fh-bg);
+  border: 1px solid var(--fh-rule-strong);
+  color: var(--fh-text-sec);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: var(--w-med);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+/* The progress stripe was previously linear — switch to ease so the
+   sweep accelerates and decelerates, reading less robotic. */
+.fh-progress::after {
+  animation-timing-function: cubic-bezier(.4, 0, .2, 1);
+}
+
+/* --- Sticky-header scroll affordance: as soon as the user scrolls past
+   the top of a table-wrap, deepen the th bottom-rule from 2px → 3px so
+   the header reads as "above" the content. Implemented via a JS-toggled
+   .fh-table-wrap--scrolled class; absent any JS the rules still apply
+   correctly (the default state). */
+.fh-table-wrap--scrolled .fh-table th {
+  border-bottom-color: var(--fh-rule-bright);
+}
+
+/* --- Sweet-spots carrier alignment: program logo + name baseline */
+.fh-table--spots .fh-carrier { align-items: center; }
+.fh-table--spots .fh-carrier__logo { vertical-align: middle; }
+
+/* ============================================================
+   TOASTS / NOTIFICATIONS
+   ------------------------------------------------------------
+   Floating, bottom-right stacked notifications. Max 3 visible at
+   once (the JS prunes the oldest). Each toast slides in from the
+   right and auto-dismisses after 4s.
+   ============================================================ */
+.fh-toasts {
+  position: fixed;
+  right: var(--s-5);
+  bottom: var(--s-5);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  pointer-events: none;        /* container ignores clicks; toasts opt in */
+  max-width: 360px;
+}
+.fh-toast {
+  pointer-events: auto;
+  background: var(--fh-panel);
+  border: 1px solid var(--fh-rule-strong);
+  border-left: 3px solid var(--fh-accent);
+  padding: var(--s-3);
+  color: var(--fh-text);
+  font-size: var(--t-sm);
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  animation: fh-toast-in var(--t-med) var(--ease) both;
+}
+.fh-toast--success { border-left-color: var(--fh-ok); }
+.fh-toast--warn    { border-left-color: var(--fh-warn); color: var(--fh-warn); }
+.fh-toast--info    { border-left-color: var(--fh-accent); }
+.fh-toast__msg     { flex: 1 1 auto; }
+.fh-toast__x {
+  background: transparent;
+  border: 0;
+  padding: 0 var(--s-1);
+  color: var(--fh-text-mut);
+  font-size: var(--t-md);
+  cursor: pointer;
+  line-height: 1;
+  transition: color var(--t-fast) var(--ease);
+}
+.fh-toast__x:hover { color: var(--fh-text); }
+.fh-toast--leaving { animation: fh-toast-out 160ms var(--ease) forwards; }
+@keyframes fh-toast-in {
+  0%   { transform: translateX(110%); opacity: 0; }
+  100% { transform: translateX(0);    opacity: 1; }
+}
+@keyframes fh-toast-out {
+  0%   { transform: translateX(0);    opacity: 1; }
+  100% { transform: translateX(110%); opacity: 0; }
+}
+
+/* ============================================================
    RESPONSIVE — collapse sidebar at narrow widths
    ============================================================ */
 
@@ -1527,12 +2100,16 @@ select.fh-input {
     flex-wrap: wrap;
     padding: var(--s-3) var(--s-4);
     overflow-x: auto;
+    background-image: none;
   }
   .fh-nav { flex-direction: row; flex-wrap: wrap; }
+  .fh-nav__link:hover { padding-left: var(--s-5); }
   .fh-sidebar__divider, .fh-sidebar__hint { display: none; }
-  .fh-main { padding: var(--s-5) var(--s-4) var(--s-6); }
+  .fh-main { padding: var(--s-6) var(--s-4) var(--s-8); }
   .fh-grid--2, .fh-grid--3 { grid-template-columns: 1fr; }
-  .fh-h1 { font-size: var(--t-xl); }
+  .fh-h1 { font-size: var(--t-h); }
+  .fh-deck { font-size: var(--t-lg); }
+  .fh-topbar { padding: var(--s-3) var(--s-4); }
 }
 
 /* ============================================================

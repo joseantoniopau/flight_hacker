@@ -20,6 +20,10 @@
 
     init: function () {
       document.getElementById('fh-version').textContent = 'v' + FH.core.version;
+      // Footer version mirrors the topbar version; build hash is a static
+      // placeholder until a real CI write replaces it.
+      const fv = document.getElementById('fh-footer-version');
+      if (fv) fv.textContent = 'v' + FH.core.version;
 
       // sidebar nav
       document.querySelectorAll('.fh-nav__link').forEach(function (a) {
@@ -74,6 +78,25 @@
       // First-paint sidebar badges from cached state. Cheap; no network.
       try { FH.core.updateBadges(); } catch (_) {}
 
+      // Wire up empty-state CTAs that point to other sections / actions.
+      const emptyRefresh = document.getElementById('fh-mistakes-empty-refresh');
+      if (emptyRefresh) {
+        emptyRefresh.addEventListener('click', function () {
+          const btn = document.getElementById('fh-mistakes-refresh');
+          if (btn) btn.click();
+        });
+      }
+      const emptyWatchNew = document.getElementById('fh-watch-empty-new');
+      if (emptyWatchNew) {
+        emptyWatchNew.addEventListener('click', function () {
+          const btn = document.getElementById('fh-watch-new');
+          if (btn) btn.click();
+        });
+      }
+
+      // Bind the sticky-header scroll-shadow listener on every table wrap.
+      FH.core.initTableScrollShadow();
+
       FH.core.footer('Ready.', 0);
     },
 
@@ -85,11 +108,39 @@
     applyHash: function () {
       const h = (window.location.hash || '#search').replace(/^#/, '');
       const route = FH.core.routes.includes(h) ? h : 'search';
+
+      // Section reveal + fade-in. Set data-transition="in" so the CSS
+      // animation keyframe runs each navigation; remove it on the next
+      // frame to allow re-triggering on subsequent hash changes.
       document.querySelectorAll('.fh-section').forEach(function (s) {
+        const becameVisible = s.hidden && s.dataset.route === route;
         s.hidden = s.dataset.route !== route;
+        if (becameVisible) {
+          // Restart the CSS animation by toggling the attribute off then on
+          // on the next animation frame. Browsers debounce identical attribute
+          // writes, so the rAF dance is needed to actually replay.
+          s.removeAttribute('data-transition');
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              s.setAttribute('data-transition', 'in');
+            });
+          });
+        }
       });
+      // Nav: toggle active, and on the freshly-activated link kick the
+      // underline-draw animation (1 frame off, 1 frame on).
       document.querySelectorAll('.fh-nav__link').forEach(function (a) {
-        a.classList.toggle('fh-nav__link--active', a.dataset.route === route);
+        const isActive = a.dataset.route === route;
+        const wasActive = a.classList.contains('fh-nav__link--active');
+        a.classList.toggle('fh-nav__link--active', isActive);
+        a.removeAttribute('data-underline');
+        if (isActive && !wasActive) {
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              a.setAttribute('data-underline', 'draw');
+            });
+          });
+        }
       });
       document.getElementById('fh-topbar-route').textContent = '/' + route.toUpperCase();
 
@@ -138,8 +189,10 @@
 
     footer: function (left, recordCount) {
       document.getElementById('fh-footer-left').textContent  = left;
+      // The footer right slot is just the numeric count now — the "Records"
+      // label lives in static HTML as a sibling .fh-mini span.
       document.getElementById('fh-footer-right').textContent =
-        'Records: ' + (typeof recordCount === 'number' ? recordCount : '-');
+        (typeof recordCount === 'number' ? String(recordCount) : '–');
     },
 
     // Set a numeric badge on a sidebar nav link. Count > 0 shows the badge;
@@ -182,6 +235,53 @@
       } catch (_) {}
     },
 
+    // -----------------------------------------------------------------
+    // TOAST — slide-in bottom-right notifications.
+    //   FH.core.toast('Watch saved', 'success'?)
+    //   types: 'info' (default) | 'success' | 'warn'
+    // Stacks newest at the bottom; max 3 visible; auto-dismiss at 4s.
+    // The toast container lives in static HTML (#fh-toasts). The CSS
+    // animation handles the slide-in; the leaving state plays a 160ms
+    // slide-out before the node is removed.
+    // -----------------------------------------------------------------
+    toast: function (msg, type) {
+      const host = document.getElementById('fh-toasts');
+      if (!host) return;
+      const cls = (type === 'success' || type === 'warn') ? type : 'info';
+
+      // Prune to 2 before adding so 3 is the max steady-state.
+      while (host.children.length >= 3) {
+        host.removeChild(host.firstChild);
+      }
+
+      const el = document.createElement('div');
+      el.className = 'fh-toast fh-toast--' + cls;
+      el.setAttribute('role', 'status');
+      el.innerHTML =
+        '<span class="fh-toast__msg"></span>' +
+        '<button type="button" class="fh-toast__x" aria-label="Dismiss">×</button>';
+      el.querySelector('.fh-toast__msg').textContent = String(msg == null ? '' : msg);
+
+      const dismiss = function () {
+        if (!el.parentNode) return;
+        el.classList.add('fh-toast--leaving');
+        // After the 160ms slide-out, remove the node. Use animationend
+        // when available; fall back to a setTimeout for older WebKits.
+        const remove = function () {
+          if (el.parentNode) el.parentNode.removeChild(el);
+        };
+        let done = false;
+        const once = function () { if (!done) { done = true; remove(); } };
+        el.addEventListener('animationend', once, { once: true });
+        setTimeout(once, 220);
+      };
+      el.querySelector('.fh-toast__x').addEventListener('click', dismiss);
+      host.appendChild(el);
+
+      // Auto-dismiss after 4s.
+      setTimeout(dismiss, 4000);
+    },
+
     openOverlay: function (title, htmlBody) {
       document.getElementById('fh-overlay-title').textContent = title;
       document.getElementById('fh-overlay-body').innerHTML = htmlBody;
@@ -193,6 +293,40 @@
       const ov = document.getElementById('fh-overlay');
       ov.hidden = true;
       ov.style.display = 'none';
+      // Drop any active-row marker from data tables so the next overlay
+      // open starts clean.
+      document.querySelectorAll('tr.fh-row--active').forEach(function (tr) {
+        tr.classList.remove('fh-row--active');
+      });
+    },
+    // Mark a single <tr> as the active/expanded row. Pass null/no arg to
+    // just clear all markers. The active row gets the accent border-left
+    // + accent-soft background per .fh-row--active CSS.
+    setActiveRow: function (tr) {
+      document.querySelectorAll('tr.fh-row--active').forEach(function (x) {
+        if (x !== tr) x.classList.remove('fh-row--active');
+      });
+      if (tr) tr.classList.add('fh-row--active');
+    },
+    // Toggle .fh-table-wrap--scrolled on a wrap when the user has scrolled
+    // past the top, so the sticky <th> bottom border thickens. Lightweight
+    // — a single rAF-throttled scroll listener per wrap, bound once.
+    initTableScrollShadow: function () {
+      document.querySelectorAll('.fh-table-wrap').forEach(function (wrap) {
+        if (wrap.dataset.fhScrollBound === '1') return;
+        wrap.dataset.fhScrollBound = '1';
+        let ticking = false;
+        const update = function () {
+          ticking = false;
+          wrap.classList.toggle('fh-table-wrap--scrolled', wrap.scrollTop > 0);
+        };
+        wrap.addEventListener('scroll', function () {
+          if (!ticking) {
+            ticking = true;
+            requestAnimationFrame(update);
+          }
+        }, { passive: true });
+      });
     },
 
     initKeyboard: function () {
@@ -625,12 +759,27 @@
       try { prog.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (_) {}
 
       const t0 = performance.now();
-      // Live elapsed counter — reassures the user the search hasn't hung.
+      // Rough expected duration: ~3s per route × cabin combo (Google
+      // Flights + Seats.aero in parallel), capped to a sane band so the
+      // counter never reads "1%" for the first 9 seconds of a 1-pair
+      // search. Empirical numbers from the running server.
+      const pairs = Math.max(1, q.origins.length * q.destinations.length * (q.cabin || []).length);
+      const expectedSec = Math.max(8, Math.min(45, pairs * 3));
+      // Live elapsed counter + percentage chip — reassures the user the
+      // search hasn't hung. The chip stays separate so the line wraps
+      // cleanly on narrow viewports.
       const updateLabel = function () {
         const sec = Math.floor((performance.now() - t0) / 1000);
-        const pairs = (q.origins.length) * (q.destinations.length) * (q.cabin || []).length;
-        const note = pairs > 1 ? ' (' + pairs + ' route combos × ' + q.cabin.length + ' cabin' + (q.cabin.length === 1 ? '' : 's') + ')' : '';
-        lbl.textContent = 'Searching Google Flights · Seats.aero · awards' + note + ' — ' + sec + 's';
+        const note = pairs > 1
+          ? pairs + ' routes × ' + q.cabin.length + ' cabin' + (q.cabin.length === 1 ? '' : 's')
+          : '1 route × ' + q.cabin.length + ' cabin' + (q.cabin.length === 1 ? '' : 's');
+        // Soft cap the % at 95 so the chip never reads "100% / waiting".
+        const pct = Math.min(95, Math.floor((sec / expectedSec) * 100));
+        lbl.innerHTML = ''
+          + FH.core.escape('Searching ' + note + ' — ' + sec + 's')
+          + '<span class="fh-progress__chip">'
+          +   FH.core.escape('est ' + expectedSec + 's · ' + pct + '%')
+          + '</span>';
       };
       updateLabel();
       const progressTimer = setInterval(updateLabel, 500);
@@ -640,7 +789,8 @@
           body: JSON.stringify(q)
         });
         const ms = Math.round(performance.now() - t0);
-        FH.results.setData(data.results || []);
+        const results = data.results || [];
+        FH.results.setData(results);
         // If the server auto-expanded to nearby airports, surface it so the
         // user knows which airports were actually searched.
         const meta = data.meta || {};
@@ -651,8 +801,11 @@
         if (dAdd) expandedNote += ' · +dest: ' + dAdd;
         FH.core.footer(
           'Search @ ' + new Date().toLocaleTimeString() + ' (' + ms + 'ms)' + expandedNote,
-          (data.results || []).length
+          results.length
         );
+        if (results.length === 0) {
+          FH.core.toast('Search returned no results — try widening dates or cabins', 'warn');
+        }
         FH.core.go('results');
       } catch (e) {
         // showError already fired
@@ -731,6 +884,7 @@
           q.origins.join('/') + ' → ' + q.destinations.join('/'),
           null
         );
+        FH.core.toast('Watch saved — ' + q.origins.join('/') + ' → ' + q.destinations.join('/'), 'success');
         FH.core.go('watchlist');
       } catch (e) { /* showError already fired by FH.core.api */ }
     }
@@ -808,8 +962,8 @@
       banner.innerHTML =
         '<span>' + incomplete + ' of ' + total + ' results missing duration / airline ' +
         '(Google Flights data quality varies by route).</span> ' +
-        '<a class="fh-btn fh-btn--mini fh-btn--primary" href="' + FH.core.escape(url) +
-        '" target="_blank" rel="noopener">View all on Google Flights →</a>';
+        '<a class="fh-btn fh-btn--mini fh-btn--primary fh-arrow-link" href="' + FH.core.escape(url) +
+        '" target="_blank" rel="noopener">View all on Google Flights <span class="fh-arrow-link__arrow">→</span></a>';
     },
 
     renderRows: function (rows) {
@@ -886,7 +1040,7 @@
         // final fallback, but we still prefer the more explicit airline_url when present.
         const bookHref = r.airline_url || r.google_flights_url || r.deep_link || '';
         const bookBtn = bookHref
-          ? '<a class="fh-btn fh-btn--mini fh-btn--primary" href="' + FH.core.escape(bookHref) + '" target="_blank" rel="noopener">Book →</a> '
+          ? '<a class="fh-btn fh-btn--mini fh-btn--primary fh-arrow-link" href="' + FH.core.escape(bookHref) + '" target="_blank" rel="noopener">Book <span class="fh-arrow-link__arrow">→</span></a> '
           : '';
         const isTopDeal = (i === topDealIdx);
         const rowCls = isTopDeal ? ' class="fh-row--top-deal"' : '';
@@ -918,6 +1072,8 @@
       tb.querySelectorAll('button[data-act="expand"]').forEach(function (b) {
         b.addEventListener('click', function (e) {
           e.stopPropagation();
+          const tr = b.closest('tr');
+          if (tr) FH.core.setActiveRow(tr);
           FH.results.detail(parseInt(b.dataset.i, 10));
         });
       });
@@ -973,6 +1129,7 @@
           // top of a fresh tab).
           const tgt = e.target;
           if (tgt && tgt.closest && tgt.closest('a,button')) return;
+          FH.core.setActiveRow(tr);
           FH.results.detail(parseInt(tr.dataset.i, 10));
         });
       });
@@ -1027,18 +1184,18 @@
 
       const bookLinks = [];
       if (r.airline_url) {
-        bookLinks.push('<a class="fh-btn fh-btn--mini fh-btn--primary" href="' +
+        bookLinks.push('<a class="fh-btn fh-btn--mini fh-btn--primary fh-arrow-link" href="' +
           FH.core.escape(r.airline_url) + '" target="_blank" rel="noopener">Book on ' +
-          FH.core.escape(r.carrier || 'airline') + ' →</a>');
+          FH.core.escape(r.carrier || 'airline') + ' <span class="fh-arrow-link__arrow">→</span></a>');
       }
       if (r.google_flights_url) {
-        bookLinks.push('<a class="fh-btn fh-btn--mini" href="' +
+        bookLinks.push('<a class="fh-btn fh-btn--mini fh-arrow-link" href="' +
           FH.core.escape(r.google_flights_url) +
-          '" target="_blank" rel="noopener">Open in Google Flights →</a>');
+          '" target="_blank" rel="noopener">Open in Google Flights <span class="fh-arrow-link__arrow">→</span></a>');
       } else if (r.deep_link) {
-        bookLinks.push('<a class="fh-btn fh-btn--mini" href="' +
+        bookLinks.push('<a class="fh-btn fh-btn--mini fh-arrow-link" href="' +
           FH.core.escape(r.deep_link) +
-          '" target="_blank" rel="noopener">Verify on Google Flights →</a>');
+          '" target="_blank" rel="noopener">Verify on Google Flights <span class="fh-arrow-link__arrow">→</span></a>');
       }
       const verifyLink = bookLinks.length
         ? '<div class="fh-actions" style="margin:8px 0 16px;">' + bookLinks.join('') + '</div>'
@@ -1089,13 +1246,30 @@
     refresh: async function () {
       // Button label is "Refresh feed" — force re-ingest from sources.
       document.getElementById('fh-mistakes-status').textContent = 'Re-ingesting from sources...';
+      // Capture the previously-known mistake id set so we can report
+      // "N new" in the success toast.
+      let prevIds = [];
+      try {
+        prevIds = JSON.parse(localStorage.getItem('fh.mistakes.seen') || '[]');
+      } catch (_) { prevIds = []; }
+      const prevSet = new Set(prevIds);
       try {
         const data = await FH.core.api('/api/mistakes/refresh', { method: 'POST', body: '{}' });
-        FH.mistakes.render(data.mistakes || []);
+        const rows = data.mistakes || [];
+        FH.mistakes.render(rows);
         FH.mistakes.loaded = true;
         document.getElementById('fh-mistakes-status').textContent = 'Feed refreshed @ ' + new Date().toLocaleTimeString();
+        const newCount = rows.filter(function (m) {
+          return m.id && !prevSet.has(m.id);
+        }).length;
+        if (newCount > 0) {
+          FH.core.toast('Refresh complete — ' + newCount + ' new mistake' + (newCount === 1 ? '' : 's'), 'success');
+        } else {
+          FH.core.toast('Refresh complete — no new mistakes', 'info');
+        }
       } catch (e) {
         document.getElementById('fh-mistakes-status').textContent = 'Refresh failed.';
+        FH.core.toast('Refresh failed', 'warn');
       }
     },
     render: function (rows) {
@@ -1357,6 +1531,7 @@
         return;
       }
       document.getElementById('fh-watch-drawer').hidden = true;
+      FH.core.toast('Watch saved — ' + body.origin + ' → ' + body.destination, 'success');
       FH.watchlist.refresh();
     }
   };
@@ -1471,6 +1646,7 @@
           if (tgt && tgt.closest && tgt.closest('a,button')) return;
           const s = rows[parseInt(tr.dataset.i, 10)];
           if (!s) return;
+          FH.core.setActiveRow(tr);
           FH.spots.openOverlay(s);
         });
       });
@@ -1829,6 +2005,7 @@
         FH.balances.renderTable();
         localStorage.setItem('fh.balances', JSON.stringify(body));
         document.getElementById('fh-bal-status').textContent = 'Saved @ ' + new Date().toLocaleTimeString();
+        FH.core.toast('Balances saved (' + body.airlines.length + ' program' + (body.airlines.length === 1 ? '' : 's') + ')', 'success');
         // Force next /#balances visit to re-fetch from disk so the user
         // sees exactly what landed (including server-side filtering of
         // empty-program rows).
@@ -1837,6 +2014,7 @@
         // backend missing; persist locally
         localStorage.setItem('fh.balances', JSON.stringify(body));
         document.getElementById('fh-bal-status').textContent = 'Saved locally (no backend).';
+        FH.core.toast('Balances saved locally (no backend)', 'warn');
       }
     }
   };
@@ -1891,6 +2069,7 @@
         const cache = Object.assign({}, body, (resp && resp.settings) || {});
         localStorage.setItem('fh.settings', JSON.stringify(cache));
         document.getElementById('fh-set-status').textContent = 'Saved @ ' + new Date().toLocaleTimeString();
+        FH.core.toast('Settings saved', 'success');
         // Re-hydrate the form so the user sees the freshly-masked key
         // (server may have rotated the mask if the value was just set).
         if (resp && resp.settings) {
@@ -2279,9 +2458,20 @@
       for (let i = 0; i < startDow; i++) {
         html += '<div class="fh-cal-cell fh-cal-cell--filler"></div>';
       }
+      // Pin the lowest-value day (single winner) so its cell can get the
+      // subtle outline pulse via .fh-cal-cell--lowest. Ties resolve to the
+      // earliest date in the window.
+      const lowestVal = stats ? stats.min : null;
+      let lowestIdx = -1;
+      if (lowestVal != null) {
+        days.forEach(function (d, i) {
+          if (lowestIdx === -1 && valueOf(d) === lowestVal) lowestIdx = i;
+        });
+      }
       days.forEach(function (d, idx) {
         const val = valueOf(d);
-        const cls = FH.flex.cellClass(val, stats);
+        let cls = FH.flex.cellClass(val, stats);
+        if (idx === lowestIdx) cls += ' fh-cal-cell--lowest';
         const dateNum = parseInt(d.date.slice(8, 10), 10);
         let priceHtml;
         if (val == null) {
