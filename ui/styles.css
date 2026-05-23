@@ -1136,6 +1136,383 @@ select.fh-input {
 .fh-input:focus-visible { outline: none; }   /* handled by border-color */
 
 /* ============================================================
+   FLEX DATES — calendar heatmap
+   ============================================================ */
+
+.fh-flex-summary {
+  margin: var(--s-4) 0 var(--s-3);
+  padding: var(--s-3) var(--s-4);
+  background: var(--fh-panel-2);
+  border: 1px solid var(--fh-rule);
+  font-size: var(--t-md);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3) var(--s-5);
+  align-items: baseline;
+}
+.fh-flex-summary__big {
+  color: var(--fh-accent);
+  font-size: var(--t-lg);
+  font-weight: 600;
+}
+.fh-flex-summary__lbl { color: var(--fh-text-mut); margin-right: var(--s-1); }
+
+.fh-cal-wrap {
+  margin-top: var(--s-3);
+  border: 1px solid var(--fh-rule);
+  background: var(--fh-bg);
+}
+.fh-cal-dow {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: var(--fh-rule);
+  border-bottom: 1px solid var(--fh-rule);
+}
+.fh-cal-dow > div {
+  background: var(--fh-panel);
+  color: var(--fh-text-mut);
+  padding: var(--s-2) var(--s-3);
+  font-size: var(--t-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.fh-calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: var(--fh-rule);
+}
+.fh-cal-cell {
+  background: var(--fh-panel);
+  border: 1px solid transparent;
+  padding: var(--s-3);
+  min-height: 76px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: background var(--t-fast) var(--ease),
+              border-color var(--t-fast) var(--ease),
+              transform var(--t-fast) var(--ease);
+}
+.fh-cal-cell:hover {
+  border-color: var(--fh-rule-bright);
+  transform: translateY(-1px);
+}
+.fh-cal-cell__date {
+  font-size: var(--t-xs);
+  color: var(--fh-text-mut);
+  letter-spacing: 0.04em;
+}
+.fh-cal-cell__price {
+  font-size: var(--t-lg);
+  font-weight: 600;
+  color: var(--fh-text);
+  font-variant-numeric: tabular-nums;
+}
+.fh-cal-cell__meta {
+  font-size: 10px;
+  color: var(--fh-text-mut);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Filler cells before the first day so the grid aligns to DOW */
+.fh-cal-cell--filler {
+  background: var(--fh-bg);
+  cursor: default;
+  pointer-events: none;
+}
+.fh-cal-cell--filler:hover { transform: none; border-color: transparent; }
+
+/* Bands — lowest quartile through above-90th-percentile */
+.fh-cal-cell--cheap {
+  background: var(--fh-accent-soft);
+  border-color: var(--fh-accent);
+}
+.fh-cal-cell--cheap .fh-cal-cell__price { color: var(--fh-accent); }
+
+.fh-cal-cell--mid-low { background: var(--fh-panel-2); }
+.fh-cal-cell--mid-high { background: var(--fh-panel); }
+.fh-cal-cell--expensive .fh-cal-cell__price { color: var(--fh-text-mut); }
+.fh-cal-cell--expensive { opacity: 0.78; }
+
+.fh-cal-cell--nodata {
+  background: transparent;
+  border: 1px dashed var(--fh-rule-strong);
+  cursor: default;
+}
+.fh-cal-cell--nodata:hover { transform: none; }
+.fh-cal-cell--nodata .fh-cal-cell__price { color: var(--fh-text-dim); }
+
+.fh-cal-cell__price--miles {
+  font-size: var(--t-md);
+  letter-spacing: -0.01em;
+}
+
+.fh-cal-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-4);
+  padding: var(--s-3) var(--s-4);
+  border-top: 1px solid var(--fh-rule);
+  background: var(--fh-panel);
+  font-size: var(--t-xs);
+  color: var(--fh-text-mut);
+}
+.fh-cal-legend__swatch {
+  display: inline-block;
+  width: 12px; height: 12px;
+  vertical-align: middle;
+  margin-right: var(--s-1);
+  border: 1px solid var(--fh-rule-strong);
+}
+.fh-cal-legend__swatch--cheap { background: var(--fh-accent-soft); border-color: var(--fh-accent); }
+.fh-cal-legend__swatch--mid-low { background: var(--fh-panel-2); }
+.fh-cal-legend__swatch--mid-high { background: var(--fh-panel); }
+.fh-cal-legend__swatch--expensive { background: var(--fh-panel); opacity: 0.78; }
+.fh-cal-legend__swatch--nodata {
+  background: transparent;
+  border: 1px dashed var(--fh-rule-strong);
+}
+
+.fh-flex-empty {
+  margin-top: var(--s-5);
+  padding: var(--s-5);
+  border: 1px dashed var(--fh-rule);
+  text-align: center;
+  color: var(--fh-text-mut);
+  background: var(--fh-panel);
+}
+
+/* ============================================================
+   CARRIER LOGO (results table, mistakes cards, sweet spots)
+   ------------------------------------------------------------
+   18px square, no chrome, no shadow. <img> hides itself via JS
+   on 404 from the CDN so a missing logo never leaves a visible
+   alt-text rectangle.
+   ============================================================ */
+.fh-carrier {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-width: 0;
+}
+.fh-carrier__logo {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  flex: 0 0 auto;
+  /* CDN PNGs are colored; preserve them. No border / radius. */
+  background: transparent;
+  filter: none;
+  /* The Google CDN tile is white-friendly; the dark surface keeps the
+     brutalist palette but some white-on-white logos vanish. Drop a tiny
+     light-tinted scrim so they stay readable without halos. */
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+.fh-carrier__name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fh-carrier__logo--seg {
+  margin-right: var(--s-2);
+  vertical-align: -3px;
+}
+
+/* ============================================================
+   TOP-DEAL PIN (results table — lowest total_usd row)
+   ============================================================ */
+.fh-top-deal {
+  display: inline-block;
+  color: var(--fh-accent);
+  margin-right: 4px;
+  font-size: var(--t-md);
+  line-height: 1;
+}
+.fh-row--top-deal td:first-child { font-weight: 600; }
+
+/* ============================================================
+   RESULTS ROW HOVER — accent border-left, no background flash
+   ============================================================ */
+.fh-table--results tbody tr,
+.fh-table--watch tbody tr,
+.fh-table--spots tbody tr {
+  /* Shift the row in 2px so we can land an accent rule on hover without
+     causing a width jump. Border-left is transparent until hover. */
+  border-left: 2px solid transparent;
+  transition: border-left-color var(--t-fast) var(--ease),
+              background var(--t-fast) var(--ease);
+}
+.fh-table--results tbody tr:hover,
+.fh-table--watch tbody tr:hover,
+.fh-table--spots tbody tr:hover {
+  border-left-color: var(--fh-accent);
+}
+.fh-table--results tbody tr.fh-row--top-deal {
+  border-left-color: var(--fh-accent);
+  background: rgba(205, 240, 74, 0.03);
+}
+.fh-table--results tbody tr.fh-row--top-deal:hover {
+  background: var(--fh-accent-soft);
+}
+
+/* ============================================================
+   DEAL TAG (mistake-fare cards under-median + LEGAL)
+   ============================================================ */
+.fh-deal-tag {
+  display: inline-block;
+  padding: 1px 6px;
+  margin-left: var(--s-2);
+  background: var(--fh-accent);
+  color: var(--fh-accent-fg);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+  text-transform: uppercase;
+  vertical-align: 2px;
+}
+.fh-card--deal {
+  border-left: 3px solid var(--fh-accent);
+}
+.fh-card__src {
+  color: var(--fh-text-mut);
+  margin-left: 4px;
+}
+
+/* ============================================================
+   ROUTE ARROW (watchlist, etc.)
+   ============================================================ */
+.fh-route {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.fh-route__arrow {
+  color: var(--fh-text-mut);
+  font-weight: 400;
+}
+
+/* ============================================================
+   STATUS DOTS (watchlist freshness)
+   ============================================================ */
+.fh-dot--ok    { background: var(--fh-ok);    box-shadow: 0 0 0 3px rgba(110, 231, 163, 0.10); }
+.fh-dot--warn  { background: var(--fh-gray);  box-shadow: 0 0 0 3px rgba(240, 196, 59, 0.10); }
+.fh-dot--stale { background: var(--fh-tos);   box-shadow: 0 0 0 3px rgba(244, 116, 97, 0.10); }
+
+/* Pulse animation for the topbar live dot during a search. */
+.fh-dot--pulse {
+  animation: fh-dot-pulse 1.1s ease-in-out infinite;
+}
+@keyframes fh-dot-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 3px var(--fh-accent-soft);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 7px rgba(205, 240, 74, 0.04);
+    transform: scale(1.15);
+  }
+}
+
+/* ============================================================
+   SIDEBAR BADGE (counter next to nav links)
+   ============================================================ */
+.fh-nav__link { position: relative; }
+.fh-nav__badge {
+  display: inline-block;
+  margin-left: auto;
+  padding: 1px 6px;
+  background: var(--fh-accent);
+  color: var(--fh-accent-fg);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  font-family: var(--fh-mono);
+  min-width: 16px;
+  text-align: center;
+}
+
+/* ============================================================
+   SECTION HEADER MICRO-ICONS
+   ------------------------------------------------------------
+   Each section's <h1> gets a glyph BEFORE the accent block. CSS
+   sets them per section-route via the parent .fh-section[data-route].
+   Kept in monospace pixel grid; no decorative font.
+   ============================================================ */
+.fh-section[data-route] > .fh-h1 {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+.fh-section[data-route] > .fh-h1::after {
+  content: "";
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+}
+.fh-section[data-route="search"]      > .fh-h1::after { content: "✦"; color: var(--fh-text-mut); width: auto; height: auto; font-size: var(--t-md); }
+.fh-section[data-route="results"]     > .fh-h1::after { content: "◆"; color: var(--fh-text-mut); width: auto; height: auto; font-size: var(--t-md); }
+.fh-section[data-route="mistakes"]    > .fh-h1::after { content: "⊕"; color: var(--fh-text-mut); width: auto; height: auto; font-size: var(--t-md); }
+.fh-section[data-route="watchlist"]   > .fh-h1::after { content: "◐"; color: var(--fh-text-mut); width: auto; height: auto; font-size: var(--t-md); }
+.fh-section[data-route="sweet-spots"] > .fh-h1::after { content: "✱"; color: var(--fh-text-mut); width: auto; height: auto; font-size: var(--t-md); }
+.fh-section[data-route="balances"]    > .fh-h1::after { content: "▼"; color: var(--fh-text-mut); width: auto; height: auto; font-size: var(--t-md); }
+.fh-section[data-route="settings"]    > .fh-h1::after { content: "⚙"; color: var(--fh-text-mut); width: auto; height: auto; font-size: var(--t-md); }
+
+/* ============================================================
+   EMPTY-STATE GLYPH
+   ============================================================ */
+.fh-empty__glyph {
+  font-size: 24px;
+  color: var(--fh-text-dim);
+  letter-spacing: 0.5em;
+  margin-bottom: var(--s-2);
+  user-select: none;
+}
+.fh-empty__text {
+  font-size: var(--t-sm);
+  color: var(--fh-text-mut);
+}
+/* The mistakes empty state is a flex card grid item; reflow its inner
+   glyph + text stack so the layout matches the table-cell empty state. */
+.fh-cards > .fh-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  grid-column: 1 / -1;
+}
+
+/* ============================================================
+   MONOSPACE-LOCKED ELAPSED COUNTER
+   ------------------------------------------------------------
+   The search progress label includes a live "— 14s" suffix that
+   shifts width as digits grow. Force tabular numerals so the
+   layout doesn't jitter on each tick.
+   ============================================================ */
+#fh-search-progress-label {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* Segment <pre> in detail overlay: align logo + text */
+.fh-overlay__body pre.fh-seg {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  white-space: pre-wrap;
+}
+
+/* ============================================================
    RESPONSIVE — collapse sidebar at narrow widths
    ============================================================ */
 

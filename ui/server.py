@@ -955,6 +955,7 @@ def _adapt_mistake(m: dict) -> dict:
     # default to Economy when extraction couldn't pin a class.
     out["cabin"] = _cabin_label(extracted.get("cabin_hint") or "economy")
     out["carrier"] = extracted.get("carrier_hint") or ""
+    out["carrier_logo_url"] = _carrier_logo_url(out["carrier"])
 
     # source / posted_at carry through (already present in raw shape)
     out["source"] = m.get("source") or ""
@@ -1101,6 +1102,175 @@ _AIRLINE_HOMEPAGE = {
     "Qantas": "https://www.qantas.com",
     "Air New Zealand": "https://www.airnewzealand.com",
 }
+
+# Carrier display name → IATA airline code. Used to compose a logo URL via
+# Google's airline-logo CDN (the one Google Flights itself uses). When the
+# carrier isn't recognized we leave the logo URL null and the UI hides the
+# <img>; lookups are case-insensitive after trimming.
+_CARRIER_TO_IATA = {
+    "delta": "DL",
+    "delta air lines": "DL",
+    "american": "AA",
+    "american airlines": "AA",
+    "united": "UA",
+    "united airlines": "UA",
+    "alaska": "AS",
+    "alaska airlines": "AS",
+    "jetblue": "B6",
+    "southwest": "WN",
+    "spirit": "NK",
+    "frontier": "F9",
+    "hawaiian": "HA",
+    "hawaiian airlines": "HA",
+    "allegiant": "G4",
+    "air canada": "AC",
+    "westjet": "WS",
+    "air transat": "TS",
+    "iberia": "IB",
+    "air france": "AF",
+    "klm": "KL",
+    "lufthansa": "LH",
+    "swiss": "LX",
+    "austrian": "OS",
+    "british airways": "BA",
+    "virgin atlantic": "VS",
+    "level": "IB",  # LEVEL operates under IB code
+    "tap": "TP",
+    "tap air portugal": "TP",
+    "ita": "AZ",
+    "ita airways": "AZ",
+    "aer lingus": "EI",
+    "finnair": "AY",
+    "sas": "SK",
+    "norwegian": "DY",
+    "norse": "Z0",
+    "norse atlantic": "Z0",
+    "norse atlantic airways": "Z0",
+    "icelandair": "FI",
+    "lot": "LO",
+    "lot polish airlines": "LO",
+    "air serbia": "JU",
+    "turkish": "TK",
+    "turkish airlines": "TK",
+    "emirates": "EK",
+    "qatar": "QR",
+    "qatar airways": "QR",
+    "etihad": "EY",
+    "etihad airways": "EY",
+    "saudia": "SV",
+    "singapore": "SQ",
+    "singapore airlines": "SQ",
+    "cathay": "CX",
+    "cathay pacific": "CX",
+    "ana": "NH",
+    "all nippon": "NH",
+    "all nippon airways": "NH",
+    "jal": "JL",
+    "japan airlines": "JL",
+    "korean air": "KE",
+    "asiana": "OZ",
+    "asiana airlines": "OZ",
+    "china eastern": "MU",
+    "china southern": "CZ",
+    "air china": "CA",
+    "eva": "BR",
+    "eva air": "BR",
+    "thai": "TG",
+    "thai airways": "TG",
+    "vietnam airlines": "VN",
+    "malaysia airlines": "MH",
+    "philippine airlines": "PR",
+    "qantas": "QF",
+    "air new zealand": "NZ",
+    "fiji airways": "FJ",
+    "aeromexico": "AM",
+    "copa": "CM",
+    "copa airlines": "CM",
+    "latam": "LA",
+    "avianca": "AV",
+    "gol": "G3",
+    "aerolineas argentinas": "AR",
+    "azul": "AD",
+    "egyptair": "MS",
+    "ethiopian": "ET",
+    "ethiopian airlines": "ET",
+    "kenya airways": "KQ",
+    "south african airways": "SA",
+    "royal air maroc": "AT",
+    "tunisair": "TU",
+}
+
+# Google's airline-logo CDN. Same one Google Flights renders against; no auth,
+# stable URL shape, 70px PNG with transparency. Returns None when we can't
+# resolve the carrier to an IATA code so the UI can hide the <img> gracefully.
+def _carrier_logo_url(carrier: str | None) -> str | None:
+    if not carrier:
+        return None
+    iata = _CARRIER_TO_IATA.get(str(carrier).strip().lower())
+    if not iata:
+        return None
+    return f"https://www.gstatic.com/flights/airline_logos/70px/{iata}.png"
+
+
+# Award program name → operating carrier IATA, for sweet-spots rows where
+# the only carrier hint is the program name. Best-effort: programs that span
+# multiple carriers (Aeroplan, Flying Blue) map to the namesake carrier.
+_PROGRAM_TO_IATA = {
+    "Aeroplan": "AC",
+    "Air Canada Aeroplan": "AC",
+    "United MileagePlus": "UA",
+    "American AAdvantage": "AA",
+    "Delta SkyMiles": "DL",
+    "Alaska Mileage Plan": "AS",
+    "Alaska Atmos": "AS",
+    "Virgin Atlantic Flying Club": "VS",
+    "Avianca LifeMiles": "AV",
+    "British Airways Avios": "BA",
+    "British Airways Executive Club": "BA",
+    "Iberia Plus": "IB",
+    "Air France/KLM Flying Blue": "AF",
+    "Air France-KLM Flying Blue": "AF",
+    "Turkish Miles&Smiles": "TK",
+    "ANA Mileage Club": "NH",
+    "JAL Mileage Bank": "JL",
+    "Singapore KrisFlyer": "SQ",
+    "Singapore Airlines KrisFlyer": "SQ",
+    "Cathay Asia Miles": "CX",
+    "Cathay Pacific Asia Miles": "CX",
+    "Qatar Privilege Club": "QR",
+    "Qatar Airways Privilege Club": "QR",
+    "Emirates Skywards": "EK",
+    "Etihad Guest": "EY",
+    "Korean Air SKYPASS": "KE",
+    "Qantas Frequent Flyer": "QF",
+    "Finnair Plus": "AY",
+}
+
+
+def _program_logo_url(program: str | None, operating_carrier: str | None = None) -> str | None:
+    """Resolve a sweet-spot row to an airline logo URL.
+
+    Prefer the operating carrier (when the row reports one) since that's the
+    metal flying the route. Fall back to the program's namesake carrier.
+    """
+    if operating_carrier:
+        url = _carrier_logo_url(operating_carrier)
+        if url:
+            return url
+    if not program:
+        return None
+    iata = _PROGRAM_TO_IATA.get(program)
+    if not iata:
+        # Loose match — "ANA Mileage Club" vs "ANA"
+        for k, code in _PROGRAM_TO_IATA.items():
+            if program in k or k in program:
+                iata = code
+                break
+    if not iata:
+        # Last resort: try as if it were a carrier name
+        return _carrier_logo_url(program)
+    return f"https://www.gstatic.com/flights/airline_logos/70px/{iata}.png"
+
 
 # Award program → booking page
 _PROGRAM_BOOK_URL = {
@@ -1265,6 +1435,9 @@ def _adapt_search_row(r: dict, index: int) -> dict:
     out["google_flights_url"] = gf_url
     out["airline_url"] = airline_url
     out["deep_link"] = r.get("deep_link") or airline_url or gf_url or ""
+    # Carrier logo URL — main-row carrier maps to Google's airline-logo CDN.
+    # Null when the carrier isn't recognized; UI hides the <img>.
+    out["carrier_logo_url"] = _carrier_logo_url(r.get("carrier"))
 
     # Booking instructions string.
     if kind == "award":
@@ -1293,6 +1466,7 @@ def _adapt_search_row(r: dict, index: int) -> dict:
             "from": s.get("from") or "",
             "to": s.get("to") or "",
             "carrier": s.get("carrier") or "",
+            "carrier_logo_url": _carrier_logo_url(s.get("carrier")),
             "flight": (" " + s.get("flight_no")) if s.get("flight_no") else "",
             "dep_local": s.get("depart") or "",
             "arr_local": s.get("arrive") or "",
@@ -2061,6 +2235,311 @@ async def api_search(body: SearchRequest):
 
 
 # ---------------------------------------------------------------------------
+# /api/calendar — flexible-date cheapest-per-day heatmap
+# ---------------------------------------------------------------------------
+
+CALENDAR_CACHE_DIR = CACHE_DIR / "calendar"
+CALENDAR_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+CALENDAR_CACHE_TTL_SECONDS = 6 * 60 * 60  # 6 hours
+CALENDAR_MAX_DAYS = 62                    # safety cap (~2 months)
+CALENDAR_PER_DAY_TIMEOUT_S = 30
+CALENDAR_TOTAL_TIMEOUT_S = 120
+CALENDAR_MAX_WORKERS = 4                  # matches fast-flights semaphore
+
+
+class CalendarRequest(BaseModel):
+    origin: str = Field(min_length=2, max_length=8)
+    destination: str = Field(min_length=2, max_length=8)
+    start_date: str = Field(min_length=10, max_length=10)
+    end_date: str = Field(min_length=10, max_length=10)
+    cabin: str = Field(default="Y", max_length=32)
+    adults: int = Field(default=1, ge=1, le=8)
+    mode: str = Field(default="cash", max_length=8)
+
+    @field_validator("origin", "destination", mode="before")
+    @classmethod
+    def _upper(cls, v):
+        return str(v or "").strip().upper()
+
+    @field_validator("mode", mode="before")
+    @classmethod
+    def _mode(cls, v):
+        if v is None:
+            return "cash"
+        s = str(v).lower().strip()
+        if s not in {"cash", "award", "both"}:
+            raise ValueError("mode must be cash|award|both")
+        return s
+
+    @field_validator("start_date", "end_date", mode="before")
+    @classmethod
+    def _date(cls, v):
+        s = str(v or "").strip()
+        try:
+            datetime.strptime(s, "%Y-%m-%d")
+        except Exception as exc:
+            raise ValueError(f"date must be YYYY-MM-DD, got {v!r}: {exc}") from exc
+        return s
+
+
+def _calendar_cache_path(key_parts: tuple) -> Path:
+    raw = json.dumps(list(key_parts), sort_keys=True, default=str).encode("utf-8")
+    digest = hashlib.sha256(raw).hexdigest()[:16]
+    return CALENDAR_CACHE_DIR / f"cal_{digest}.json"
+
+
+def _calendar_cache_read(path: Path) -> dict | None:
+    try:
+        if not path.exists():
+            return None
+        age = time.time() - path.stat().st_mtime
+        if age > CALENDAR_CACHE_TTL_SECONDS:
+            return None
+        return json.loads(path.read_text())
+    except Exception as e:
+        common_log("calendar_cache_read_error", error=str(e))
+        return None
+
+
+def _calendar_cache_write(path: Path, data: dict) -> None:
+    try:
+        _atomic_write_text(path, json.dumps(data, default=str))
+    except Exception as e:
+        common_log("calendar_cache_write_error", error=str(e))
+
+
+def _cheapest_cash_for_day(origin: str, dest: str, day: str,
+                           cabin: str, adults: int) -> dict | None:
+    """Run a single-day cash search and reduce to the cheapest itinerary record.
+    Returns None when no real offer exists, or {'_error': msg} on hard error."""
+    if not _HAS_CASH or search_cash is None:
+        return None
+    try:
+        rows = search_cash.search(  # type: ignore[attr-defined]
+            origin, dest, day, return_date=None,
+            cabin=cabin, adults=adults, children=0, infants=0,
+            max_stops=2,
+        ) or []
+    except Exception as e:
+        common_log("calendar_cash_error", origin=origin, dest=dest,
+                   day=day, error=str(e))
+        return {"_error": str(e)}
+    real = [r for r in rows
+            if isinstance(r, dict) and not r.get("error")
+            and r.get("price_usd") is not None]
+    if not real:
+        return None
+    cheapest = min(real, key=lambda r: float(r.get("price_usd") or 1e12))
+    return cheapest
+
+
+def _cheapest_award_for_day(origin: str, dest: str, day: str,
+                            cabin: str, adults: int) -> dict | None:
+    """Cheapest award itinerary (by miles) for a single day."""
+    if not _HAS_AWARD or search_award is None:
+        return None
+    try:
+        result = search_award.search(  # type: ignore[attr-defined]
+            origin, dest, day, return_date=None,
+            cabins=(cabin,), passengers=max(1, adults),
+        )
+    except Exception as e:
+        common_log("calendar_award_error", origin=origin, dest=dest,
+                   day=day, error=str(e))
+        return {"_error": str(e)}
+    rows: list[dict]
+    if isinstance(result, dict):
+        rows = list(result.get("outbound") or [])
+    elif isinstance(result, list):
+        rows = result
+    else:
+        rows = []
+    real = [r for r in rows
+            if isinstance(r, dict) and not r.get("error")
+            and (r.get("miles") or r.get("award_miles"))]
+    if not real:
+        return None
+
+    def _miles_of(r: dict) -> float:
+        return float(r.get("miles") or r.get("award_miles") or 1e12)
+    return min(real, key=_miles_of)
+
+
+def _enumerate_dates(start: str, end: str) -> list[str]:
+    s = datetime.strptime(start, "%Y-%m-%d").date()
+    e = datetime.strptime(end, "%Y-%m-%d").date()
+    if e < s:
+        return []
+    out: list[str] = []
+    d = s
+    while d <= e:
+        out.append(d.strftime("%Y-%m-%d"))
+        d += timedelta(days=1)
+    return out
+
+
+@app.post("/api/calendar")
+async def api_calendar(body: CalendarRequest):
+    t0 = time.time()
+    origin = body.origin
+    destination = body.destination
+    if not origin or not destination:
+        return _err("origin and destination are required", 400)
+    if origin == destination:
+        return _err("origin and destination must differ", 400)
+    if body.start_date > body.end_date:
+        return _err("start_date must not be after end_date", 400)
+
+    dates = _enumerate_dates(body.start_date, body.end_date)
+    if not dates:
+        return _err("empty date range", 400)
+    if len(dates) > CALENDAR_MAX_DAYS:
+        return _err(
+            f"date range too large (max {CALENDAR_MAX_DAYS} days, got {len(dates)})",
+            400,
+        )
+
+    # Translate UI cabin code (Y/PE/J/F) to canonical name used by search_*.
+    cabin_internal = (_normalize_cabin_list([body.cabin]) or ["economy"])[0]
+    mode = (body.mode or "cash").lower()
+
+    cache_key = (
+        "calendar.v1", origin, destination,
+        body.start_date, body.end_date,
+        cabin_internal, body.adults, mode,
+    )
+    cpath = _calendar_cache_path(cache_key)
+    cached = _calendar_cache_read(cpath)
+    if cached is not None:
+        cached_meta = dict(cached.get("meta") or {})
+        cached_meta["cached"] = True
+        cached["meta"] = cached_meta
+        return cached
+
+    loop = asyncio.get_running_loop()
+    # Local executor capped at 4 workers (matches fast-flights default semaphore).
+    pool = ThreadPoolExecutor(max_workers=CALENDAR_MAX_WORKERS,
+                              thread_name_prefix="fh-cal")
+    try:
+        cash_futs: dict[asyncio.Future, str] = {}
+        award_futs: dict[asyncio.Future, str] = {}
+        for d in dates:
+            if mode in ("cash", "both"):
+                fut = loop.run_in_executor(
+                    pool, _cheapest_cash_for_day,
+                    origin, destination, d, cabin_internal, body.adults)
+                cash_futs[fut] = d
+            if mode in ("award", "both"):
+                fut = loop.run_in_executor(
+                    pool, _cheapest_award_for_day,
+                    origin, destination, d, cabin_internal, body.adults)
+                award_futs[fut] = d
+
+        deadline = time.time() + CALENDAR_TOTAL_TIMEOUT_S
+        per_day_cash: dict[str, dict | None] = {d: None for d in dates}
+        per_day_award: dict[str, dict | None] = {d: None for d in dates}
+        errors_per_day: dict[str, str] = {}
+
+        async def _drain(futs: dict[asyncio.Future, str],
+                         dest_map: dict[str, dict | None]) -> None:
+            pending = set(futs.keys())
+            while pending:
+                remaining = deadline - time.time()
+                if remaining <= 0:
+                    for t in pending:
+                        d = futs[t]
+                        errors_per_day[d] = errors_per_day.get(d) or "deadline_exceeded"
+                        t.cancel()
+                    return
+                try:
+                    done, pending = await asyncio.wait(
+                        pending, timeout=remaining,
+                        return_when=asyncio.FIRST_COMPLETED)
+                except Exception as e:
+                    common_log("calendar_wait_error", error=str(e))
+                    return
+                for t in done:
+                    d = futs[t]
+                    try:
+                        row = t.result()
+                    except asyncio.CancelledError:
+                        errors_per_day[d] = errors_per_day.get(d) or "cancelled"
+                        continue
+                    except Exception as e:
+                        errors_per_day[d] = str(e)
+                        continue
+                    if isinstance(row, dict) and row.get("_error"):
+                        errors_per_day[d] = row.get("_error") or "search_error"
+                        continue
+                    dest_map[d] = row
+
+        if cash_futs:
+            await _drain(cash_futs, per_day_cash)
+        if award_futs:
+            await _drain(award_futs, per_day_award)
+
+        days_out: list[dict] = []
+        for d in dates:
+            cash_row = per_day_cash.get(d)
+            aw_row = per_day_award.get(d)
+            entry: dict[str, Any] = {"date": d}
+            sample_carrier = None
+            sample_program = None
+            if cash_row:
+                try:
+                    entry["cheapest_cash_usd"] = (
+                        round(float(cash_row.get("price_usd")), 2)
+                        if cash_row.get("price_usd") is not None else None
+                    )
+                except Exception:
+                    entry["cheapest_cash_usd"] = None
+                sample_carrier = cash_row.get("carrier") or cash_row.get("airline")
+            else:
+                entry["cheapest_cash_usd"] = None
+            if aw_row:
+                miles = aw_row.get("miles") or aw_row.get("award_miles")
+                try:
+                    entry["cheapest_award_miles"] = int(miles) if miles else None
+                except Exception:
+                    entry["cheapest_award_miles"] = None
+                taxes = aw_row.get("taxes_usd") or aw_row.get("taxes") or 0
+                try:
+                    entry["cheapest_award_taxes"] = round(float(taxes), 2)
+                except Exception:
+                    entry["cheapest_award_taxes"] = None
+                sample_program = (aw_row.get("program")
+                                  or aw_row.get("source") or sample_program)
+            else:
+                entry["cheapest_award_miles"] = None
+                entry["cheapest_award_taxes"] = None
+            entry["sample_carrier"] = sample_carrier
+            entry["sample_program"] = sample_program
+            if d in errors_per_day and not (cash_row or aw_row):
+                entry["error"] = errors_per_day[d]
+            days_out.append(entry)
+
+        meta = {
+            "ms": int((time.time() - t0) * 1000),
+            "errors_per_day": errors_per_day,
+            "days_searched": len(dates),
+            "origin": origin,
+            "destination": destination,
+            "cabin": cabin_internal,
+            "adults": body.adults,
+            "mode": mode,
+            "start_date": body.start_date,
+            "end_date": body.end_date,
+            "cached": False,
+            "timed_out": time.time() > deadline,
+        }
+        payload = {"days": days_out, "meta": meta}
+        _calendar_cache_write(cpath, payload)
+        return payload
+    finally:
+        pool.shutdown(wait=False)
+
+
+# ---------------------------------------------------------------------------
 # /api/mistakes
 # ---------------------------------------------------------------------------
 
@@ -2184,6 +2663,12 @@ async def sweet_spots():
             row["miles"] = s.get("miles_oneway") or s.get("miles_roundtrip") or 0
         if row.get("notes") is None:
             row["notes"] = s.get("constraints") or ""
+        # Program/operating-carrier logo for the row's program cell. Prefer
+        # operating_carrier when the row reports one (it's the metal flying
+        # the route); fall back to the program's namesake carrier.
+        row["program_logo_url"] = _program_logo_url(
+            row.get("program"), row.get("operating_carrier")
+        )
         # _search blob: bundle every field a user might type into the
         # filter (program, route, cabin, notes, title, operating_carrier,
         # status) plus country/region synonyms keyed off IATA codes or

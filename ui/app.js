@@ -16,7 +16,7 @@
 
   FH.core = {
     version: '0.1.0',
-    routes: ['search', 'results', 'mistakes', 'watchlist', 'sweet-spots', 'balances', 'settings'],
+    routes: ['search', 'results', 'mistakes', 'watchlist', 'sweet-spots', 'balances', 'settings', 'flex'],
 
     init: function () {
       document.getElementById('fh-version').textContent = 'v' + FH.core.version;
@@ -69,6 +69,10 @@
       FH.spots.init();
       FH.balances.init();
       FH.settings.init();
+      FH.flex.init();
+
+      // First-paint sidebar badges from cached state. Cheap; no network.
+      try { FH.core.updateBadges(); } catch (_) {}
 
       FH.core.footer('Ready.', 0);
     },
@@ -91,7 +95,7 @@
 
       // lazy-load on first view
       if (route === 'sweet-spots') FH.spots.loadOnce();
-      if (route === 'mistakes')    FH.mistakes.loadOnce();
+      if (route === 'mistakes')    { FH.mistakes.loadOnce(); FH.core.markMistakesRead(); }
       if (route === 'watchlist')   FH.watchlist.refresh();
       if (route === 'balances')    FH.balances.loadOnce();
       if (route === 'settings')    FH.settings.loadOnce();
@@ -138,6 +142,46 @@
         'Records: ' + (typeof recordCount === 'number' ? recordCount : '-');
     },
 
+    // Set a numeric badge on a sidebar nav link. Count > 0 shows the badge;
+    // count <= 0 removes it. Used by mistakes (unread) and watchlist (alerts).
+    setBadge: function (route, count) {
+      const link = document.querySelector('.fh-nav__link[data-route="' + route + '"]');
+      if (!link) return;
+      let badge = link.querySelector('.fh-nav__badge');
+      if (count && count > 0) {
+        if (!badge) {
+          badge = document.createElement('span');
+          badge.className = 'fh-nav__badge';
+          link.appendChild(badge);
+        }
+        badge.textContent = String(count);
+      } else if (badge) {
+        badge.remove();
+      }
+    },
+    // Pull whatever cached state we have and re-paint sidebar badges. Cheap
+    // to call repeatedly; no network. Mistakes: compare current seen-ids in
+    // localStorage against the last-rendered ids to derive unread count.
+    updateBadges: function () {
+      try {
+        const seenRaw = localStorage.getItem('fh.mistakes.seen') || '[]';
+        const readRaw = localStorage.getItem('fh.mistakes.read') || '[]';
+        const seen = JSON.parse(seenRaw) || [];
+        const read = new Set(JSON.parse(readRaw) || []);
+        const unread = seen.filter(function (id) { return !read.has(id); }).length;
+        FH.core.setBadge('mistakes', unread);
+      } catch (_) { /* tolerate localStorage quirks */ }
+    },
+    // Mark all currently-known mistake ids as read. Wired to the mistakes
+    // route activation so navigating to the tab clears the unread badge.
+    markMistakesRead: function () {
+      try {
+        const seenRaw = localStorage.getItem('fh.mistakes.seen') || '[]';
+        localStorage.setItem('fh.mistakes.read', seenRaw);
+        FH.core.updateBadges();
+      } catch (_) {}
+    },
+
     openOverlay: function (title, htmlBody) {
       document.getElementById('fh-overlay-title').textContent = title;
       document.getElementById('fh-overlay-body').innerHTML = htmlBody;
@@ -156,7 +200,7 @@
       let chordTimer = null;
       const map = {
         s: 'search', r: 'results', m: 'mistakes', w: 'watchlist',
-        p: 'sweet-spots', b: 'balances', ',': 'settings'
+        p: 'sweet-spots', b: 'balances', ',': 'settings', f: 'flex'
       };
 
       document.addEventListener('keydown', function (e) {
@@ -574,6 +618,9 @@
       // Disable the submit button so user can't double-click
       const btn = document.getElementById('fh-search-go');
       if (btn) { btn.disabled = true; btn.textContent = 'Searching…'; }
+      // Pulse the top-bar live dot to signal "search running" — purely visual.
+      const liveDot = document.getElementById('fh-livedot');
+      if (liveDot) liveDot.classList.add('fh-dot--pulse');
       // Scroll progress bar into view so user definitely sees it.
       try { prog.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (_) {}
 
@@ -614,6 +661,7 @@
         prog.hidden = true;
         prog.style.display = 'none';
         if (btn) { btn.disabled = false; btn.textContent = 'Search flights'; }
+        if (liveDot) liveDot.classList.remove('fh-dot--pulse');
       }
     },
 
@@ -767,11 +815,24 @@
     renderRows: function (rows) {
       const tb = document.getElementById('fh-results-tbody');
       if (!rows.length) {
-        tb.innerHTML = '<tr class="fh-empty"><td colspan="13">No results yet. Run a search.</td></tr>';
+        tb.innerHTML = '<tr class="fh-empty"><td colspan="13">'
+          + '<div class="fh-empty__glyph">⊘</div>'
+          + '<div class="fh-empty__text">No results yet. Run a search.</div>'
+          + '</td></tr>';
         FH.core.footer('No results @ ' + new Date().toLocaleTimeString(), 0);
         FH.results.setQualityBanner(null);
         return;
       }
+      // Top-deal mark: lowest total_usd among rows with a real number gets a
+      // ★ pin in column 1. Quiet typographic flourish, no extra row.
+      let topDealIdx = -1;
+      let topDealUsd = Infinity;
+      rows.forEach(function (r, i) {
+        if (typeof r.total_usd === 'number' && r.total_usd > 0 && r.total_usd < topDealUsd) {
+          topDealUsd = r.total_usd;
+          topDealIdx = i;
+        }
+      });
       // If most rows are missing duration / carrier (fast-flights returned
       // price-only stubs), surface a banner with a Google Flights link so the
       // user has an escape hatch.
@@ -803,6 +864,23 @@
         else if (r.stops === undefined || r.stops === null || r.stops === '-') stopsDisp = '—';
         else                                                              stopsDisp = String(r.stops);
         const carrierDisp = r.carrier && String(r.carrier).trim() ? r.carrier : '—';
+        // Carrier logo cell: <img> hidden via inline style when we have no
+        // URL; this is one DOM-shape regardless of source so CSS can hide
+        // the broken-image fallback consistently. onerror swallows 404s
+        // from the CDN (e.g. an exotic Z0 / G3 logo we don't have).
+        const logoSrc = r.carrier_logo_url || '';
+        const logoTag = ''
+          + '<img class="fh-carrier__logo" '
+          +   'src="' + FH.core.escape(logoSrc) + '" '
+          +   'alt="" loading="lazy" '
+          +   'onerror="this.style.display=\'none\'"'
+          +   (logoSrc ? '' : ' style="display:none"')
+          + '/>';
+        const carrierCell = ''
+          + '<span class="fh-carrier">'
+          +   logoTag
+          +   '<span class="fh-carrier__name">' + FH.core.escape(carrierDisp) + '</span>'
+          + '</span>';
         // Booking-link preference: airline-direct → Google Flights → upstream deep_link.
         // Server now sets deep_link = upstream-or-airline-or-gf so deep_link is a safe
         // final fallback, but we still prefer the more explicit airline_url when present.
@@ -810,11 +888,16 @@
         const bookBtn = bookHref
           ? '<a class="fh-btn fh-btn--mini fh-btn--primary" href="' + FH.core.escape(bookHref) + '" target="_blank" rel="noopener">Book →</a> '
           : '';
+        const isTopDeal = (i === topDealIdx);
+        const rowCls = isTopDeal ? ' class="fh-row--top-deal"' : '';
+        const rankCell = isTopDeal
+          ? '<span class="fh-top-deal" title="Lowest total in current view">★</span> ' + FH.core.escape(r.rank)
+          : FH.core.escape(r.rank);
         return ''
-          + '<tr data-i="' + i + '">'
-          + '<td>' + FH.core.escape(r.rank) + '</td>'
+          + '<tr' + rowCls + ' data-i="' + i + '">'
+          + '<td>' + rankCell + '</td>'
           + '<td>' + FH.core.escape(r.route) + compTag + '</td>'
-          + '<td>' + FH.core.escape(carrierDisp) + '</td>'
+          + '<td>' + carrierCell + '</td>'
           + '<td>' + FH.core.escape(FH.core.fmtDepart(r.depart)) + '</td>'
           + '<td class="fh-num">' + FH.core.fmtDur(r.duration_min) + '</td>'
           + '<td class="fh-num">' + FH.core.escape(stopsDisp) + '</td>'
@@ -901,7 +984,11 @@
       const r = FH.results.view[i];
       if (!r) return;
       const segs = (r.segments || []).map(function (s) {
-        return '<pre>'
+        const slogo = s.carrier_logo_url
+          ? '<img class="fh-carrier__logo fh-carrier__logo--seg" src="' + FH.core.escape(s.carrier_logo_url) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'"/>'
+          : '';
+        return '<pre class="fh-seg">'
+          + slogo
           + FH.core.escape((s.from || '?') + ' → ' + (s.to || '?')) + '  '
           + FH.core.escape((s.carrier || '') + (s.flight || '')) + '  '
           + FH.core.escape((s.dep_local || '?') + '–' + (s.arr_local || '?')) + '  '
@@ -1014,18 +1101,50 @@
     render: function (rows) {
       const wrap = document.getElementById('fh-mistakes-list');
       if (!rows.length) {
-        wrap.innerHTML = '<div class="fh-empty">No mistake fares today. Stay alert.</div>';
+        wrap.innerHTML = ''
+          + '<div class="fh-empty">'
+          +   '<div class="fh-empty__glyph">◇</div>'
+          +   '<div class="fh-empty__text">No mistake fares today. Stay alert.</div>'
+          + '</div>';
         return;
       }
+      // DEAL tag heuristic: among rows with a price, median is the midpoint;
+      // any row priced under the median AND tagged risk=LEGAL gets a high-
+      // contrast DEAL pill on the card. Updates read state in localStorage
+      // so unread counter can show in sidebar.
+      const prices = rows
+        .map(function (m) { return (typeof m.price === 'number' && m.price > 0) ? m.price : null; })
+        .filter(function (p) { return p !== null; })
+        .sort(function (a, b) { return a - b; });
+      const median = prices.length ? prices[Math.floor(prices.length / 2)] : null;
+      try {
+        const ids = rows.map(function (m) { return m.id; }).filter(Boolean);
+        localStorage.setItem('fh.mistakes.seen', JSON.stringify(ids));
+        FH.core.updateBadges && FH.core.updateBadges();
+      } catch (_) {}
+
       wrap.innerHTML = rows.map(function (m) {
+        const isDeal = (
+          (m.risk === 'LEGAL') &&
+          (median !== null) &&
+          (typeof m.price === 'number' && m.price > 0 && m.price < median)
+        );
+        const dealTag = isDeal
+          ? ' <span class="fh-deal-tag" title="Below median price and marked LEGAL">DEAL</span>'
+          : '';
+        const logoTag = m.carrier_logo_url
+          ? '<img class="fh-carrier__logo" src="' + FH.core.escape(m.carrier_logo_url) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'"/>'
+          : '';
+        const carrierLabel = m.carrier ? FH.core.escape(m.carrier) : '—';
         return ''
-          + '<article class="fh-card" data-id="' + FH.core.escape(m.id) + '">'
+          + '<article class="fh-card' + (isDeal ? ' fh-card--deal' : '') + '" data-id="' + FH.core.escape(m.id) + '">'
           + '  <div class="fh-card__head">'
-          + '    <span class="fh-card__route">' + FH.core.escape(m.route) + '</span>'
+          + '    <span class="fh-card__route">' + FH.core.escape(m.route) + dealTag + '</span>'
           + '    <span class="fh-card__price">' + FH.core.fmtMoney(m.price) + ' / ' + FH.core.escape(m.cabin) + '</span>'
           + '  </div>'
           + '  <div class="fh-card__meta">'
-          + '    <span>' + FH.core.escape(m.carrier) + ' ━ ' + FH.core.escape(m.source) + '</span>'
+          + '    <span class="fh-carrier">' + logoTag + '<span class="fh-carrier__name">' + carrierLabel + '</span>'
+          +        ' <span class="fh-card__src">· ' + FH.core.escape(m.source) + '</span></span>'
           + '    <span>' + FH.core.fmtDate(m.posted_at) + '</span>'
           + '  </div>'
           + '  <div class="fh-card__body">' + FH.core.escape(m.note) + '</div>'
@@ -1124,9 +1243,29 @@
     render: function (rows) {
       const tb = document.getElementById('fh-watch-tbody');
       if (!rows.length) {
-        tb.innerHTML = '<tr class="fh-empty"><td colspan="8">No watches. Click + new watch.</td></tr>';
+        tb.innerHTML = '<tr class="fh-empty"><td colspan="8">'
+          + '<div class="fh-empty__glyph">◯</div>'
+          + '<div class="fh-empty__text">No watches. Click + new watch.</div>'
+          + '</td></tr>';
         FH.core.footer('No watches @ ' + new Date().toLocaleTimeString(), 0);
+        // Sidebar badges may be stale after a refresh; recompute.
+        try { FH.core.updateBadges && FH.core.updateBadges(); } catch (_) {}
         return;
+      }
+      // Compute per-row freshness: ok if last_check < 12h, warn 12-48h,
+      // stale otherwise; paused always = stale (visually distinct).
+      const NOW = Date.now();
+      function freshness(w) {
+        if (w.paused) return 'stale';
+        const ts = w.last_check;
+        if (!ts) return 'stale';
+        let t = 0;
+        try { t = new Date(String(ts).replace(' ', 'T')).getTime() || 0; } catch (_) { t = 0; }
+        if (!t) return 'stale';
+        const h = (NOW - t) / 3600000;
+        if (h < 12) return 'ok';
+        if (h < 48) return 'warn';
+        return 'stale';
       }
       tb.innerHTML = rows.map(function (w) {
         const window_str = (w.window_from || '?') + ' → ' + (w.window_to || '?');
@@ -1134,13 +1273,17 @@
         // attribute (current server state) rather than textContent, so a
         // future CSS text-transform can't silently invert the toggle.
         const paused = !!w.paused;
+        const fr = freshness(w);
+        const dot = '<span class="fh-dot fh-dot--' + fr + '" title="' +
+          (fr === 'ok' ? 'Fresh (< 12h)' : fr === 'warn' ? 'Stale (12-48h)' : 'Cold / paused') +
+          '"></span>';
         return ''
           + '<tr data-id="' + FH.core.escape(w.id) + '">'
-          + '<td>' + FH.core.escape(w.origin + '-' + w.destination) + '</td>'
+          + '<td><span class="fh-route">' + FH.core.escape(w.origin) + ' <span class="fh-route__arrow">→</span> ' + FH.core.escape(w.destination) + '</span></td>'
           + '<td>' + FH.core.escape(window_str) + '</td>'
           + '<td class="fh-num">' + FH.core.fmtMoney(w.max_usd) + '</td>'
           + '<td>' + FH.core.escape(w.cabin || '-') + '</td>'
-          + '<td>' + FH.core.fmtDate(w.last_check) + '</td>'
+          + '<td>' + dot + ' ' + FH.core.fmtDate(w.last_check) + (paused ? ' <span class="fh-muted">(paused)</span>' : '') + '</td>'
           + '<td class="fh-num">' + (w.best_found_usd ? FH.core.fmtMoney(w.best_found_usd) : '-') + '</td>'
           + '<td class="fh-num">' + (w.alerts || 0) + '</td>'
           + '<td>'
@@ -1186,6 +1329,11 @@
           } catch (_) { /* showError already fired */ }
         });
       });
+      // Push watchlist alert count to sidebar badge (rows with alerts > 0).
+      try {
+        const alertCount = rows.reduce(function (n, w) { return n + (w.alerts > 0 ? 1 : 0); }, 0);
+        FH.core.setBadge && FH.core.setBadge('watchlist', alertCount);
+      } catch (_) {}
       FH.core.footer('Watches loaded @ ' + new Date().toLocaleTimeString(), rows.length);
     },
     save: async function () {
@@ -1295,14 +1443,21 @@
     renderRows: function (rows) {
       const tb = document.getElementById('fh-spots-tbody');
       if (!rows.length) {
-        tb.innerHTML = '<tr class="fh-empty"><td colspan="6">No spots match filter.</td></tr>';
+        tb.innerHTML = '<tr class="fh-empty"><td colspan="6">'
+          + '<div class="fh-empty__glyph">◇</div>'
+          + '<div class="fh-empty__text">No spots match filter.</div>'
+          + '</td></tr>';
         return;
       }
       tb.innerHTML = rows.map(function (s, i) {
         const miles = (typeof s.miles === 'number' && s.miles > 0) ? s.miles.toLocaleString() : '-';
+        const logoTag = s.program_logo_url
+          ? '<img class="fh-carrier__logo" src="' + FH.core.escape(s.program_logo_url) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'"/>'
+          : '';
+        const progCell = '<span class="fh-carrier">' + logoTag + '<span class="fh-carrier__name">' + FH.core.escape(s.program) + '</span></span>';
         return ''
           + '<tr data-i="' + i + '">'
-          + '<td>' + FH.core.escape(s.program) + '</td>'
+          + '<td>' + progCell + '</td>'
           + '<td>' + FH.core.escape(s.route) + '</td>'
           + '<td>' + FH.core.escape(FH.spots.cabinLabel(s.cabin)) + '</td>'
           + '<td class="fh-num">' + miles + '</td>'
@@ -1768,6 +1923,446 @@
       } catch (e) {
         document.getElementById('fh-set-status').textContent = 'Refresh failed.';
       }
+    }
+  };
+
+  // ============================================================ //
+  // FLEX DATES                                                   //
+  // ============================================================ //
+
+  FH.flex = {
+    state: { origin: [], dest: [] },
+    lastDays: [],
+    lastMeta: {},
+
+    init: function () {
+      FH.flex.bindChips('origin');
+      FH.flex.bindChips('dest');
+
+      const form = document.getElementById('fh-flex-form');
+      if (form) {
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          FH.flex.submit();
+        });
+      }
+      const reset = document.getElementById('fh-flex-reset');
+      if (reset) reset.addEventListener('click', FH.flex.reset);
+
+      // Default the window to next month, days 1..14
+      const start = document.getElementById('fh-flex-start');
+      const end   = document.getElementById('fh-flex-end');
+      if (start && !start.value && end && !end.value) {
+        const today = new Date();
+        const s = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+        const e = new Date(s.getFullYear(), s.getMonth(), 14);
+        const fmt = function (d) {
+          const m = d.getMonth() + 1, dd = d.getDate();
+          return d.getFullYear() + '-' + (m < 10 ? '0' + m : m) + '-' + (dd < 10 ? '0' + dd : dd);
+        };
+        start.value = fmt(s);
+        end.value   = fmt(e);
+      }
+    },
+
+    // Mirror of FH.search.bindChips bound to flex-namespaced DOM ids.
+    // Flex mode keeps a single origin and a single destination (replace, not append).
+    bindChips: function (kind) {
+      const input = document.getElementById('fh-flex-' + kind + '-input');
+      const list  = document.getElementById('fh-flex-suggest-' + kind);
+      if (!input || !list) return;
+
+      let active = -1;
+      let cache  = [];
+      let reqSeq = 0;
+      let debounceTimer = null;
+      const DEBOUNCE_MS = 80;
+
+      function repaint() {
+        const chips = document.getElementById('fh-flex-chips-' + kind);
+        if (!chips) return;
+        chips.innerHTML = '';
+        FH.flex.state[kind].forEach(function (iata) {
+          const chip = document.createElement('span');
+          chip.className = 'fh-chip';
+          chip.innerHTML = FH.core.escape(iata) + ' <span class="fh-chip__x">x</span>';
+          chip.querySelector('.fh-chip__x').addEventListener('click', function () {
+            FH.flex.state[kind] = FH.flex.state[kind].filter(function (c) { return c !== iata; });
+            repaint();
+          });
+          chips.appendChild(chip);
+        });
+      }
+      repaint();
+
+      function close() { list.hidden = true; active = -1; }
+      function add(iata) {
+        iata = (iata || '').trim().toUpperCase();
+        if (!iata) return;
+        FH.flex.state[kind] = [iata];   // single-slot
+        input.value = '';
+        close();
+        repaint();
+      }
+
+      async function doFetch(q, mySeq) {
+        try {
+          const data = await fetch('/api/hubs?q=' + encodeURIComponent(q))
+            .then(function (r) { return r.json(); });
+          if (mySeq !== reqSeq) return;
+          if (input.value.trim() !== q) return;
+          cache = data.hubs || [];
+          if (!cache.length) { close(); return; }
+          list.innerHTML = cache.map(function (h, i) {
+            const code = FH.core.escape(h.iata);
+            return '<li data-iata="' + code + '" data-i="' + i + '">'
+              + '<span class="fh-suggest__code">' + code + '</span>'
+              + '<span class="fh-suggest__name">' + FH.core.escape(h.city)
+              + ' (' + FH.core.escape(h.country) + ')</span>'
+              + '</li>';
+          }).join('');
+          list.hidden = false;
+          active = -1;
+          list.querySelectorAll('li').forEach(function (li) {
+            li.addEventListener('mousedown', function (e) {
+              e.preventDefault();
+              add(li.dataset.iata);
+            });
+          });
+        } catch (e) {
+          if (mySeq === reqSeq) close();
+        }
+      }
+
+      input.addEventListener('input', function () {
+        const q = input.value.trim();
+        reqSeq += 1;
+        const mySeq = reqSeq;
+        if (debounceTimer) clearTimeout(debounceTimer);
+        if (!q) { close(); return; }
+        debounceTimer = setTimeout(function () { doFetch(q, mySeq); }, DEBOUNCE_MS);
+      });
+
+      input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          if (active >= 0 && cache[active]) add(cache[active].iata);
+          else if (input.value) add(input.value);
+          return;
+        }
+        if (e.key === 'Backspace' && !input.value && FH.flex.state[kind].length) {
+          FH.flex.state[kind].pop();
+          repaint();
+          return;
+        }
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          if (!cache.length) return;
+          active = (active + 1) % cache.length;
+          list.querySelectorAll('li').forEach(function (li, i) {
+            li.classList.toggle('fh-suggest--active', i === active);
+          });
+          return;
+        }
+        if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (!cache.length) return;
+          active = (active - 1 + cache.length) % cache.length;
+          list.querySelectorAll('li').forEach(function (li, i) {
+            li.classList.toggle('fh-suggest--active', i === active);
+          });
+          return;
+        }
+        if (e.key === 'Escape') { close(); }
+      });
+
+      input.addEventListener('blur', function () { setTimeout(close, 120); });
+    },
+
+    collect: function () {
+      const modeEl = document.querySelector('input[name=fh-flex-mode]:checked');
+      return {
+        origin:      (FH.flex.state.origin[0] || '').toUpperCase(),
+        destination: (FH.flex.state.dest[0]   || '').toUpperCase(),
+        start_date:  document.getElementById('fh-flex-start').value || '',
+        end_date:    document.getElementById('fh-flex-end').value   || '',
+        cabin:       document.getElementById('fh-flex-cabin').value || 'Y',
+        adults:      Math.max(1, parseInt(document.getElementById('fh-flex-adults').value || '1', 10) || 1),
+        mode:        (modeEl && modeEl.value) || 'cash'
+      };
+    },
+
+    submit: async function () {
+      const q = FH.flex.collect();
+      if (!q.origin || !q.destination) {
+        FH.core.showError('Pick a single origin and a single destination.');
+        return;
+      }
+      if (q.origin === q.destination) {
+        FH.core.showError('Origin and destination must differ.');
+        return;
+      }
+      if (!q.start_date || !q.end_date) {
+        FH.core.showError('Pick a window start and end date.');
+        return;
+      }
+      if (q.end_date < q.start_date) {
+        FH.core.showError('Window end must be on or after window start.');
+        return;
+      }
+
+      const prog = document.getElementById('fh-flex-progress');
+      const lbl  = document.getElementById('fh-flex-progress-label');
+      prog.hidden = false;
+      prog.style.display = '';
+      const btn = document.getElementById('fh-flex-go');
+      if (btn) { btn.disabled = true; btn.textContent = 'Scanning…'; }
+
+      const dStart = new Date(q.start_date + 'T00:00:00Z');
+      const dEnd   = new Date(q.end_date   + 'T00:00:00Z');
+      const ndays  = Math.round((dEnd - dStart) / 86400000) + 1;
+
+      const t0 = performance.now();
+      const tick = function () {
+        const sec = Math.floor((performance.now() - t0) / 1000);
+        lbl.textContent = 'Scanning ' + ndays + ' day' + (ndays === 1 ? '' : 's') +
+                          ' (' + q.origin + ' → ' + q.destination + ', ' + q.mode + ') — ' + sec + 's';
+      };
+      tick();
+      const progressTimer = setInterval(tick, 500);
+
+      document.getElementById('fh-flex-empty').hidden = true;
+
+      try {
+        const data = await FH.core.api('/api/calendar', {
+          method: 'POST',
+          body: JSON.stringify(q)
+        });
+        const ms = Math.round(performance.now() - t0);
+        FH.flex.lastDays = data.days || [];
+        FH.flex.lastMeta = data.meta || {};
+        FH.flex.render(FH.flex.lastDays, q);
+        const errCount = Object.keys(FH.flex.lastMeta.errors_per_day || {}).length;
+        document.getElementById('fh-flex-footer').textContent =
+          'Searched ' + (FH.flex.lastMeta.days_searched || FH.flex.lastDays.length) +
+          ' day' + (FH.flex.lastDays.length === 1 ? '' : 's') +
+          ' in ' + (ms / 1000).toFixed(1) + 's' +
+          (FH.flex.lastMeta.cached ? ' (cached)' : '') +
+          (errCount ? ' · ' + errCount + ' day' + (errCount === 1 ? '' : 's') + ' had errors' : '');
+        FH.core.footer(
+          'Calendar @ ' + new Date().toLocaleTimeString() + ' (' + ms + 'ms)',
+          FH.flex.lastDays.length
+        );
+      } catch (e) {
+        // showError already fired
+      } finally {
+        clearInterval(progressTimer);
+        prog.hidden = true;
+        prog.style.display = 'none';
+        if (btn) { btn.disabled = false; btn.textContent = 'Search calendar'; }
+      }
+    },
+
+    reset: function () {
+      FH.flex.state.origin = [];
+      FH.flex.state.dest   = [];
+      document.getElementById('fh-flex-chips-origin').innerHTML = '';
+      document.getElementById('fh-flex-chips-dest').innerHTML   = '';
+      const form = document.getElementById('fh-flex-form');
+      if (form) form.reset();
+      const cabinSel = document.getElementById('fh-flex-cabin');
+      if (cabinSel) cabinSel.value = 'Y';
+      const modeRadio = document.querySelector('input[name=fh-flex-mode][value=cash]');
+      if (modeRadio) modeRadio.checked = true;
+      document.getElementById('fh-cal-wrap').hidden = true;
+      document.getElementById('fh-flex-summary').hidden = true;
+      document.getElementById('fh-flex-empty').hidden = false;
+      document.getElementById('fh-flex-footer').textContent = '';
+      FH.flex.lastDays = [];
+      FH.flex.lastMeta = {};
+    },
+
+    // Compute quartile/percentile bands across the non-null day values.
+    bands: function (values) {
+      const nums = (values || []).filter(function (v) {
+        return typeof v === 'number' && isFinite(v);
+      }).slice().sort(function (a, b) { return a - b; });
+      if (!nums.length) return null;
+      const pct = function (p) {
+        if (nums.length === 1) return nums[0];
+        const idx = (nums.length - 1) * p;
+        const lo = Math.floor(idx), hi = Math.ceil(idx);
+        if (lo === hi) return nums[lo];
+        return nums[lo] + (nums[hi] - nums[lo]) * (idx - lo);
+      };
+      return {
+        min: nums[0],
+        q1: pct(0.25),
+        median: pct(0.5),
+        q3: pct(0.75),
+        p90: pct(0.90),
+        max: nums[nums.length - 1],
+        count: nums.length
+      };
+    },
+
+    cellClass: function (value, stats) {
+      if (value === null || value === undefined || !isFinite(value)) return 'fh-cal-cell--nodata';
+      if (!stats) return '';
+      if (value <= stats.q1)     return 'fh-cal-cell--cheap';
+      if (value <= stats.median) return 'fh-cal-cell--mid-low';
+      if (value <= stats.p90)    return 'fh-cal-cell--mid-high';
+      return 'fh-cal-cell--expensive';
+    },
+
+    render: function (days, q) {
+      const cal = document.getElementById('fh-calendar');
+      const wrap = document.getElementById('fh-cal-wrap');
+      const summary = document.getElementById('fh-flex-summary');
+      const legend = document.getElementById('fh-cal-legend');
+      const empty = document.getElementById('fh-flex-empty');
+      if (!cal || !wrap) return;
+      if (!days || !days.length) {
+        wrap.hidden = true;
+        summary.hidden = true;
+        empty.hidden = false;
+        return;
+      }
+      empty.hidden = true;
+
+      // Rank by cash for cash/both modes, by miles for award mode.
+      const mode = (q && q.mode) || 'cash';
+      const valueOf = function (d) {
+        if (mode === 'award') return d.cheapest_award_miles;
+        return d.cheapest_cash_usd != null ? d.cheapest_cash_usd : null;
+      };
+
+      const stats = FH.flex.bands(days.map(valueOf));
+
+      let summaryHtml = '';
+      if (stats) {
+        const minDay = days.find(function (d) { return valueOf(d) === stats.min; });
+        const maxDay = days.find(function (d) { return valueOf(d) === stats.max; });
+        const fmtVal = function (v) {
+          if (v == null) return '—';
+          return mode === 'award'
+            ? Number(v).toLocaleString() + ' mi'
+            : FH.core.fmtMoney(v);
+        };
+        const fmtDay = function (d) {
+          if (!d || !d.date) return '—';
+          const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d.date);
+          if (!m) return d.date;
+          const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+          return months[parseInt(m[2], 10) - 1] + ' ' + parseInt(m[3], 10);
+        };
+        summaryHtml =
+          '<span><span class="fh-flex-summary__lbl">Cheapest:</span>' +
+            '<span class="fh-flex-summary__big">' + FH.core.escape(fmtVal(stats.min)) + '</span>' +
+            ' on ' + FH.core.escape(fmtDay(minDay)) + '</span>' +
+          '<span><span class="fh-flex-summary__lbl">Most expensive:</span>' +
+            FH.core.escape(fmtVal(stats.max)) + ' on ' + FH.core.escape(fmtDay(maxDay)) + '</span>' +
+          '<span><span class="fh-flex-summary__lbl">Median:</span>' +
+            FH.core.escape(fmtVal(stats.median)) + '</span>' +
+          '<span><span class="fh-flex-summary__lbl">Days with data:</span>' +
+            stats.count + ' / ' + days.length + '</span>';
+      } else {
+        summaryHtml = '<span class="fh-text-mut">No fare data returned for any day in this window.</span>';
+      }
+      summary.innerHTML = summaryHtml;
+      summary.hidden = false;
+
+      // Prepend empty filler cells so the first day aligns with the correct DOW column.
+      const first = new Date(days[0].date + 'T00:00:00Z');
+      const startDow = first.getUTCDay();   // 0=Sun..6=Sat
+      let html = '';
+      for (let i = 0; i < startDow; i++) {
+        html += '<div class="fh-cal-cell fh-cal-cell--filler"></div>';
+      }
+      days.forEach(function (d, idx) {
+        const val = valueOf(d);
+        const cls = FH.flex.cellClass(val, stats);
+        const dateNum = parseInt(d.date.slice(8, 10), 10);
+        let priceHtml;
+        if (val == null) {
+          priceHtml = '<div class="fh-cal-cell__price">—</div>';
+        } else if (mode === 'award') {
+          priceHtml = '<div class="fh-cal-cell__price fh-cal-cell__price--miles">' +
+                      Number(val).toLocaleString() + '</div>';
+        } else {
+          priceHtml = '<div class="fh-cal-cell__price">' + FH.core.fmtMoney(val) + '</div>';
+        }
+        const metaParts = [];
+        if (d.sample_carrier) metaParts.push(d.sample_carrier);
+        if (mode === 'award' && d.cheapest_award_taxes != null && d.cheapest_award_taxes > 0) {
+          metaParts.push('+' + FH.core.fmtMoney(d.cheapest_award_taxes));
+        }
+        if (mode === 'both' && d.cheapest_award_miles) {
+          metaParts.push(Number(d.cheapest_award_miles).toLocaleString() + ' mi');
+        }
+        const meta = metaParts.length
+          ? '<div class="fh-cal-cell__meta">' + FH.core.escape(metaParts.join(' · ')) + '</div>'
+          : '<div class="fh-cal-cell__meta">&nbsp;</div>';
+        const interactive = (val != null);
+        html += '<div class="fh-cal-cell ' + cls + '"' +
+                ' data-i="' + idx + '" data-date="' + FH.core.escape(d.date) + '"' +
+                (interactive ? '' : ' aria-disabled="true"') + '>' +
+                '<div class="fh-cal-cell__date">' + dateNum + '</div>' +
+                priceHtml + meta +
+                '</div>';
+      });
+      cal.innerHTML = html;
+
+      cal.querySelectorAll('.fh-cal-cell[data-date]').forEach(function (cell) {
+        if (cell.classList.contains('fh-cal-cell--nodata') ||
+            cell.classList.contains('fh-cal-cell--filler')) return;
+        cell.addEventListener('click', function () {
+          FH.flex.drilldown(cell.dataset.date, q);
+        });
+      });
+
+      legend.innerHTML = ''
+        + '<span><span class="fh-cal-legend__swatch fh-cal-legend__swatch--cheap"></span>Cheap (≤ Q1)</span>'
+        + '<span><span class="fh-cal-legend__swatch fh-cal-legend__swatch--mid-low"></span>Below median</span>'
+        + '<span><span class="fh-cal-legend__swatch fh-cal-legend__swatch--mid-high"></span>Above median</span>'
+        + '<span><span class="fh-cal-legend__swatch fh-cal-legend__swatch--expensive"></span>Top 10%</span>'
+        + '<span><span class="fh-cal-legend__swatch fh-cal-legend__swatch--nodata"></span>No data</span>';
+
+      wrap.hidden = false;
+    },
+
+    // Click a calendar cell → pre-fill the SEARCH form for that date and navigate.
+    drilldown: function (date, q) {
+      if (!date || !q) return;
+      FH.search.state.origin = [q.origin];
+      FH.search.state.dest   = [q.destination];
+      if (typeof FH.search.paintChips === 'function') {
+        FH.search.paintChips('origin');
+        FH.search.paintChips('dest');
+      }
+      const depart = document.getElementById('fh-depart-from');
+      const ret    = document.getElementById('fh-return-from');
+      const oneway = document.getElementById('fh-oneway');
+      if (depart) depart.value = date;
+      if (ret)    ret.value    = '';
+      if (oneway) {
+        oneway.checked = true;
+        if (typeof FH.search.applyOneWay === 'function') FH.search.applyOneWay();
+      }
+      const wantCabin = q.cabin || 'Y';
+      document.querySelectorAll('input[name=cabin]').forEach(function (cb) {
+        cb.checked = (cb.value === wantCabin);
+      });
+      const modeRadio = document.querySelector('input[name=fh-mode][value=' + (q.mode || 'cash') + ']');
+      if (modeRadio) modeRadio.checked = true;
+      const adults = document.getElementById('fh-adults');
+      if (adults) adults.value = q.adults || 1;
+
+      FH.core.go('search');
+      FH.core.footer(
+        'Pre-filled search for ' + q.origin + ' → ' + q.destination + ' on ' + date,
+        null
+      );
     }
   };
 

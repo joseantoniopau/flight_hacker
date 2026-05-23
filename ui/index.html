@@ -44,6 +44,7 @@
       <li><a href="#sweet-spots" class="fh-nav__link" data-route="sweet-spots">[5] Sweet spots</a></li>
       <li><a href="#balances"    class="fh-nav__link" data-route="balances">[6] Balances</a></li>
       <li><a href="#settings"    class="fh-nav__link" data-route="settings">[7] Settings</a></li>
+      <li><a href="#flex"        class="fh-nav__link" data-route="flex">[8] Flex Dates</a></li>
     </ul>
     <div class="fh-sidebar__divider"></div>
     <div class="fh-sidebar__hint">
@@ -55,6 +56,7 @@
       <div><span>g p</span><span>Go spots</span></div>
       <div><span>g b</span><span>Go balances</span></div>
       <div><span>g ,</span><span>Go settings</span></div>
+      <div><span>g f</span><span>Go flex dates</span></div>
     </div>
     <div class="fh-sidebar__divider"></div>
     <div class="fh-sidebar__mode">
@@ -450,6 +452,101 @@
         </div>
 
       </form>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: FLEX DATES                                           -->
+    <!-- ============================================================ -->
+    <section class="fh-section" id="fh-section-flex" data-route="flex" hidden>
+      <h1 class="fh-h1">Flex Dates</h1>
+      <p class="fh-muted" style="margin-top:-8px;margin-bottom:16px;">
+        Pick a window. We scan each day in parallel and show the cheapest fare in a color-coded calendar.
+        Click any day to drill into a full search for that date.
+      </p>
+
+      <form id="fh-flex-form" class="fh-form">
+
+        <div class="fh-grid fh-grid--2">
+
+          <div class="fh-field">
+            <label class="fh-label">Origin</label>
+            <div class="fh-chips" id="fh-flex-chips-origin"></div>
+            <input type="text" class="fh-input" id="fh-flex-origin-input"
+                   placeholder="Type IATA or city (e.g. JFK, New York)"
+                   autocomplete="off" />
+            <ul class="fh-suggest" id="fh-flex-suggest-origin" hidden></ul>
+          </div>
+
+          <div class="fh-field">
+            <label class="fh-label">Destination</label>
+            <div class="fh-chips" id="fh-flex-chips-dest"></div>
+            <input type="text" class="fh-input" id="fh-flex-dest-input"
+                   placeholder="Type IATA or city (e.g. LAX, Tokyo)"
+                   autocomplete="off" />
+            <ul class="fh-suggest" id="fh-flex-suggest-dest" hidden></ul>
+          </div>
+
+          <div class="fh-field">
+            <label class="fh-label">Window start</label>
+            <input type="date" class="fh-input" id="fh-flex-start" />
+          </div>
+
+          <div class="fh-field">
+            <label class="fh-label">Window end</label>
+            <input type="date" class="fh-input" id="fh-flex-end" />
+          </div>
+
+          <div class="fh-field">
+            <label class="fh-label">Cabin</label>
+            <select class="fh-input" id="fh-flex-cabin">
+              <option value="Y" selected>Economy</option>
+              <option value="PE">Premium Economy</option>
+              <option value="J">Business</option>
+              <option value="F">First</option>
+            </select>
+          </div>
+
+          <div class="fh-field">
+            <label class="fh-label">Adults</label>
+            <input type="number" class="fh-input fh-input--mini" id="fh-flex-adults" value="1" min="1" max="8" />
+          </div>
+
+        </div>
+
+        <div class="fh-divider">Payment</div>
+
+        <div class="fh-row fh-row--wrap">
+          <label class="fh-radio"><input type="radio" name="fh-flex-mode" value="cash" checked /> Cash only (fast)</label>
+          <label class="fh-radio"><input type="radio" name="fh-flex-mode" value="award" /> Miles only</label>
+          <label class="fh-radio"><input type="radio" name="fh-flex-mode" value="both" /> Cash &amp; miles</label>
+        </div>
+
+        <div class="fh-actions">
+          <button type="submit" class="fh-btn fh-btn--primary" id="fh-flex-go">Search calendar</button>
+          <button type="button" class="fh-btn"                 id="fh-flex-reset">Reset</button>
+        </div>
+
+        <div class="fh-progress" id="fh-flex-progress" hidden style="display:none">
+          <div class="fh-progress__bar"></div>
+          <div class="fh-progress__label" id="fh-flex-progress-label">Scanning calendar…</div>
+        </div>
+      </form>
+
+      <!-- Summary banner -->
+      <div class="fh-flex-summary" id="fh-flex-summary" hidden></div>
+
+      <!-- Calendar grid -->
+      <div class="fh-cal-wrap" id="fh-cal-wrap" hidden>
+        <div class="fh-cal-dow">
+          <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div>
+          <div>Thu</div><div>Fri</div><div>Sat</div>
+        </div>
+        <div class="fh-calendar" id="fh-calendar"></div>
+        <div class="fh-cal-legend" id="fh-cal-legend"></div>
+      </div>
+
+      <div class="fh-flex-empty" id="fh-flex-empty">No calendar loaded yet. Fill the form and click <b>Search calendar</b>.</div>
+      <div class="fh-muted" id="fh-flex-footer" style="margin-top:12px;"></div>
     </section>
 
   </main>
