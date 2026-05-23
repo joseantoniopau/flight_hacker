@@ -61,6 +61,12 @@
       // keyboard
       FH.core.initKeyboard();
 
+      // segmented controls (Payment, Flex payment, …)
+      FH.core.initSegmented();
+
+      // keyboard-shortcuts modal (? key)
+      FH.core.initShortcutsModal();
+
       // hash routing
       window.addEventListener('hashchange', FH.core.applyHash);
       FH.core.applyHash();
@@ -97,7 +103,56 @@
       // Bind the sticky-header scroll-shadow listener on every table wrap.
       FH.core.initTableScrollShadow();
 
+      // Mobile hamburger — toggles the sidebar drawer at <880px. The button
+      // is hidden by CSS above 880px so this listener is a no-op there.
+      FH.core.initMobileMenu();
+
       FH.core.footer('Ready.', 0);
+    },
+
+    // Mobile drawer wiring. Toggles `.fh-shell--menu-open` on the shell,
+    // which the CSS swaps from `left:-260px` to `left:0` on the sidebar.
+    // Clicking the dimmed main content closes; clicking a nav link closes
+    // after 250ms so the route transition runs first.
+    initMobileMenu: function () {
+      const btn = document.getElementById('fh-topbar-menu');
+      const shell = document.querySelector('.fh-shell');
+      if (!btn || !shell) return;
+      // Unhide the menu button — it lives `hidden` in HTML so non-JS / older
+      // browsers don't see a dead glyph. JS taking over now.
+      btn.hidden = false;
+      const close = function () { shell.classList.remove('fh-shell--menu-open'); };
+      const toggle = function (e) {
+        if (e) { e.preventDefault(); e.stopPropagation(); }
+        shell.classList.toggle('fh-shell--menu-open');
+      };
+      btn.addEventListener('click', toggle);
+      // Tapping the (dimmed) main canvas closes the drawer.
+      const main = document.getElementById('fh-main');
+      if (main) {
+        main.addEventListener('click', function (e) {
+          if (!shell.classList.contains('fh-shell--menu-open')) return;
+          // The dim layer is a ::before pseudo on .fh-main; any click on
+          // main while the menu is open should dismiss it.
+          close();
+        });
+      }
+      // Nav link tap → close after a small delay so the section transition
+      // doesn't fight the slide animation.
+      document.querySelectorAll('.fh-nav__link').forEach(function (a) {
+        a.addEventListener('click', function () {
+          if (shell.classList.contains('fh-shell--menu-open')) {
+            setTimeout(close, 250);
+          }
+        });
+      });
+      // Esc closes the drawer too. Cheap — the keyboard handler is global
+      // already.
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && shell.classList.contains('fh-shell--menu-open')) {
+          close();
+        }
+      });
     },
 
     go: function (route) {
@@ -282,9 +337,14 @@
       setTimeout(dismiss, 4000);
     },
 
-    openOverlay: function (title, htmlBody) {
+    openOverlay: function (title, htmlBody, footerHtml) {
       document.getElementById('fh-overlay-title').textContent = title;
       document.getElementById('fh-overlay-body').innerHTML = htmlBody;
+      // Footer is the sticky action bar at the bottom of the panel.
+      // Callers that don't need actions can omit footerHtml; the CSS
+      // hides an empty footer so the body still scrolls flush.
+      const ftr = document.getElementById('fh-overlay-footer');
+      if (ftr) ftr.innerHTML = (typeof footerHtml === 'string' && footerHtml.length) ? footerHtml : '';
       const ov = document.getElementById('fh-overlay');
       ov.hidden = false;
       ov.style.display = 'flex';
@@ -293,6 +353,10 @@
       const ov = document.getElementById('fh-overlay');
       ov.hidden = true;
       ov.style.display = 'none';
+      // Clear the sticky footer too so the next openOverlay() starts clean
+      // even if the caller doesn't pass a footer argument.
+      const ftr = document.getElementById('fh-overlay-footer');
+      if (ftr) ftr.innerHTML = '';
       // Drop any active-row marker from data tables so the next overlay
       // open starts clean.
       document.querySelectorAll('tr.fh-row--active').forEach(function (tr) {
@@ -342,6 +406,7 @@
         const inField = /^(INPUT|TEXTAREA|SELECT)$/.test(tag);
 
         if (e.key === 'Escape') {
+          FH.core.closeShortcutsModal();
           FH.core.closeOverlay();
           FH.core.clearError();
           if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
@@ -359,6 +424,14 @@
           return;
         }
 
+        // `?` opens the keyboard-shortcuts modal. Most layouts deliver `?`
+        // as Shift+/, so we also accept that pairing for non-US keyboards.
+        if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+          e.preventDefault();
+          FH.core.openShortcutsModal();
+          return;
+        }
+
         if (chord === 'g') {
           if (map[e.key]) { FH.core.go(map[e.key]); }
           chord = null;
@@ -371,6 +444,51 @@
           chordTimer = setTimeout(function () { chord = null; }, 900);
         }
       });
+    },
+
+    // Segmented-control wiring. Any .fh-segmented block delegates clicks on
+    // its child .fh-segmented__seg buttons: the clicked seg gains the --on
+    // modifier, siblings lose it, and the companion hidden <input> (named
+    // `fh-<group>-value`, where <group> = data-segmented attr) is updated so
+    // FH.search.collect / FH.flex.collect can read it.
+    initSegmented: function () {
+      document.querySelectorAll('.fh-segmented').forEach(function (group) {
+        const groupName = group.dataset.segmented || '';
+        const hiddenId = 'fh-' + groupName + '-value';
+        group.querySelectorAll('.fh-segmented__seg').forEach(function (seg) {
+          seg.addEventListener('click', function () {
+            group.querySelectorAll('.fh-segmented__seg').forEach(function (s) {
+              s.classList.remove('fh-segmented__seg--on');
+            });
+            seg.classList.add('fh-segmented__seg--on');
+            const hidden = document.getElementById(hiddenId);
+            if (hidden) hidden.value = seg.dataset.value || '';
+          });
+        });
+      });
+    },
+
+    // Keyboard-shortcuts modal — open/close + outside-click + button bindings.
+    initShortcutsModal: function () {
+      const modal = document.getElementById('fh-shortcuts');
+      if (!modal) return;
+      const btn = document.getElementById('fh-shortcuts-close');
+      if (btn) btn.addEventListener('click', FH.core.closeShortcutsModal);
+      modal.addEventListener('click', function (e) {
+        if (e.target.id === 'fh-shortcuts') FH.core.closeShortcutsModal();
+      });
+    },
+    openShortcutsModal: function () {
+      const modal = document.getElementById('fh-shortcuts');
+      if (!modal) return;
+      modal.hidden = false;
+      modal.style.display = 'flex';
+    },
+    closeShortcutsModal: function () {
+      const modal = document.getElementById('fh-shortcuts');
+      if (!modal) return;
+      modal.hidden = true;
+      modal.style.display = 'none';
     },
 
     api: async function (path, opts) {
@@ -570,22 +688,62 @@
           // Also discard if the input has been cleared/diverged from q.
           if (input.value.trim() !== q) return;
           cache = data.hubs || [];
-          if (!cache.length) { close(); return; }
+          // Build either matched-hub rows OR an empty-state + custom-IATA
+          // fallback so the dropdown is never silently invisible. The
+          // custom-IATA row only appears when the user has typed exactly
+          // 3 alpha chars — anything else can't be an IATA code.
+          const customIata = /^[A-Za-z]{3}$/.test(q) ? q.toUpperCase() : '';
           // IATA codes come from a server-controlled dataset (uppercase,
           // 3 chars) but we escape them anyway as defense-in-depth — if
           // the hub dataset ever grows a hostile entry the autocomplete
           // dropdown must not become an XSS sink.
-          list.innerHTML = cache.map(function (h, i) {
+          const matchRows = cache.map(function (h, i) {
             const code = FH.core.escape(h.iata);
             return '<li data-iata="' + code + '" data-i="' + i + '">'
               + '<span class="fh-suggest__code">' + code + '</span>'
               + '<span class="fh-suggest__name">' + FH.core.escape(h.city)
               + ' (' + FH.core.escape(h.country) + ')</span>'
               + '</li>';
-          }).join('');
+          });
+          // Custom-IATA fallback row — appended when the typed code looks
+          // like a 3-letter IATA but didn't match a known hub. Picking it
+          // adds the typed code as-is (same effect as pressing Enter).
+          if (customIata && !cache.some(function (h) { return h.iata === customIata; })) {
+            matchRows.push(
+              '<li class="fh-suggest__custom" data-iata="' + FH.core.escape(customIata) +
+              '" data-i="' + cache.length + '" data-custom="1">' +
+              '<span class="fh-suggest__code">' + FH.core.escape(customIata) + '</span>' +
+              '<span class="fh-suggest__name">Press Enter to add custom IATA</span>' +
+              '</li>'
+            );
+            // Push a placeholder into the cache so keyboard navigation
+            // (Enter on the highlighted custom row) reaches add() with
+            // the same path used for matched rows.
+            cache = cache.concat([{ iata: customIata, _custom: true }]);
+          }
+          if (!matchRows.length) {
+            // Pure no-match case (q is e.g. "xx" — not 3 chars, no hubs).
+            matchRows.push(
+              '<li class="fh-suggest__empty">No airports match ‘' +
+              FH.core.escape(q) + '’</li>'
+            );
+          }
+          // Footer key hint — visible only while the dropdown is open.
+          // Sits outside the keyboard-nav list because it's not selectable.
+          matchRows.push(
+            '<li class="fh-suggest__hint" aria-hidden="true">' +
+              '<span>↑↓ navigate</span>' +
+              '<span>Enter add</span>' +
+              '<span>Esc close</span>' +
+            '</li>'
+          );
+          list.innerHTML = matchRows.join('');
           list.hidden = false;
           active = -1;
-          list.querySelectorAll('li').forEach(function (li) {
+          // Bind only selectable rows — the empty-state and hint rows are
+          // non-interactive, so they get no listener and are skipped by
+          // markActive (filtered by [data-iata]).
+          list.querySelectorAll('li[data-iata]').forEach(function (li) {
             li.addEventListener('mousedown', function (e) {
               e.preventDefault();
               add(li.dataset.iata);
@@ -645,9 +803,16 @@
     },
 
     markActive: function (list, idx) {
-      list.querySelectorAll('li').forEach(function (li, i) {
-        li.classList.toggle('fh-suggest--active', i === idx);
+      // Only data rows ([data-iata]) participate in keyboard nav — the
+      // empty-state and hint rows are decoration. Clear active on every
+      // <li> (data + non-data) so the previous highlight always lifts.
+      list.querySelectorAll('li').forEach(function (li) {
+        li.classList.remove('fh-suggest--active');
       });
+      const dataRows = list.querySelectorAll('li[data-iata]');
+      if (idx >= 0 && idx < dataRows.length) {
+        dataRows[idx].classList.add('fh-suggest--active');
+      }
     },
 
     // Re-paint a chip strip from FH.search.state[kind]. The chip render()
@@ -691,7 +856,12 @@
 
     collect: function () {
       const cabin = Array.from(document.querySelectorAll('input[name=cabin]:checked')).map(function (c) { return c.value; });
-      const modeEl = document.querySelector('input[name=fh-mode]:checked');
+      // Mode now lives in the segmented control's hidden input. Fall back to
+      // legacy radios if the hidden input ever disappears (older templates).
+      const modeHidden = document.getElementById('fh-mode-value');
+      const modeLegacy = document.querySelector('input[name=fh-mode]:checked');
+      const modeVal = (modeHidden && modeHidden.value) ||
+                      (modeLegacy && modeLegacy.value) || 'both';
       const oneWay = document.getElementById('fh-oneway').checked;
       const departVal = document.getElementById('fh-depart-from').value || null;
       const returnVal = oneWay ? null : (document.getElementById('fh-return-from').value || null);
@@ -721,7 +891,7 @@
         },
         expand_origins:      (document.getElementById('fh-expand-origins') || {checked: true}).checked,
         expand_destinations: (document.getElementById('fh-expand-destinations') || {checked: true}).checked,
-        mode:          (modeEl && modeEl.value) || 'both'
+        mode:          modeVal
       };
     },
 
@@ -749,6 +919,10 @@
       // so toggle both for guaranteed visibility.
       prog.hidden = false;
       prog.style.display = '';
+      // Paint skeleton placeholder rows so the results table reads as
+      // "loading" instead of "empty" while the search runs. Real rows
+      // overwrite these the moment FH.results.setData fires.
+      FH.results.showSkeleton(8);
       // Disable the submit button so user can't double-click
       const btn = document.getElementById('fh-search-go');
       if (btn) { btn.disabled = true; btn.textContent = 'Searching…'; }
@@ -808,7 +982,10 @@
         }
         FH.core.go('results');
       } catch (e) {
-        // showError already fired
+        // showError already fired. Drop the skeleton so the table doesn't
+        // look like it's still loading — re-render the empty state from
+        // whatever rows we last had (likely none).
+        FH.results.setData(FH.results.raw || []);
       } finally {
         clearInterval(progressTimer);
         prog.hidden = true;
@@ -922,6 +1099,32 @@
       FH.results.raw  = safe;
       FH.results.view = safe.slice();
       FH.results.render();
+    },
+
+    // Render skeleton placeholder rows while a search is in flight. Each
+    // row mirrors the 13-column results table, with each cell holding a
+    // .fh-skel bar at a column-appropriate width (rank cells narrow, route
+    // cells wide). The width spread is intentional — uniform skeletons
+    // read as a grid, not as rows. Heights match real rows (44px) so the
+    // swap to real data is zero-shift.
+    showSkeleton: function (rowCount) {
+      const n = (typeof rowCount === 'number' && rowCount > 0) ? rowCount : 8;
+      const tb = document.getElementById('fh-results-tbody');
+      if (!tb) return;
+      // Width per column (index 0..12) tuned so each row reads varied,
+      // not striped. Values in percent, applied inline.
+      const widths = [22, 80, 55, 65, 38, 28, 35, 42, 50, 50, 45, 38, 35];
+      const cells = widths.map(function (w) {
+        return '<td><div class="fh-skel" style="width:' + w + '%"></div></td>';
+      }).join('');
+      const rows = [];
+      for (let i = 0; i < n; i += 1) {
+        rows.push('<tr class="fh-skel-row" aria-hidden="true">' + cells + '</tr>');
+      }
+      tb.innerHTML = rows.join('');
+      // Clear any leftover quality banner from a prior result set so the
+      // skeleton view isn't framed by stale messaging.
+      FH.results.setQualityBanner(null);
     },
 
     applyFilter: function (rows) {
@@ -1182,24 +1385,30 @@
           + '<h4>Legs</h4>' + legs;
       }
 
-      const bookLinks = [];
-      if (r.airline_url) {
-        bookLinks.push('<a class="fh-btn fh-btn--mini fh-btn--primary fh-arrow-link" href="' +
-          FH.core.escape(r.airline_url) + '" target="_blank" rel="noopener">Book on ' +
-          FH.core.escape(r.carrier || 'airline') + ' <span class="fh-arrow-link__arrow">→</span></a>');
-      }
+      // Sticky-footer action bar — primary "Book on [airline]" left, secondary
+      // "Open in Google Flights" right. Works for both award and cash rows
+      // since both payloads carry the same airline_url / google_flights_url
+      // / deep_link fields when applicable. The previous in-body fh-actions
+      // block is removed; these links now live in the pinned footer.
+      const bookBtn = r.airline_url
+        ? ('<a class="fh-btn fh-btn--primary fh-arrow-link" href="' +
+            FH.core.escape(r.airline_url) + '" target="_blank" rel="noopener">Book on ' +
+            FH.core.escape(r.carrier || 'airline') + ' <span class="fh-arrow-link__arrow">→</span></a>')
+        : '<span></span>';  // placeholder to keep right button right-aligned
+      let gfBtn = '';
       if (r.google_flights_url) {
-        bookLinks.push('<a class="fh-btn fh-btn--mini fh-arrow-link" href="' +
+        gfBtn = '<a class="fh-btn fh-arrow-link" href="' +
           FH.core.escape(r.google_flights_url) +
-          '" target="_blank" rel="noopener">Open in Google Flights <span class="fh-arrow-link__arrow">→</span></a>');
+          '" target="_blank" rel="noopener">Open in Google Flights <span class="fh-arrow-link__arrow">→</span></a>';
       } else if (r.deep_link) {
-        bookLinks.push('<a class="fh-btn fh-btn--mini fh-arrow-link" href="' +
+        gfBtn = '<a class="fh-btn fh-arrow-link" href="' +
           FH.core.escape(r.deep_link) +
-          '" target="_blank" rel="noopener">Verify on Google Flights <span class="fh-arrow-link__arrow">→</span></a>');
+          '" target="_blank" rel="noopener">Verify on Google Flights <span class="fh-arrow-link__arrow">→</span></a>';
+      } else {
+        gfBtn = '<span></span>';
       }
-      const verifyLink = bookLinks.length
-        ? '<div class="fh-actions" style="margin:8px 0 16px;">' + bookLinks.join('') + '</div>'
-        : '';
+      const footerHtml = bookBtn + gfBtn;
+
       const html = ''
         + '<div class="fh-kv">'
         +   '<div class="fh-kv__k">Route</div>     <div class="fh-kv__v">' + FH.core.escape(r.route) + '</div>'
@@ -1211,12 +1420,11 @@
         +   '<div class="fh-kv__k">Total cost</div><div class="fh-kv__v">' + FH.core.fmtMoney(r.total_usd) + '</div>'
         +   '<div class="fh-kv__k">Risk</div>      <div class="fh-kv__v">' + FH.core.riskBadge(r.risk) + '</div>'
         + '</div>'
-        + verifyLink
         + compBlock
         + '<h3>Segments</h3>' + segs
         + '<h3>Baggage</h3><pre>' + FH.core.escape(r.baggage || '—') + '</pre>'
         + '<h3>How to book</h3><pre>' + FH.core.escape(r.booking_instructions || '—') + '</pre>';
-      FH.core.openOverlay((r.route || '?') + (r.carrier ? ' · ' + r.carrier : ''), html);
+      FH.core.openOverlay((r.route || '?') + (r.carrier ? ' · ' + r.carrier : ''), html, footerHtml);
     }
   };
 
@@ -1416,11 +1624,13 @@
     },
     render: function (rows) {
       const tb = document.getElementById('fh-watch-tbody');
+      const statsEl = document.getElementById('fh-watch-stats');
       if (!rows.length) {
         tb.innerHTML = '<tr class="fh-empty"><td colspan="8">'
           + '<div class="fh-empty__glyph">◯</div>'
           + '<div class="fh-empty__text">No watches. Click + new watch.</div>'
           + '</td></tr>';
+        if (statsEl) statsEl.hidden = true;
         FH.core.footer('No watches @ ' + new Date().toLocaleTimeString(), 0);
         // Sidebar badges may be stale after a refresh; recompute.
         try { FH.core.updateBadges && FH.core.updateBadges(); } catch (_) {}
@@ -1441,8 +1651,25 @@
         if (h < 48) return 'warn';
         return 'stale';
       }
+      // "X ago" relative time for the last-check column secondary line.
+      function relTime(ts) {
+        if (!ts) return '—';
+        let t = 0;
+        try { t = new Date(String(ts).replace(' ', 'T')).getTime() || 0; } catch (_) { t = 0; }
+        if (!t) return '—';
+        const diff = NOW - t;
+        if (diff < 0) return 'just now';
+        const mins = Math.floor(diff / 60000);
+        if (mins < 1)   return 'just now';
+        if (mins < 60)  return mins + 'm ago';
+        const hrs  = Math.floor(mins / 60);
+        if (hrs  < 24)  return hrs + 'h ago';
+        const days = Math.floor(hrs / 24);
+        if (days < 30)  return days + 'd ago';
+        const mos  = Math.floor(days / 30);
+        return mos + 'mo ago';
+      }
       tb.innerHTML = rows.map(function (w) {
-        const window_str = (w.window_from || '?') + ' → ' + (w.window_to || '?');
         // Pause/Resume label + data-paused mirror: handler reads the data
         // attribute (current server state) rather than textContent, so a
         // future CSS text-transform can't silently invert the toggle.
@@ -1451,25 +1678,136 @@
         const dot = '<span class="fh-dot fh-dot--' + fr + '" title="' +
           (fr === 'ok' ? 'Fresh (< 12h)' : fr === 'warn' ? 'Stale (12-48h)' : 'Cold / paused') +
           '"></span>';
+
+        // Max $ — flagged "hit" when best_found_usd is at/below the threshold.
+        const max = parseFloat(w.max_usd) || 0;
+        const best = parseFloat(w.best_found_usd) || 0;
+        const hit = best > 0 && max > 0 && best <= max;
+        const maxCell = ''
+          + '<span class="fh-watch-max' + (hit ? ' fh-watch-max--hit' : '') + '">'
+          +   '<span class="fh-watch-max__sign">$</span>'
+          +   '<span class="fh-watch-max__num">' + (max ? max.toLocaleString() : '—') + '</span>'
+          + '</span>';
+
+        // Window cell — from/to on two lines with hairline divider between.
+        const windowCell = ''
+          + '<div class="fh-watch-window">'
+          +   '<div class="fh-watch-window__row">'
+          +     '<span class="fh-watch-window__lbl">From</span>'
+          +     '<span>' + FH.core.escape(w.window_from || '—') + '</span>'
+          +   '</div>'
+          +   '<div class="fh-watch-window__div"></div>'
+          +   '<div class="fh-watch-window__row">'
+          +     '<span class="fh-watch-window__lbl">To</span>'
+          +     '<span>' + FH.core.escape(w.window_to || '—') + '</span>'
+          +   '</div>'
+          + '</div>';
+
+        // Last-check cell — absolute plus relative ("4h ago") on a second line.
+        const checkAbs = w.last_check ? FH.core.fmtDate(w.last_check) : 'never';
+        const checkCell = ''
+          + '<div class="fh-watch-check">'
+          +   '<div class="fh-watch-check__top">' + dot + '<span>' + FH.core.escape(checkAbs)
+          +   (paused ? ' <span class="fh-muted">(paused)</span>' : '') + '</span></div>'
+          +   '<div class="fh-watch-check__rel">' + FH.core.escape(relTime(w.last_check)) + '</div>'
+          + '</div>';
+
+        // Best-found cell — dim em-dash when absent; accent + ↓ savings when present.
+        let bestCell;
+        if (best > 0) {
+          const delta = (max > 0 && best < max) ? (max - best) : 0;
+          const deltaTag = delta > 0
+            ? '<span class="fh-watch-best__delta">↓ $' + Math.round(delta).toLocaleString() + ' savings</span>'
+            : '';
+          bestCell = '<span class="fh-watch-best--hit">' + FH.core.fmtMoney(best) + deltaTag + '</span>';
+        } else {
+          bestCell = '<span class="fh-watch-best--none">—</span>';
+        }
+
+        // Alerts cell — counter pill (dim when zero) matching sidebar badge style.
+        const alertCount = parseInt(w.alerts, 10) || 0;
+        const alertsCell = '<span class="fh-watch-alerts' + (alertCount === 0 ? ' fh-watch-alerts--zero' : '') + '">'
+          + alertCount + '</span>';
+
         return ''
           + '<tr data-id="' + FH.core.escape(w.id) + '">'
           + '<td><span class="fh-route">' + FH.core.escape(w.origin) + ' <span class="fh-route__arrow">→</span> ' + FH.core.escape(w.destination) + '</span></td>'
-          + '<td>' + FH.core.escape(window_str) + '</td>'
-          + '<td class="fh-num">' + FH.core.fmtMoney(w.max_usd) + '</td>'
+          + '<td>' + windowCell + '</td>'
+          + '<td class="fh-num">' + maxCell + '</td>'
           + '<td>' + FH.core.escape(w.cabin || '-') + '</td>'
-          + '<td>' + dot + ' ' + FH.core.fmtDate(w.last_check) + (paused ? ' <span class="fh-muted">(paused)</span>' : '') + '</td>'
-          + '<td class="fh-num">' + (w.best_found_usd ? FH.core.fmtMoney(w.best_found_usd) : '-') + '</td>'
-          + '<td class="fh-num">' + (w.alerts || 0) + '</td>'
+          + '<td>' + checkCell + '</td>'
+          + '<td class="fh-num">' + bestCell + '</td>'
+          + '<td class="fh-num">' + alertsCell + '</td>'
           + '<td>'
-          +   '<button class="fh-btn fh-btn--mini" data-act="pause"'
-          +     ' data-id="' + FH.core.escape(w.id) + '"'
-          +     ' data-paused="' + (paused ? '1' : '0') + '">'
-          +     (paused ? 'Resume' : 'Pause')
-          +   '</button> '
-          +   '<button class="fh-btn fh-btn--mini fh-btn--danger" data-act="del" data-id="' + FH.core.escape(w.id) + '">Delete</button>'
+          +   '<span class="fh-watch-actions">'
+          +     '<button class="fh-btn fh-btn--mini" data-act="pause"'
+          +       ' data-id="' + FH.core.escape(w.id) + '"'
+          +       ' data-paused="' + (paused ? '1' : '0') + '">'
+          +       (paused ? 'Resume' : 'Pause')
+          +     '</button>'
+          +     '<span class="fh-watch-actions__sep"></span>'
+          +     '<button class="fh-btn fh-btn--mini fh-btn--danger" data-act="del" data-id="' + FH.core.escape(w.id) + '">Delete</button>'
+          +   '</span>'
           + '</td>'
           + '</tr>';
       }).join('');
+
+      // ---- Stat strip --------------------------------------------------
+      // Derived metrics for the above-table summary. Refreshed every render
+      // so paused/unpaused and new hits show up immediately.
+      if (statsEl) {
+        statsEl.hidden = false;
+        const active = rows.reduce(function (n, w) { return n + (w.paused ? 0 : 1); }, 0);
+        const today = new Date();
+        const isToday = function (ts) {
+          if (!ts) return false;
+          let t = null;
+          try { t = new Date(String(ts).replace(' ', 'T')); } catch (_) { return false; }
+          if (!t || isNaN(t.getTime())) return false;
+          return t.getFullYear() === today.getFullYear()
+            && t.getMonth() === today.getMonth()
+            && t.getDate() === today.getDate();
+        };
+        const fired = rows.reduce(function (n, w) {
+          return n + ((w.alerts > 0 && isToday(w.last_check)) ? 1 : 0);
+        }, 0);
+        const savings = rows.reduce(function (acc, w) {
+          const mx = parseFloat(w.max_usd) || 0;
+          const bs = parseFloat(w.best_found_usd) || 0;
+          if (bs > 0 && mx > 0 && bs < mx) return acc + (mx - bs);
+          return acc;
+        }, 0);
+        // Next run — earliest predicted next hourly recheck across non-paused
+        // rows. Rows that have never run are pegged to "soon".
+        let nextRunMs = null;
+        rows.forEach(function (w) {
+          if (w.paused) return;
+          let t = 0;
+          try { t = new Date(String(w.last_check || '').replace(' ', 'T')).getTime() || 0; } catch (_) { t = 0; }
+          if (!t) { nextRunMs = NOW; return; }
+          const candidate = t + 3600000;
+          if (nextRunMs === null || candidate < nextRunMs) nextRunMs = candidate;
+        });
+        const nextLabel = (function () {
+          if (nextRunMs === null) return '—';
+          const delta = nextRunMs - NOW;
+          if (delta <= 60000) return 'soon';
+          const mins = Math.floor(delta / 60000);
+          if (mins < 60) return 'in ' + mins + 'm';
+          const hrs = Math.floor(mins / 60);
+          return 'in ' + hrs + 'h ' + (mins % 60) + 'm';
+        })();
+        const setStat = function (id, val, accent) {
+          const el = document.getElementById(id);
+          if (!el) return;
+          el.textContent = val;
+          el.classList.toggle('fh-stat__value--accent', !!accent);
+        };
+        setStat('fh-watch-stat-active',  String(active),  active > 0);
+        setStat('fh-watch-stat-fired',   String(fired),   fired > 0);
+        setStat('fh-watch-stat-savings', '$' + Math.round(savings).toLocaleString(), savings > 0);
+        setStat('fh-watch-stat-next',    nextLabel, nextRunMs !== null && (nextRunMs - NOW) <= 60000);
+      }
 
       tb.querySelectorAll('button[data-act="pause"]').forEach(function (b) {
         b.addEventListener('click', async function (e) {
@@ -1649,8 +1987,116 @@
           FH.core.setActiveRow(tr);
           FH.spots.openOverlay(s);
         });
+        // Hover preview — 200ms delay before showing the tooltip so quick
+        // mouse-overs don't litter the screen. Skip entirely if the user has
+        // no balances loaded (or all zero) — the tip would say "nothing
+        // reachable" which adds no value.
+        let showTimer = null;
+        tr.addEventListener('mouseenter', function () {
+          const s = rows[parseInt(tr.dataset.i, 10)];
+          if (!s) return;
+          if (showTimer) clearTimeout(showTimer);
+          showTimer = setTimeout(function () {
+            FH.spots.showTip(tr, s.program);
+          }, 200);
+        });
+        tr.addEventListener('mouseleave', function () {
+          if (showTimer) { clearTimeout(showTimer); showTimer = null; }
+          FH.spots.hideTip();
+        });
       });
       FH.core.footer('Sweet spots loaded', rows.length);
+    },
+
+    // Floating hover preview — shows the partner cards from the user's
+    // balances that can transfer to this program, plus total reachable miles
+    // and the miles needed. Returns silently when there are no balances.
+    _tipEl: null,
+    showTip: function (rowEl, programName) {
+      if (!rowEl || !programName) return;
+      // Skip when user balances aren't available or are all zero — the tip
+      // would have nothing useful to say.
+      const balances = (FH.balances && FH.balances.state && FH.balances.state.currencies) || {};
+      const hasAny = Object.keys(balances).some(function (k) { return (parseInt(balances[k], 10) || 0) > 0; });
+      if (!hasAny) return;
+
+      const partners = (FH.balances.partners && FH.balances.partners[programName]) || [];
+      if (!partners.length) return;
+
+      // Compute reachable per-card + grand total. Reuse the same ratio math
+      // as FH.balances.reachable so the numbers line up exactly.
+      const rows = [];
+      let totalReachable = 0;
+      partners.forEach(function (p) {
+        const abbrev = FH.balances.CARD_TO_ABBREV[p.card];
+        const bal = (abbrev && balances[abbrev]) || balances[p.card] || 0;
+        if (bal <= 0) return;
+        const parts = (p.ratio || '1:1').split(':');
+        const lhs = parseFloat(parts[0]) || 1;
+        const rhs = parseFloat(parts[1]) || 1;
+        const reachable = Math.floor(bal * (rhs / lhs));
+        rows.push({ name: p.card, balance: bal, reachable: reachable });
+        totalReachable += reachable;
+      });
+      if (!rows.length) return;
+
+      // Look up miles needed from the sweet-spot raw — same source the row
+      // came from, so the number on screen matches the cell value.
+      let need = 0;
+      const allSpots = (FH.spots.raw || []);
+      for (let i = 0; i < allSpots.length; i++) {
+        if (allSpots[i].program === programName && typeof allSpots[i].miles === 'number') {
+          need = allSpots[i].miles;
+          break;
+        }
+      }
+
+      const tip = document.createElement('div');
+      tip.className = 'fh-tip';
+      const fmt = function (n) { return (n || 0).toLocaleString(); };
+      const fmtK = function (n) {
+        if (n >= 1000) return Math.round(n / 100) / 10 + 'K';
+        return String(n);
+      };
+      const rowsHtml = rows.map(function (r) {
+        return '<li class="fh-tip__row">'
+          +   '<span class="fh-tip__row-name">' + FH.core.escape(r.name) + '</span>'
+          +   '<span class="fh-tip__row-val">' + fmtK(r.reachable) + '</span>'
+          + '</li>';
+      }).join('');
+      const needLabel = need > 0
+        ? '<span class="fh-tip__need">need ' + fmtK(need) + '</span>'
+        : '';
+      tip.innerHTML = ''
+        + '<div class="fh-tip__hd">Reachable via</div>'
+        + '<ul class="fh-tip__list">' + rowsHtml + '</ul>'
+        + '<div class="fh-tip__total">'
+        +   '<span>Total ' + fmt(totalReachable) + '</span>'
+        +   needLabel
+        + '</div>';
+
+      // Position next to the row (right side), vertically centered. Clamp to
+      // the viewport so the tip doesn't go off the right edge — flip to the
+      // left side of the row if there's no room.
+      document.body.appendChild(tip);
+      FH.spots._tipEl = tip;
+      const rect = rowEl.getBoundingClientRect();
+      const tipRect = tip.getBoundingClientRect();
+      const margin = 8;
+      let left = rect.right + margin + window.scrollX;
+      if (left + tipRect.width > window.innerWidth - margin) {
+        // Not enough room on the right — drop to the left of the row.
+        left = Math.max(margin, rect.left - tipRect.width - margin) + window.scrollX;
+      }
+      const top = Math.max(margin, rect.top + (rect.height / 2) - (tipRect.height / 2)) + window.scrollY;
+      tip.style.left = left + 'px';
+      tip.style.top  = top + 'px';
+    },
+    hideTip: function () {
+      if (FH.spots._tipEl && FH.spots._tipEl.parentNode) {
+        FH.spots._tipEl.parentNode.removeChild(FH.spots._tipEl);
+      }
+      FH.spots._tipEl = null;
     },
 
     // Open the row overlay. Show static program/route/cabin/miles/notes/
@@ -1784,7 +2230,11 @@
       document.querySelectorAll('[data-currency]').forEach(function (el) {
         el.addEventListener('input', function () {
           const key = el.dataset.currency;
-          FH.balances.state.currencies[key] = parseInt(el.value, 10) || 0;
+          const val = parseInt(el.value, 10) || 0;
+          FH.balances.state.currencies[key] = val;
+          // Accent the input when it carries a non-zero balance so the user
+          // sees at a glance which currencies they've populated.
+          el.classList.toggle('fh-bal-cur--has-value', val > 0);
           // Currency changed → every airline row's reachable/effective
           // needs to redraw. Currency inputs sit OUTSIDE the airline
           // <tbody>, so re-rendering doesn't steal focus from the user.
@@ -1852,9 +2302,14 @@
 
     renderCurrencies: function () {
       // Value-set only; listeners are bound once in init() via bindCurrencyInputs.
+      // Also flip the fh-bal-cur--has-value class so the input picks up the
+      // accent treatment for non-zero balances on initial load.
       Object.keys(FH.balances.state.currencies).forEach(function (k) {
         const el = document.querySelector('[data-currency="' + k + '"]');
-        if (el) el.value = FH.balances.state.currencies[k] || 0;
+        if (!el) return;
+        const v = FH.balances.state.currencies[k] || 0;
+        el.value = v;
+        el.classList.toggle('fh-bal-cur--has-value', v > 0);
       });
     },
 
@@ -2060,8 +2515,50 @@
       };
     },
 
+    // Field selectors keyed off settings shape — used to diff before/after
+    // values and animate a per-input "✓ Saved" chip on whichever ones changed.
+    _fieldMap: {
+      seats_aero_key:   { id: 'fh-set-seats' },
+      telegram_webhook: { id: 'fh-set-tg' },
+      cache_ttl:        { id: 'fh-set-ttl' },
+      cpp_source:       { sel: 'input[name=cpp]:checked', group: true }
+    },
+
+    // Slide-in / hold / slide-out chip next to a changed input. The chip is
+    // absolutely positioned inside the field's .fh-field wrapper (.fh-field
+    // has position:relative via the new CSS). Removes itself after the
+    // animation completes so the DOM stays tidy.
+    flashSaved: function (field) {
+      const cfg = FH.settings._fieldMap[field];
+      if (!cfg) return;
+      let host = null;
+      if (cfg.id) {
+        const inp = document.getElementById(cfg.id);
+        if (!inp) return;
+        host = inp.closest('.fh-field');
+      } else if (cfg.group) {
+        const r = document.querySelector(cfg.sel);
+        if (!r) return;
+        host = r.closest('.fh-field');
+      }
+      if (!host) return;
+      // Drop any in-flight chip on this field so a fast double-save doesn't
+      // stack them.
+      host.querySelectorAll('.fh-saved').forEach(function (x) { x.remove(); });
+      const chip = document.createElement('span');
+      chip.className = 'fh-saved' + (cfg.group ? ' fh-saved--row' : '');
+      chip.textContent = '✓ Saved';
+      host.appendChild(chip);
+      setTimeout(function () {
+        if (chip.parentNode) chip.parentNode.removeChild(chip);
+      }, 2000);
+    },
+
     save: async function () {
-      const body = FH.settings.collect();
+      // Capture pre-save values so we can diff after the POST + flash the
+      // chip only for fields that actually changed.
+      const before = FH.settings.collect();
+      const body = before;  // alias for clarity below
       try {
         const resp = await FH.core.api('/api/settings', { method: 'POST', body: JSON.stringify(body) });
         // Persist locally only AFTER server accepts — and use the *masked*
@@ -2082,6 +2579,24 @@
           const rr = document.querySelector('input[name=cpp][value="' + (sset.cpp_source || 'avg') + '"]');
           if (rr) rr.checked = true;
         }
+        // Diff before vs the value LANDED — the server may have masked the
+        // seats key (e.g. "pro_..."), trimmed the webhook, or rounded the
+        // TTL down to the nearest minute. Flash any input whose effective
+        // value moved between snapshots. We use the previously-saved
+        // localStorage cache as the "pre" snapshot since on first save it's
+        // the only stable baseline (the user typed into empty fields).
+        const after = FH.settings.collect();
+        const last = (function () {
+          try { return JSON.parse(localStorage.getItem('fh.settings.last') || '{}'); } catch (_) { return {}; }
+        })();
+        Object.keys(FH.settings._fieldMap).forEach(function (k) {
+          const a = (k in last) ? last[k] : '';
+          const b = after[k];
+          if (String(a == null ? '' : a) !== String(b == null ? '' : b)) {
+            FH.settings.flashSaved(k);
+          }
+        });
+        localStorage.setItem('fh.settings.last', JSON.stringify(after));
       } catch (e) {
         // backend missing; persist locally — but DON'T persist the raw key
         // into localStorage either. Strip secrets to a length-only marker.
@@ -2184,6 +2699,19 @@
         repaint();
       }
 
+      // Local markActive — flex uses a single-slot picker, but the same
+      // empty-state / custom-IATA / hint rules apply. Only [data-iata]
+      // rows participate in keyboard nav.
+      function markActive(idx) {
+        list.querySelectorAll('li').forEach(function (li) {
+          li.classList.remove('fh-suggest--active');
+        });
+        const dataRows = list.querySelectorAll('li[data-iata]');
+        if (idx >= 0 && idx < dataRows.length) {
+          dataRows[idx].classList.add('fh-suggest--active');
+        }
+      }
+
       async function doFetch(q, mySeq) {
         try {
           const data = await fetch('/api/hubs?q=' + encodeURIComponent(q))
@@ -2191,18 +2719,42 @@
           if (mySeq !== reqSeq) return;
           if (input.value.trim() !== q) return;
           cache = data.hubs || [];
-          if (!cache.length) { close(); return; }
-          list.innerHTML = cache.map(function (h, i) {
+          const customIata = /^[A-Za-z]{3}$/.test(q) ? q.toUpperCase() : '';
+          const matchRows = cache.map(function (h, i) {
             const code = FH.core.escape(h.iata);
             return '<li data-iata="' + code + '" data-i="' + i + '">'
               + '<span class="fh-suggest__code">' + code + '</span>'
               + '<span class="fh-suggest__name">' + FH.core.escape(h.city)
               + ' (' + FH.core.escape(h.country) + ')</span>'
               + '</li>';
-          }).join('');
+          });
+          if (customIata && !cache.some(function (h) { return h.iata === customIata; })) {
+            matchRows.push(
+              '<li class="fh-suggest__custom" data-iata="' + FH.core.escape(customIata) +
+              '" data-i="' + cache.length + '" data-custom="1">' +
+              '<span class="fh-suggest__code">' + FH.core.escape(customIata) + '</span>' +
+              '<span class="fh-suggest__name">Press Enter to add custom IATA</span>' +
+              '</li>'
+            );
+            cache = cache.concat([{ iata: customIata, _custom: true }]);
+          }
+          if (!matchRows.length) {
+            matchRows.push(
+              '<li class="fh-suggest__empty">No airports match ‘' +
+              FH.core.escape(q) + '’</li>'
+            );
+          }
+          matchRows.push(
+            '<li class="fh-suggest__hint" aria-hidden="true">' +
+              '<span>↑↓ navigate</span>' +
+              '<span>Enter add</span>' +
+              '<span>Esc close</span>' +
+            '</li>'
+          );
+          list.innerHTML = matchRows.join('');
           list.hidden = false;
           active = -1;
-          list.querySelectorAll('li').forEach(function (li) {
+          list.querySelectorAll('li[data-iata]').forEach(function (li) {
             li.addEventListener('mousedown', function (e) {
               e.preventDefault();
               add(li.dataset.iata);
@@ -2238,18 +2790,14 @@
           e.preventDefault();
           if (!cache.length) return;
           active = (active + 1) % cache.length;
-          list.querySelectorAll('li').forEach(function (li, i) {
-            li.classList.toggle('fh-suggest--active', i === active);
-          });
+          markActive(active);
           return;
         }
         if (e.key === 'ArrowUp') {
           e.preventDefault();
           if (!cache.length) return;
           active = (active - 1 + cache.length) % cache.length;
-          list.querySelectorAll('li').forEach(function (li, i) {
-            li.classList.toggle('fh-suggest--active', i === active);
-          });
+          markActive(active);
           return;
         }
         if (e.key === 'Escape') { close(); }
@@ -2259,7 +2807,10 @@
     },
 
     collect: function () {
+      const modeHidden = document.getElementById('fh-flex-mode-value');
       const modeEl = document.querySelector('input[name=fh-flex-mode]:checked');
+      const modeVal = (modeHidden && modeHidden.value) ||
+                      (modeEl && modeEl.value) || 'cash';
       return {
         origin:      (FH.flex.state.origin[0] || '').toUpperCase(),
         destination: (FH.flex.state.dest[0]   || '').toUpperCase(),
@@ -2267,7 +2818,7 @@
         end_date:    document.getElementById('fh-flex-end').value   || '',
         cabin:       document.getElementById('fh-flex-cabin').value || 'Y',
         adults:      Math.max(1, parseInt(document.getElementById('fh-flex-adults').value || '1', 10) || 1),
-        mode:        (modeEl && modeEl.value) || 'cash'
+        mode:        modeVal
       };
     },
 
@@ -2351,8 +2902,19 @@
       if (form) form.reset();
       const cabinSel = document.getElementById('fh-flex-cabin');
       if (cabinSel) cabinSel.value = 'Y';
-      const modeRadio = document.querySelector('input[name=fh-flex-mode][value=cash]');
-      if (modeRadio) modeRadio.checked = true;
+      // Reset the segmented control to "cash" — its default. The hidden
+      // input drives .collect(), so update both surfaces.
+      const flexSegs = document.querySelectorAll('.fh-segmented[data-segmented="flex-mode"] .fh-segmented__seg');
+      if (flexSegs.length) {
+        flexSegs.forEach(function (s) {
+          s.classList.toggle('fh-segmented__seg--on', s.dataset.value === 'cash');
+        });
+        const flexHidden = document.getElementById('fh-flex-mode-value');
+        if (flexHidden) flexHidden.value = 'cash';
+      } else {
+        const modeRadio = document.querySelector('input[name=fh-flex-mode][value=cash]');
+        if (modeRadio) modeRadio.checked = true;
+      }
       document.getElementById('fh-cal-wrap').hidden = true;
       document.getElementById('fh-flex-summary').hidden = true;
       document.getElementById('fh-flex-empty').hidden = false;
@@ -2543,8 +3105,22 @@
       document.querySelectorAll('input[name=cabin]').forEach(function (cb) {
         cb.checked = (cb.value === wantCabin);
       });
-      const modeRadio = document.querySelector('input[name=fh-mode][value=' + (q.mode || 'cash') + ']');
-      if (modeRadio) modeRadio.checked = true;
+      // Sync the segmented control to the requested mode (replaces the
+      // legacy radio set). Update both the visible segments and the hidden
+      // input that .collect() reads from.
+      const wantMode = q.mode || 'cash';
+      const modeSegs = document.querySelectorAll('.fh-segmented[data-segmented="mode"] .fh-segmented__seg');
+      if (modeSegs.length) {
+        modeSegs.forEach(function (s) {
+          s.classList.toggle('fh-segmented__seg--on', s.dataset.value === wantMode);
+        });
+        const modeHidden = document.getElementById('fh-mode-value');
+        if (modeHidden) modeHidden.value = wantMode;
+      } else {
+        // Backward-compat path: legacy radios still in DOM.
+        const modeRadio = document.querySelector('input[name=fh-mode][value=' + wantMode + ']');
+        if (modeRadio) modeRadio.checked = true;
+      }
       const adults = document.getElementById('fh-adults');
       if (adults) adults.value = q.adults || 1;
 

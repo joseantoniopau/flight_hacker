@@ -1420,7 +1420,27 @@ select.fh-input:hover {
   color: var(--fh-text);
   font-size: var(--t-md);
   line-height: 1.6;
+  /* Flex child — grow to fill panel so the sticky footer stays pinned at
+     the bottom and the body scrolls inside its own viewport. */
+  flex: 1 1 auto;
+  min-height: 0;
 }
+
+/* Sticky action bar at the bottom of the detail overlay panel. Composed in
+   JS by FH.results.detail from the row's airline_url / google_flights_url /
+   deep_link. Background matches the head bar for symmetry. */
+.fh-overlay__footer {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--s-3);
+  padding: 14px var(--s-5);
+  border-top: 1px solid var(--fh-rule-strong);
+  background: var(--fh-bg-elev);
+}
+.fh-overlay__footer:empty { display: none; }
+.fh-overlay__footer .fh-btn { flex: 0 1 auto; }
 .fh-overlay__body h3 {
   font-size: var(--t-xs);
   text-transform: uppercase;
@@ -2086,30 +2106,418 @@ select.fh-input:hover {
 }
 
 /* ============================================================
+   WATCHLIST — stat strip + row density refinement
+   ------------------------------------------------------------
+   Above-table summary shows the running watchlist load at a
+   glance: active count, today's triggers, total savings tracked
+   (sum of max_usd − best_found_usd across hits), and an ETA for
+   the next hourly recheck. Populated by FH.watchlist.render.
+   ============================================================ */
+.fh-stat-strip {
+  display: flex;
+  border: 1px solid var(--fh-rule);
+  background: var(--fh-panel);
+  margin: var(--s-4) 0;
+}
+.fh-stat {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-1);
+  padding: var(--s-3) var(--s-4);
+  border-right: 1px solid var(--fh-rule);
+  min-width: 0;
+}
+.fh-stat:last-child { border-right: none; }
+.fh-stat__label {
+  color: var(--fh-text-mut);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: var(--w-med);
+}
+.fh-stat__value {
+  color: var(--fh-text-sec);
+  font-size: 18px;
+  font-weight: var(--w-bold);
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.fh-stat__value--accent { color: var(--fh-accent); }
+
+/* Watch table row density — the watchlist carries richer data per row than
+   the result table, so it warrants taller rows and per-cell padding. */
+.fh-table--watch td {
+  height: 56px;
+  padding: 14px 16px;
+  vertical-align: middle;
+}
+.fh-table--watch .fh-route {
+  font-size: 15px;
+  font-weight: var(--w-bold);
+  letter-spacing: 0.01em;
+}
+/* Window cell — two-line from-to with a hairline divider between. */
+.fh-watch-window {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  line-height: 1.25;
+}
+.fh-watch-window__row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--fh-text);
+  font-size: var(--t-sm);
+  font-variant-numeric: tabular-nums;
+}
+.fh-watch-window__lbl {
+  color: var(--fh-text-mut);
+  font-size: 10px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  min-width: 24px;
+}
+.fh-watch-window__div {
+  height: 1px;
+  background: var(--fh-rule);
+  margin: 1px 0;
+}
+/* Max $ — accent when the last_run came in under the threshold. */
+.fh-watch-max__sign { color: var(--fh-text-mut); margin-right: 2px; }
+.fh-watch-max__num  { color: var(--fh-text-sec); font-variant-numeric: tabular-nums; }
+.fh-watch-max--hit  .fh-watch-max__num { color: var(--fh-accent); font-weight: var(--w-bold); }
+
+/* Last-check cell — absolute + relative on two lines. */
+.fh-watch-check {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.25;
+  color: var(--fh-text-sec);
+  font-size: var(--t-sm);
+}
+.fh-watch-check__rel {
+  color: var(--fh-text-mut);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+.fh-watch-check__top { display: flex; align-items: center; gap: 6px; }
+
+/* Best-found cell — dim em-dash when absent; accent down-arrow when present. */
+.fh-watch-best--none { color: var(--fh-text-dim); }
+.fh-watch-best--hit {
+  color: var(--fh-accent);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--w-bold);
+}
+.fh-watch-best__delta {
+  display: inline-block;
+  margin-left: 6px;
+  color: var(--fh-text-mut);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  font-weight: var(--w-med);
+}
+
+/* Alerts cell — counter pill matching sidebar badge style. */
+.fh-watch-alerts {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 18px;
+  padding: 0 6px;
+  background: var(--fh-panel-3);
+  border: 1px solid var(--fh-rule-strong);
+  color: var(--fh-accent);
+  font-size: 10px;
+  font-weight: var(--w-bold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+.fh-watch-alerts--zero { color: var(--fh-text-dim); }
+
+/* Actions cell — Pause/Resume + Delete with a subtle vertical separator. */
+.fh-watch-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+.fh-watch-actions__sep {
+  width: 1px;
+  height: 18px;
+  background: var(--fh-rule);
+}
+
+/* ============================================================
+   BALANCES — table-embedded inputs
+   ------------------------------------------------------------
+   Make program-name + miles inputs feel native to the table.
+   No visible border at rest; accent border on focus; background
+   inherits row striping.
+   ============================================================ */
+.fh-table--bal tbody tr {
+  border-left: 2px solid transparent;
+  transition: border-left-color var(--t-fast) var(--ease),
+              background var(--t-fast) var(--ease);
+}
+.fh-table--bal tbody tr:hover { border-left-color: var(--fh-accent); }
+.fh-table--bal td {
+  height: 56px;
+  padding: 8px 14px;
+}
+/* Hairline between the program-name cell and the miles cell. */
+.fh-table--bal td:first-child { border-right: 1px solid var(--fh-rule); }
+/* Strip the visible chrome from inputs INSIDE balance cells; show focus only. */
+.fh-table--bal td > .fh-input {
+  background: transparent;
+  border: 1px solid transparent;
+  height: auto;
+  padding: 6px 8px;
+  margin: 0;
+}
+.fh-table--bal td > .fh-input:hover { border-color: var(--fh-rule); }
+.fh-table--bal td > .fh-input:focus,
+.fh-table--bal td > .fh-input:focus-visible {
+  outline: none;
+  border-color: var(--fh-accent);
+  background: var(--fh-panel-2);
+}
+.fh-table--bal td > .fh-input.fh-input--num {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+/* tfoot "+ Add a program" row — full-width centered call to action that
+   activates on hover. The button itself spans every column via colspan. */
+.fh-table--bal tfoot td {
+  padding: 0;
+  border-top: 1px solid var(--fh-rule-strong);
+  background: var(--fh-panel);
+  height: 44px;
+}
+.fh-bal-add-row {
+  width: 100%;
+  height: 44px;
+  background: transparent;
+  border: none;
+  color: var(--fh-text-mut);
+  font: inherit;
+  font-family: var(--fh-mono);
+  font-size: var(--t-sm);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: color var(--t-fast) var(--ease),
+              background var(--t-fast) var(--ease);
+}
+.fh-bal-add-row:hover {
+  color: var(--fh-accent);
+  background: var(--fh-panel-2);
+}
+
+/* Currency input section — refined grid with stacked label+value and an
+   accent colour when the value is non-zero. The HTML still uses .fh-grid--3
+   default, so apply the new layout via a parallel class scoped to balances. */
+.fh-bal-currencies {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--s-4);
+}
+.fh-bal-currencies .fh-field { min-width: 0; }
+.fh-bal-currencies .fh-input.fh-bal-cur--has-value {
+  color: var(--fh-accent);
+  font-weight: var(--w-bold);
+}
+@media (max-width: 1080px) {
+  .fh-bal-currencies { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* ============================================================
+   SWEET-SPOT HOVER TIP
+   ------------------------------------------------------------
+   Floating, positioned to the right of the hovered row. Lists
+   each transfer partner card with the user's current balance,
+   plus the total reachable + miles needed.
+   ============================================================ */
+.fh-tip {
+  position: absolute;
+  z-index: 90;
+  max-width: 320px;
+  min-width: 240px;
+  padding: 12px 14px;
+  background: var(--fh-panel-2);
+  border: 1px solid var(--fh-rule-strong);
+  border-left: 2px solid var(--fh-accent);
+  color: var(--fh-text);
+  font-size: 12px;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+  pointer-events: none;
+  font-family: var(--fh-mono);
+  font-variant-numeric: tabular-nums;
+  animation: fh-tip-in 120ms var(--ease) both;
+}
+@keyframes fh-tip-in {
+  0%   { opacity: 0; transform: translateY(2px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.fh-tip__hd {
+  color: var(--fh-text-mut);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.fh-tip__list {
+  margin: 0 0 6px;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.fh-tip__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.fh-tip__row-name { color: var(--fh-text-sec); }
+.fh-tip__row-val  { color: var(--fh-text); }
+.fh-tip__total {
+  padding-top: 6px;
+  margin-top: 4px;
+  border-top: 1px solid var(--fh-rule);
+  color: var(--fh-accent);
+  font-weight: var(--w-bold);
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.fh-tip__need {
+  color: var(--fh-text-mut);
+  font-weight: var(--w-reg);
+}
+
+/* ============================================================
+   SETTINGS — inline per-field saved indicator
+   ============================================================ */
+.fh-field { position: relative; }
+.fh-saved {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--fh-accent);
+  font-size: 11px;
+  font-weight: var(--w-bold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  pointer-events: none;
+  z-index: 3;
+  animation: fh-saved-pop 1.9s ease forwards;
+}
+.fh-saved--row {
+  /* For radio/check groups, the chip floats above the row, not the input. */
+  right: 0;
+  top: 0;
+  transform: translateY(0);
+}
+@keyframes fh-saved-pop {
+  0%   { opacity: 0; transform: translateY(-50%) translateX(8px); }
+  10%  { opacity: 1; transform: translateY(-50%) translateX(0); }
+  78%  { opacity: 1; transform: translateY(-50%) translateX(0); }
+  100% { opacity: 0; transform: translateY(-50%) translateX(8px); }
+}
+
+/* ============================================================
+   MOBILE TOPBAR HAMBURGER (visible <880px only)
+   ============================================================ */
+.fh-topbar__menu {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--fh-rule-strong);
+  color: var(--fh-text);
+  font-family: var(--fh-mono);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color var(--t-fast) var(--ease),
+              color var(--t-fast) var(--ease);
+}
+.fh-topbar__menu:hover {
+  border-color: var(--fh-text);
+  color: var(--fh-accent);
+}
+
+/* ============================================================
    RESPONSIVE — collapse sidebar at narrow widths
    ============================================================ */
 
 @media (max-width: 880px) {
-  .fh-shell { grid-template-columns: 1fr; }
-  .fh-sidebar {
-    position: static;
-    height: auto;
-    border-right: none;
-    border-bottom: 1px solid var(--fh-rule);
-    flex-direction: row;
-    flex-wrap: wrap;
-    padding: var(--s-3) var(--s-4);
-    overflow-x: auto;
-    background-image: none;
+  .fh-shell {
+    grid-template-columns: 1fr;
+    position: relative;
   }
-  .fh-nav { flex-direction: row; flex-wrap: wrap; }
+  /* Mobile drawer: sidebar slides in from the left over the main canvas.
+     Replaces the previous horizontal-scroll collapse. */
+  .fh-sidebar {
+    position: fixed;
+    top: 52px;            /* sits under the topbar */
+    left: -260px;
+    width: 240px;
+    height: calc(100vh - 52px);
+    border-right: 1px solid var(--fh-rule);
+    border-bottom: none;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    padding: var(--s-6) 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: var(--fh-panel);
+    background-image: none;
+    transition: left 200ms var(--ease);
+    z-index: 50;
+  }
+  .fh-shell--menu-open .fh-sidebar { left: 0; }
+  /* Dim the main canvas when the drawer is open + intercept taps to close. */
+  .fh-shell--menu-open .fh-main { position: relative; }
+  .fh-shell--menu-open .fh-main::before {
+    content: "";
+    position: fixed;
+    top: 52px; left: 0; right: 0; bottom: 0;
+    background: rgba(11, 11, 12, 0.6);
+    z-index: 40;
+  }
+  .fh-nav { flex-direction: column; flex-wrap: nowrap; }
   .fh-nav__link:hover { padding-left: var(--s-5); }
-  .fh-sidebar__divider, .fh-sidebar__hint { display: none; }
+  .fh-sidebar__divider, .fh-sidebar__hint { display: flex; }
+  .fh-sidebar__divider { display: block; }
   .fh-main { padding: var(--s-6) var(--s-4) var(--s-8); }
   .fh-grid--2, .fh-grid--3 { grid-template-columns: 1fr; }
+  .fh-bal-currencies { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .fh-h1 { font-size: var(--t-h); }
   .fh-deck { font-size: var(--t-lg); }
-  .fh-topbar { padding: var(--s-3) var(--s-4); }
+  .fh-topbar {
+    grid-template-columns: auto auto 1fr auto auto;
+    padding: var(--s-3) var(--s-4);
+  }
+  .fh-topbar__menu { display: inline-flex; }
+  .fh-stat-strip { flex-wrap: wrap; }
+  .fh-stat { flex: 1 1 50%; border-right: none; border-bottom: 1px solid var(--fh-rule); }
+  .fh-stat:nth-last-child(-n+2) { border-bottom: none; }
 }
 
 /* ============================================================
@@ -2123,4 +2531,244 @@ select.fh-input:hover {
   .fh-main { padding: 0; }
   body { background: #fff; color: #000; }
   .fh-table-wrap { border-color: #000; }
+}
+
+/* ============================================================
+   FIELD GROUPS — labeled visual grouping for form sections
+   ------------------------------------------------------------
+   A .fh-fieldgroup wraps a labeled set of fields with a tiny
+   uppercase header and a hover-revealed left accent rule. The
+   default state is invisible (1px transparent) so groups feel
+   structured but quiet; on hover the rule swaps to rule-strong
+   to signal the boundary.
+   ============================================================ */
+.fh-fieldgroup {
+  margin-bottom: var(--s-6);
+  padding-left: var(--s-3);
+  border-left: 1px solid transparent;
+  transition: border-left-color var(--t-fast) var(--ease);
+}
+.fh-fieldgroup:hover {
+  border-left-color: var(--fh-rule-strong);
+}
+.fh-fieldgroup__label {
+  display: block;
+  margin-bottom: var(--s-2);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fh-text-mut);
+  font-weight: var(--w-med);
+}
+.fh-fieldgroup + .fh-fieldgroup { margin-top: var(--s-4); }
+
+/* ============================================================
+   SKELETON LOADING ROWS
+   ------------------------------------------------------------
+   Shimmer-animated placeholder cells. Used in the results table
+   while a search is in flight. Each .fh-skel is a single bar; the
+   width is set inline so different cells read non-uniformly.
+   ============================================================ */
+.fh-skel {
+  display: block;
+  height: 12px;
+  background: linear-gradient(
+    90deg,
+    var(--fh-panel-2) 0%,
+    var(--fh-rule) 50%,
+    var(--fh-panel-2) 100%
+  );
+  background-size: 200% 100%;
+  animation: fh-skel-shimmer 1.4s linear infinite;
+}
+@keyframes fh-skel-shimmer {
+  0%   { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+.fh-skel-row td {
+  /* match the 44px row height so the skeleton swap is zero-shift */
+  height: 44px;
+  vertical-align: middle;
+}
+
+/* ============================================================
+   AUTOCOMPLETE DROPDOWN POLISH
+   ------------------------------------------------------------
+   Fade-in on open, keyboard-highlight accent + indent, separate
+   IATA / city alignment, empty-state row, custom-IATA fallback
+   row, and a footer key hint.
+   ============================================================ */
+.fh-suggest:not([hidden]) {
+  animation: fh-suggest-in 60ms var(--ease);
+}
+@keyframes fh-suggest-in {
+  0%   { opacity: 0; transform: translateY(-2px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.fh-suggest li {
+  border-left: 2px solid transparent;
+  transition: background var(--t-fast) var(--ease),
+              border-left-color var(--t-fast) var(--ease),
+              transform var(--t-fast) var(--ease),
+              color var(--t-fast) var(--ease);
+}
+.fh-suggest li:hover {
+  background: var(--fh-panel-3);
+}
+.fh-suggest li.fh-suggest--active {
+  background: var(--fh-panel-3);
+  border-left-color: var(--fh-accent);
+  transform: translateX(4px);
+}
+.fh-suggest__code {
+  color: var(--fh-accent);
+  font-weight: var(--w-bold);
+  letter-spacing: 0.06em;
+  width: 44px;
+  flex: 0 0 44px;
+  font-variant-numeric: tabular-nums;
+}
+.fh-suggest__name {
+  color: var(--fh-text-sec);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.fh-suggest__empty {
+  padding: 10px 12px;
+  color: var(--fh-text-mut);
+  font-size: var(--t-xs);
+  letter-spacing: 0.04em;
+  font-style: italic;
+  cursor: default;
+}
+.fh-suggest__empty:hover { background: transparent; }
+.fh-suggest__custom {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: var(--t-sm);
+  border-top: 1px dashed var(--fh-rule);
+  color: var(--fh-text-sec);
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+.fh-suggest__custom:hover { background: var(--fh-panel-3); }
+.fh-suggest__custom .fh-suggest__code { color: var(--fh-accent); }
+.fh-suggest__hint {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--s-3);
+  padding: 6px 12px;
+  border-top: 1px solid var(--fh-rule);
+  background: var(--fh-bg-elev);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--fh-text-mut);
+  text-transform: uppercase;
+}
+.fh-suggest__hint span { white-space: nowrap; }
+
+/* ============================================================
+   KEYBOARD-SHORTCUTS MODAL — ? key
+   ------------------------------------------------------------
+   Reuses .fh-overlay / .fh-overlay__panel. Adds a 2-column grid
+   layout, <kbd> chip styling, and a per-section grouping.
+   ============================================================ */
+.fh-shortcuts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s-2) var(--s-5);
+  margin-bottom: var(--s-3);
+}
+.fh-shortcut {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: 4px 0;
+  font-size: var(--t-sm);
+}
+.fh-shortcut__keys {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: 0 0 auto;
+  min-width: 64px;
+}
+.fh-shortcut__label {
+  color: var(--fh-text-sec);
+  flex: 1 1 auto;
+}
+.fh-shortcut--empty {
+  color: var(--fh-text-mut);
+  font-style: italic;
+  grid-column: 1 / -1;
+}
+.fh-shortcut--empty .fh-shortcut__label { color: var(--fh-text-mut); }
+kbd {
+  display: inline-block;
+  font-family: var(--fh-mono);
+  font-size: 11px;
+  font-weight: var(--w-med);
+  letter-spacing: 0;
+  padding: 2px 6px;
+  background: var(--fh-panel-2);
+  color: var(--fh-text);
+  border: 1px solid var(--fh-rule-strong);
+  border-radius: 0;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  line-height: 1.2;
+  min-width: 18px;
+  text-align: center;
+}
+
+/* ============================================================
+   SEGMENTED CONTROL — replaces radio-button pickers
+   ------------------------------------------------------------
+   Three connected pills sharing a border. Active segment fills
+   with --fh-accent. Sharp corners (radius 0) preserved.
+   ============================================================ */
+.fh-segmented {
+  display: inline-flex;
+  border: 1px solid var(--fh-rule-strong);
+  padding: 0;
+  border-radius: var(--r);
+  margin-top: var(--s-2);
+}
+.fh-segmented__seg {
+  appearance: none;
+  background: transparent;
+  color: var(--fh-text-sec);
+  cursor: pointer;
+  border: none;
+  border-right: 1px solid var(--fh-rule-strong);
+  padding: 6px 14px;
+  font: inherit;
+  font-family: var(--fh-mono);
+  font-size: var(--t-sm);
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+  height: var(--h-ctl-sm);
+  transition: background var(--t-fast) var(--ease),
+              color var(--t-fast) var(--ease);
+}
+.fh-segmented__seg:last-child { border-right: 0; }
+.fh-segmented__seg:hover {
+  background: var(--fh-panel-2);
+  color: var(--fh-text);
+}
+.fh-segmented__seg:focus-visible {
+  outline: 2px solid var(--fh-accent);
+  outline-offset: 1px;
+}
+.fh-segmented__seg--on,
+.fh-segmented__seg--on:hover {
+  background: var(--fh-accent);
+  color: var(--fh-accent-fg);
+  font-weight: var(--w-bold);
 }

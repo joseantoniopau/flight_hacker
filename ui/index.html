@@ -12,6 +12,7 @@
 <!-- TOP BAR                                                       -->
 <!-- ============================================================ -->
 <header class="fh-topbar" id="fh-topbar">
+  <button class="fh-topbar__menu" id="fh-topbar-menu" type="button" aria-label="Toggle menu" hidden>☰</button>
   <div class="fh-topbar__brand">Flight-Hacker&nbsp;<span class="fh-topbar__ver" id="fh-version">v0.1.0</span></div>
   <div class="fh-topbar__rule"></div>
   <div class="fh-topbar__route" id="fh-topbar-route">/SEARCH</div>
@@ -80,80 +81,97 @@
 
       <form id="fh-search-form" class="fh-form">
 
-        <div class="fh-grid fh-grid--2">
+        <div class="fh-fieldgroup">
+          <div class="fh-fieldgroup__label">Trip</div>
+          <div class="fh-grid fh-grid--2">
 
-          <div class="fh-field">
-            <label class="fh-label">Origins</label>
-            <div class="fh-chips" id="fh-chips-origin"></div>
-            <input type="text" class="fh-input" id="fh-origin-input"
-                   placeholder="Type IATA or city (e.g. JFK, New York)"
-                   autocomplete="off" />
-            <ul class="fh-suggest" id="fh-suggest-origin" hidden></ul>
-            <label class="fh-check">
-              <input type="checkbox" id="fh-expand-origins" checked />
-              Include nearby airports (e.g. MIA → MIA + FLL + PBI)
-            </label>
-          </div>
-
-          <div class="fh-field">
-            <label class="fh-label">Destinations</label>
-            <div class="fh-chips" id="fh-chips-dest"></div>
-            <input type="text" class="fh-input" id="fh-dest-input"
-                   placeholder="Type IATA or city (e.g. NRT, Tokyo)"
-                   autocomplete="off" />
-            <ul class="fh-suggest" id="fh-suggest-dest" hidden></ul>
-            <label class="fh-check">
-              <input type="checkbox" id="fh-expand-destinations" checked />
-              Include nearby airports (e.g. NRT → NRT + HND)
-            </label>
-          </div>
-
-          <div class="fh-field">
-            <label class="fh-label">Depart</label>
-            <input type="date" class="fh-input" id="fh-depart-from" />
-          </div>
-
-          <div class="fh-field">
-            <label class="fh-label">Return</label>
-            <input type="date" class="fh-input" id="fh-return-from" />
-            <label class="fh-check">
-              <input type="checkbox" id="fh-oneway" />
-              One-way (no return)
-            </label>
-          </div>
-
-          <div class="fh-field">
-            <label class="fh-label">Cabin</label>
-            <div class="fh-row fh-row--wrap">
-              <label class="fh-check"><input type="checkbox" name="cabin" value="Y" checked /> Economy</label>
-              <label class="fh-check"><input type="checkbox" name="cabin" value="PE" /> Premium Economy</label>
-              <label class="fh-check"><input type="checkbox" name="cabin" value="J" /> Business</label>
-              <label class="fh-check"><input type="checkbox" name="cabin" value="F" /> First</label>
+            <div class="fh-field">
+              <label class="fh-label">Origins</label>
+              <div class="fh-chips" id="fh-chips-origin"></div>
+              <input type="text" class="fh-input" id="fh-origin-input"
+                     placeholder="Type IATA or city (e.g. JFK, New York)"
+                     autocomplete="off" />
+              <ul class="fh-suggest" id="fh-suggest-origin" hidden></ul>
+              <label class="fh-check">
+                <input type="checkbox" id="fh-expand-origins" checked />
+                Include nearby airports (e.g. MIA → MIA + FLL + PBI)
+              </label>
             </div>
-          </div>
 
-          <div class="fh-field">
-            <label class="fh-label">Passengers</label>
-            <div class="fh-row">
-              <span class="fh-mini">Adults</span>
-              <input type="number" class="fh-input fh-input--mini" id="fh-adults"   value="1" min="1" max="8" />
-              <span class="fh-mini">Children</span>
-              <input type="number" class="fh-input fh-input--mini" id="fh-children" value="0" min="0" max="8" />
-              <span class="fh-mini">Infants</span>
-              <input type="number" class="fh-input fh-input--mini" id="fh-infants"  value="0" min="0" max="4" />
+            <div class="fh-field">
+              <label class="fh-label">Destinations</label>
+              <div class="fh-chips" id="fh-chips-dest"></div>
+              <input type="text" class="fh-input" id="fh-dest-input"
+                     placeholder="Type IATA or city (e.g. NRT, Tokyo)"
+                     autocomplete="off" />
+              <ul class="fh-suggest" id="fh-suggest-dest" hidden></ul>
+              <label class="fh-check">
+                <input type="checkbox" id="fh-expand-destinations" checked />
+                Include nearby airports (e.g. NRT → NRT + HND)
+              </label>
             </div>
-          </div>
 
-          <div class="fh-field">
-            <label class="fh-label">Constraints</label>
-            <div class="fh-row">
-              <span class="fh-mini">Max stops</span>
-              <input type="number" class="fh-input fh-input--mini" id="fh-maxstops" value="2" min="0" max="5" />
-              <span class="fh-mini">Max hours</span>
-              <input type="number" class="fh-input fh-input--mini" id="fh-maxhours" value="36" min="1" max="72" />
+            <div class="fh-field">
+              <label class="fh-label">Depart</label>
+              <input type="date" class="fh-input" id="fh-depart-from" />
             </div>
-          </div>
 
+            <div class="fh-field">
+              <label class="fh-label">Return</label>
+              <input type="date" class="fh-input" id="fh-return-from" />
+              <label class="fh-check">
+                <input type="checkbox" id="fh-oneway" />
+                One-way (no return)
+              </label>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="fh-fieldgroup">
+          <div class="fh-fieldgroup__label">Travelers &amp; cabin</div>
+          <div class="fh-grid fh-grid--2">
+
+            <div class="fh-field">
+              <label class="fh-label">Cabin</label>
+              <div class="fh-row fh-row--wrap">
+                <label class="fh-check"><input type="checkbox" name="cabin" value="Y" checked /> Economy</label>
+                <label class="fh-check"><input type="checkbox" name="cabin" value="PE" /> Premium Economy</label>
+                <label class="fh-check"><input type="checkbox" name="cabin" value="J" /> Business</label>
+                <label class="fh-check"><input type="checkbox" name="cabin" value="F" /> First</label>
+              </div>
+            </div>
+
+            <div class="fh-field">
+              <label class="fh-label">Passengers</label>
+              <div class="fh-row">
+                <span class="fh-mini">Adults</span>
+                <input type="number" class="fh-input fh-input--mini" id="fh-adults"   value="1" min="1" max="8" />
+                <span class="fh-mini">Children</span>
+                <input type="number" class="fh-input fh-input--mini" id="fh-children" value="0" min="0" max="8" />
+                <span class="fh-mini">Infants</span>
+                <input type="number" class="fh-input fh-input--mini" id="fh-infants"  value="0" min="0" max="4" />
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="fh-fieldgroup">
+          <div class="fh-fieldgroup__label">Filters</div>
+          <div class="fh-grid fh-grid--2">
+
+            <div class="fh-field">
+              <label class="fh-label">Constraints</label>
+              <div class="fh-row">
+                <span class="fh-mini">Max stops</span>
+                <input type="number" class="fh-input fh-input--mini" id="fh-maxstops" value="2" min="0" max="5" />
+                <span class="fh-mini">Max hours</span>
+                <input type="number" class="fh-input fh-input--mini" id="fh-maxhours" value="36" min="1" max="72" />
+              </div>
+            </div>
+
+          </div>
         </div>
 
         <div class="fh-divider">Travel-hacking moves</div>
@@ -167,11 +185,12 @@
 
         <div class="fh-divider">Payment</div>
 
-        <div class="fh-row fh-row--wrap">
-          <label class="fh-radio"><input type="radio" name="fh-mode" value="cash"  /> Cash only</label>
-          <label class="fh-radio"><input type="radio" name="fh-mode" value="award" /> Miles only</label>
-          <label class="fh-radio"><input type="radio" name="fh-mode" value="both" checked /> Compare both</label>
+        <div class="fh-segmented" data-segmented="mode" role="tablist" aria-label="Payment mode">
+          <button type="button" class="fh-segmented__seg" data-value="cash">Cash</button>
+          <button type="button" class="fh-segmented__seg" data-value="award">Miles</button>
+          <button type="button" class="fh-segmented__seg fh-segmented__seg--on" data-value="both">Both</button>
         </div>
+        <input type="hidden" name="fh-mode" id="fh-mode-value" value="both" />
 
         <div class="fh-actions">
           <button type="submit" class="fh-btn fh-btn--primary" id="fh-search-go">Search flights</button>
@@ -271,6 +290,13 @@
 
       <div class="fh-actions">
         <button class="fh-btn fh-btn--primary" id="fh-watch-new">+ New watch</button>
+      </div>
+
+      <div class="fh-stat-strip" id="fh-watch-stats" hidden>
+        <div class="fh-stat"><span class="fh-stat__label">Active</span><span class="fh-stat__value" id="fh-watch-stat-active">0</span></div>
+        <div class="fh-stat"><span class="fh-stat__label">Triggered today</span><span class="fh-stat__value" id="fh-watch-stat-fired">0</span></div>
+        <div class="fh-stat"><span class="fh-stat__label">Total savings tracked</span><span class="fh-stat__value" id="fh-watch-stat-savings">$0</span></div>
+        <div class="fh-stat"><span class="fh-stat__label">Next run</span><span class="fh-stat__value" id="fh-watch-stat-next">—</span></div>
       </div>
 
       <div class="fh-table-wrap">
@@ -391,7 +417,7 @@
 
         <div class="fh-divider">Credit Card Currencies</div>
 
-        <div class="fh-grid fh-grid--3">
+        <div class="fh-bal-currencies">
           <div class="fh-field">
             <label class="fh-label">Chase Ultimate Rewards</label>
             <input type="number" class="fh-input" data-currency="UR" value="0" min="0" />
@@ -435,12 +461,18 @@
               </tr>
             </thead>
             <tbody id="fh-bal-tbody"></tbody>
+            <tfoot>
+              <tr>
+                <td colspan="5">
+                  <button type="button" class="fh-bal-add-row" id="fh-bal-add">+ Add a program</button>
+                </td>
+              </tr>
+            </tfoot>
           </table>
         </div>
 
         <div class="fh-actions">
-          <button type="button" class="fh-btn"               id="fh-bal-add">+ Add Program</button>
-          <button type="submit"  class="fh-btn fh-btn--primary" id="fh-bal-save">Save Balances</button>
+          <button type="submit" class="fh-btn fh-btn--primary" id="fh-bal-save">Save Balances</button>
           <span class="fh-muted" id="fh-bal-status"></span>
         </div>
       </form>
@@ -509,60 +541,71 @@
 
       <form id="fh-flex-form" class="fh-form">
 
-        <div class="fh-grid fh-grid--2">
+        <div class="fh-fieldgroup">
+          <div class="fh-fieldgroup__label">Trip</div>
+          <div class="fh-grid fh-grid--2">
 
-          <div class="fh-field">
-            <label class="fh-label">Origin</label>
-            <div class="fh-chips" id="fh-flex-chips-origin"></div>
-            <input type="text" class="fh-input" id="fh-flex-origin-input"
-                   placeholder="Type IATA or city (e.g. JFK, New York)"
-                   autocomplete="off" />
-            <ul class="fh-suggest" id="fh-flex-suggest-origin" hidden></ul>
+            <div class="fh-field">
+              <label class="fh-label">Origin</label>
+              <div class="fh-chips" id="fh-flex-chips-origin"></div>
+              <input type="text" class="fh-input" id="fh-flex-origin-input"
+                     placeholder="Type IATA or city (e.g. JFK, New York)"
+                     autocomplete="off" />
+              <ul class="fh-suggest" id="fh-flex-suggest-origin" hidden></ul>
+            </div>
+
+            <div class="fh-field">
+              <label class="fh-label">Destination</label>
+              <div class="fh-chips" id="fh-flex-chips-dest"></div>
+              <input type="text" class="fh-input" id="fh-flex-dest-input"
+                     placeholder="Type IATA or city (e.g. LAX, Tokyo)"
+                     autocomplete="off" />
+              <ul class="fh-suggest" id="fh-flex-suggest-dest" hidden></ul>
+            </div>
+
+            <div class="fh-field">
+              <label class="fh-label">Window start</label>
+              <input type="date" class="fh-input" id="fh-flex-start" />
+            </div>
+
+            <div class="fh-field">
+              <label class="fh-label">Window end</label>
+              <input type="date" class="fh-input" id="fh-flex-end" />
+            </div>
+
           </div>
+        </div>
 
-          <div class="fh-field">
-            <label class="fh-label">Destination</label>
-            <div class="fh-chips" id="fh-flex-chips-dest"></div>
-            <input type="text" class="fh-input" id="fh-flex-dest-input"
-                   placeholder="Type IATA or city (e.g. LAX, Tokyo)"
-                   autocomplete="off" />
-            <ul class="fh-suggest" id="fh-flex-suggest-dest" hidden></ul>
+        <div class="fh-fieldgroup">
+          <div class="fh-fieldgroup__label">Travelers &amp; cabin</div>
+          <div class="fh-grid fh-grid--2">
+
+            <div class="fh-field">
+              <label class="fh-label">Cabin</label>
+              <select class="fh-input" id="fh-flex-cabin">
+                <option value="Y" selected>Economy</option>
+                <option value="PE">Premium Economy</option>
+                <option value="J">Business</option>
+                <option value="F">First</option>
+              </select>
+            </div>
+
+            <div class="fh-field">
+              <label class="fh-label">Adults</label>
+              <input type="number" class="fh-input fh-input--mini" id="fh-flex-adults" value="1" min="1" max="8" />
+            </div>
+
           </div>
-
-          <div class="fh-field">
-            <label class="fh-label">Window start</label>
-            <input type="date" class="fh-input" id="fh-flex-start" />
-          </div>
-
-          <div class="fh-field">
-            <label class="fh-label">Window end</label>
-            <input type="date" class="fh-input" id="fh-flex-end" />
-          </div>
-
-          <div class="fh-field">
-            <label class="fh-label">Cabin</label>
-            <select class="fh-input" id="fh-flex-cabin">
-              <option value="Y" selected>Economy</option>
-              <option value="PE">Premium Economy</option>
-              <option value="J">Business</option>
-              <option value="F">First</option>
-            </select>
-          </div>
-
-          <div class="fh-field">
-            <label class="fh-label">Adults</label>
-            <input type="number" class="fh-input fh-input--mini" id="fh-flex-adults" value="1" min="1" max="8" />
-          </div>
-
         </div>
 
         <div class="fh-divider">Payment</div>
 
-        <div class="fh-row fh-row--wrap">
-          <label class="fh-radio"><input type="radio" name="fh-flex-mode" value="cash" checked /> Cash only (fast)</label>
-          <label class="fh-radio"><input type="radio" name="fh-flex-mode" value="award" /> Miles only</label>
-          <label class="fh-radio"><input type="radio" name="fh-flex-mode" value="both" /> Cash &amp; miles</label>
+        <div class="fh-segmented" data-segmented="flex-mode" role="tablist" aria-label="Calendar payment mode">
+          <button type="button" class="fh-segmented__seg fh-segmented__seg--on" data-value="cash">Cash</button>
+          <button type="button" class="fh-segmented__seg" data-value="award">Miles</button>
+          <button type="button" class="fh-segmented__seg" data-value="both">Both</button>
         </div>
+        <input type="hidden" name="fh-flex-mode" id="fh-flex-mode-value" value="cash" />
 
         <div class="fh-actions">
           <button type="submit" class="fh-btn fh-btn--primary" id="fh-flex-go">Search calendar</button>
@@ -628,6 +671,42 @@
       <button class="fh-btn" id="fh-overlay-close">Close</button>
     </div>
     <div class="fh-overlay__body" id="fh-overlay-body"></div>
+    <div class="fh-overlay__footer" id="fh-overlay-footer"></div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- KEYBOARD SHORTCUTS MODAL (? key)                              -->
+<!-- ============================================================ -->
+<div class="fh-overlay" id="fh-shortcuts" hidden style="display:none">
+  <div class="fh-overlay__panel">
+    <div class="fh-overlay__head">
+      <span>Keyboard shortcuts</span>
+      <button class="fh-btn" id="fh-shortcuts-close">Close</button>
+    </div>
+    <div class="fh-overlay__body">
+      <h3>Navigation</h3>
+      <div class="fh-shortcuts-grid">
+        <div class="fh-shortcut"><span class="fh-shortcut__keys"><kbd>g</kbd> <kbd>s</kbd></span><span class="fh-shortcut__label">Search</span></div>
+        <div class="fh-shortcut"><span class="fh-shortcut__keys"><kbd>g</kbd> <kbd>r</kbd></span><span class="fh-shortcut__label">Results</span></div>
+        <div class="fh-shortcut"><span class="fh-shortcut__keys"><kbd>g</kbd> <kbd>m</kbd></span><span class="fh-shortcut__label">Mistake fares</span></div>
+        <div class="fh-shortcut"><span class="fh-shortcut__keys"><kbd>g</kbd> <kbd>w</kbd></span><span class="fh-shortcut__label">Watchlist</span></div>
+        <div class="fh-shortcut"><span class="fh-shortcut__keys"><kbd>g</kbd> <kbd>p</kbd></span><span class="fh-shortcut__label">Sweet spots</span></div>
+        <div class="fh-shortcut"><span class="fh-shortcut__keys"><kbd>g</kbd> <kbd>b</kbd></span><span class="fh-shortcut__label">Balances</span></div>
+        <div class="fh-shortcut"><span class="fh-shortcut__keys"><kbd>g</kbd> <kbd>,</kbd></span><span class="fh-shortcut__label">Settings</span></div>
+        <div class="fh-shortcut"><span class="fh-shortcut__keys"><kbd>g</kbd> <kbd>f</kbd></span><span class="fh-shortcut__label">Flex dates</span></div>
+      </div>
+      <h3>Actions</h3>
+      <div class="fh-shortcuts-grid">
+        <div class="fh-shortcut"><span class="fh-shortcut__keys"><kbd>/</kbd></span><span class="fh-shortcut__label">Focus search</span></div>
+        <div class="fh-shortcut"><span class="fh-shortcut__keys"><kbd>?</kbd></span><span class="fh-shortcut__label">This help</span></div>
+        <div class="fh-shortcut"><span class="fh-shortcut__keys"><kbd>Esc</kbd></span><span class="fh-shortcut__label">Close overlay</span></div>
+      </div>
+      <h3>In results</h3>
+      <div class="fh-shortcuts-grid">
+        <div class="fh-shortcut fh-shortcut--empty"><span class="fh-shortcut__label">No shortcuts yet — reserved.</span></div>
+      </div>
+    </div>
   </div>
 </div>
 
